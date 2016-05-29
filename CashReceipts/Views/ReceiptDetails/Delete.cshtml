@@ -1,0 +1,48 @@
+﻿@model CashReceipts.Models.ReceiptDetail
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>ReceiptDetail</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ReceiptBodys.ReceiptBodyID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReceiptBodys.ReceiptBodyID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CheckWarrant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CheckWarrant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CheckWarrantAmount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CheckWarrantAmount)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

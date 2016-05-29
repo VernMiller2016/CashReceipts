@@ -1,0 +1,81 @@
+@model IEnumerable<CashReceipts.Models.Template>
+
+@{
+    ViewData["Title"] = "Templates";
+}
+
+<h2>Templates</h2>
+
+<p>
+    <h4>Templates</h4>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@using (Html.BeginForm())
+{
+    <p>
+        Select Department: @Html.DropDownList("SelectedDepartment", "All")
+        <input type="submit" value="Filter" />
+    </p>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            Account Number
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.Fund)
+        </th>*@
+        @*<th>
+            @Html.DisplayNameFor(model => model.Dept)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Program)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Project)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.BaseElementObjectDetail)
+        </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            Department
+        </th>
+        <th></th>
+    </tr>
+    
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Fund).@Html.DisplayFor(modelItem => item.Dept).@Html.DisplayFor(modelItem => item.Program).@Html.DisplayFor(modelItem => item.Project).@Html.DisplayFor(modelItem => item.BaseElementObjectDetail)
+        </td>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.Dept)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Program)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Project)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.BaseElementObjectDetail)
+        </td>*@
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Departments.Name)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id = item.TemplateID }) |
+            @Html.ActionLink("Details", "Details", new { id = item.TemplateID }) |
+            @Html.ActionLink("Delete", "Delete", new { id = item.TemplateID })
+        </td>
+    </tr>
+}
+</table>

@@ -1,0 +1,45 @@
+﻿@model CashReceipts.Models.ReceiptHeader
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ReceiptHeader</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Clerks.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Clerks.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReceiptDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReceiptDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReceiptTotal)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ReceiptTotal)
+        </dd>
+
+    </dl>
+</div>
+@Html.Partial("_HeaderBodies", Model.ReceiptsBody)
+@Html.Partial("_HeaderTenders", Model.Tenders)
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ReceiptHeaderID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
