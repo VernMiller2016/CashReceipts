@@ -1,0 +1,14 @@
+# .Net Specific #
+###################
+_ReSharper.*
+*.resharper
+.svn*
+obj/
+bin/
+*.suo
+*.user
+Log/
+log/
+*.db
+[Oo]bj
+[Bb]in

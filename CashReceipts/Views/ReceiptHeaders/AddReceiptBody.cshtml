@@ -1,0 +1,85 @@
+﻿@model CashReceipts.Models.ReceiptBody
+
+@{
+    ViewData["Title"] = "AddReceiptBody";
+    @Html.HiddenFor(model => model.ReceiptHeaderID)
+
+    <h2>Add Receipt Body</h2>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Receipt Body</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.LineTotal, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LineTotal, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LineTotal, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.ReceiptHeaderID, "ReceiptHeaderID", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.DropDownList("ReceiptHeaderID", null, htmlAttributes: new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.ReceiptHeaderID, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+
+        <div class="form-group">
+            @Html.Label("Department", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("DepartmentId", null, htmlAttributes: new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.TemplateID, "TemplateID", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("TemplateID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.TemplateID, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        @Html.Hidden("ReceiptHeaderID", Model.ReceiptHeaderID)
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                @*<input type="submit" value="Create" class="btn btn-default" />*@
+                <input type="submit" value="Add Body to header" class="btn btn-default" />
+
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajaxSetup({ cache: false });
+        $('#DepartmentId').change(function () {
+            var templateDropList = $('#TemplateID');
+            var departmentId = $(this).val();
+            $.getJSON('@Url.Action("GetDepartmentTemplates")/' + departmentId, "", function (data) {
+                templateDropList
+                    .find('option')
+                    .remove();
+                for (var i = 0; i < data.length; i++) {
+                    templateDropList.append('<option value="' + data[i].TemplateId + '">' + data[i].TemplateName + '</option>');
+                }
+            });
+        });
+        $('#DepartmentId').change();
+    })
+</script>
+}

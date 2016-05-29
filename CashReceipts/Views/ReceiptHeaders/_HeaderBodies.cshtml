@@ -1,0 +1,40 @@
+﻿@using CashReceipts.Models
+@model List<ReceiptBody>
+
+<h4>Receipt Body</h4>
+<table class="table">
+    <tr>
+        <th>
+            Account Number
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            LineTotal
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Templates.Fund).@Html.DisplayFor(modelItem => item.Templates.Dept).@Html.DisplayFor(modelItem => item.Templates.Program).@Html.DisplayFor(modelItem => item.Templates.Project).@Html.DisplayFor(modelItem => item.Templates.BaseElementObjectDetail)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Templates.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LineTotal)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", "ReceiptBodies", new { id = item.ReceiptBodyID }, null) |
+                @Html.ActionLink("Details", "Details", "ReceiptBodies", new { id = item.ReceiptBodyID }, null) |
+                @Html.ActionLink("Delete", "Delete", "ReceiptBodies", new { id = item.ReceiptBodyID }, null)
+            </td>
+        </tr>
+    }
+
+</table>

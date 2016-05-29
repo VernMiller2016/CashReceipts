@@ -1,0 +1,89 @@
+﻿@model CashReceipts.Models.ReceiptBody
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>ReceiptBody</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ReceiptBodyID)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LineTotal, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LineTotal, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LineTotal, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ReceiptHeaderID, "ReceiptHeaderID", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("ReceiptHeaderID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ReceiptHeaderID, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TemplateID, "TemplateID", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("TemplateID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.TemplateID, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+
+<table class="table">
+    <tr>
+        <th>
+            CheckWarrant
+        </th>
+        <th>
+            CheckWarrantAmount
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.ReceiptDetails)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CheckWarrant)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CheckWarrantAmount)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", "ReceiptDetails", new { id = item.ReceiptDetailID }, null) |
+                @Html.ActionLink("Details", "Details", "ReceiptDetails", new { id = item.ReceiptDetailID }, null) |
+                @Html.ActionLink("Delete", "Delete", "ReceiptDetails", new { id = item.ReceiptDetailID }, null)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div>
+    @Html.ActionLink("Back to List", "Edit", "ReceiptHeaders", new { id = TempData["HeaderId"] }, null)
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
