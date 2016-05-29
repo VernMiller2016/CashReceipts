@@ -11,7 +11,7 @@
 {
     @Html.AntiForgeryToken()
 
-<form asp-action="Edit">
+    <form asp-action="Edit">
 
         <div class="form-horizontal">
             <h4>Department</h4>
@@ -38,34 +38,11 @@
             @Html.ActionLink("Back to List", "Index")
             @Html.ActionLink("Add Template", "AddTemplate", new { id = Model.DepartmentID })
         </div>
-</form>
+    </form>
 }
 
-<table class="table">
-    <tr>
-        <th>Account Number</th>
-        <th>Description</th>
-        <th>Actions</th>
-    </tr>
+@Html.Partial("_TemplateGridView", Model.DepartmentID)
 
-    @foreach (var item in Model.Templates)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fund).@Html.DisplayFor(modelItem => item.Dept).@Html.DisplayFor(modelItem => item.Program).@Html.DisplayFor(modelItem => item.Project).@Html.DisplayFor(modelItem => item.BaseElementObjectDetail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", "Templates", new { id = item.TemplateID }, null) |
-                @Html.ActionLink("Details", "Details", "Templates", new { id = item.TemplateID }, null) |
-                @Html.ActionLink("Delete", "Delete", "Templates", new { id = item.TemplateID }, null)
-            </td>
-        </tr>
-    }
-</table>
-
-        @section Scripts {
-            @Scripts.Render("~/bundles/jqueryval")
-        }
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

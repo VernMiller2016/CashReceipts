@@ -6,7 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using CashReceipts.Filters;
 using CashReceipts.Models;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 
 namespace CashReceipts.Controllers
 {
@@ -17,7 +20,7 @@ namespace CashReceipts.Controllers
         // GET: Dpartments
         public ActionResult Index()
         {
-            return View(db.Department.ToList());
+            return View(db.Departments.ToList());
         }
 
         // GET: Dpartments/Details/5
@@ -27,7 +30,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Department.Single(m => m.DepartmentID == id);
+            Department department = db.Departments.Single(m => m.DepartmentID == id);
 
             if (department == null)
             {
@@ -51,7 +54,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Department.Add(department);
+                db.Departments.Add(department);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -66,7 +69,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Department.Include(x => x.Templates).Single(m => m.DepartmentID == id);
+            Department department = db.Departments.Include(x => x.Templates).Single(m => m.DepartmentID == id);
 
             if (department == null)
             {
@@ -98,7 +101,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Department.Single(m => m.DepartmentID == id);
+            Department department = db.Departments.Single(m => m.DepartmentID == id);
             if (department == null)
             {
                 return HttpNotFound();
@@ -111,15 +114,15 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Department department = db.Department.Single(m => m.DepartmentID == id);
-            db.Department.Remove(department);
+            Department department = db.Departments.Single(m => m.DepartmentID == id);
+            db.Departments.Remove(department);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
 
         public ActionResult AddTemplate(int id)
         {
-            var department = db.Department.SingleOrDefault(m => m.DepartmentID == id);
+            var department = db.Departments.SingleOrDefault(m => m.DepartmentID == id);
             if(department!=null)
             {
                 ViewBag.DepartmentName = department.Name;
@@ -136,7 +139,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Template.Add(template);
+                db.Templates.Add(template);
                 db.SaveChanges();
                 return RedirectToAction("Edit", new { id = template.DepartmentID });
             }
@@ -151,5 +154,100 @@ namespace CashReceipts.Controllers
             }
             base.Dispose(disposing);
         }
+
+        #region Template Grid Actions
+        [NoCache]
+        public ActionResult ProjectTemplates_Read([DataSourceRequest] DataSourceRequest request, int departmentId)
+        {
+            var templates =
+           db.Templates.Where(x => x.DepartmentID == departmentId).Select(
+               p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID }).ToList();
+
+            return Json(templates.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost]
+        public ActionResult ProjectTemplates_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<Template> templates, int departmentId)
+        {
+            var templateList = templates as List<Template> ?? templates.ToList();
+            if (templateList.Any() && ModelState.IsValid)
+            {
+                foreach (var template in templateList)
+                {
+                    template.DepartmentID = departmentId;
+                    db.Templates.Add(template);
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
+                        {
+                            //todo supports localization
+                            ModelState.AddModelError("_addKey", "Can't add this template to database");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError("_addKey", "Can't add this template to database");
+                    }
+                }
+            }
+
+            return Json(templateList.Select(
+                    p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID }).ToList().ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ProjectTemplates_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<Template> templates, int departmentId)
+        {
+            var templateList = templates as List<Template> ?? templates.ToList();
+            if (templateList.Any() && ModelState.IsValid)
+            {
+                foreach (var template in templateList)
+                {
+                    db.Entry(template).State = EntityState.Modified;
+                        try
+                        {
+                            if (db.SaveChanges() <= 0)
+                            {
+                                ModelState.AddModelError("_updateKey", "Can't update this template to database");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            ModelState.AddModelError("_updateKey", "Can't update this template to database");
+                        }
+                }
+            }
+            return Json(templates.ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ProjectTemplates_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<Template> templates, int departmentId)
+        {
+            var templateList = templates as List<Template> ?? templates.ToList();
+            if (templateList.Any() && ModelState.IsValid)
+            {
+                foreach (var template in templateList)
+                {
+                    var templateInDb = db.Templates.SingleOrDefault(x => x.TemplateID == template.TemplateID);
+                    if (templateInDb != null)
+                    {
+                        db.Templates.Remove(templateInDb);
+                        try
+                        {
+                            if (db.SaveChanges() <= 0)
+                            {
+                                ModelState.AddModelError("_deleteKey", "Can't remove this template from database");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            ModelState.AddModelError("_deleteKey", "Can't remove this template from database");
+                        }
+                    }
+                }
+            }
+            return Json(templates.ToDataSourceResult(request, ModelState));
+        }
+        #endregion
     }
 }

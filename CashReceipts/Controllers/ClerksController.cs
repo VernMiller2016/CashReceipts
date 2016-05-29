@@ -17,7 +17,7 @@ namespace CashReceipts.Controllers
         // GET: Clerks
         public ActionResult Index()
         {
-            return View(db.Clerk.ToList());
+            return View(db.Clerks.ToList());
         }
 
         // GET: Clerks/Details/5
@@ -27,7 +27,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerk.Find(id);
+            Clerk clerk = db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
@@ -50,7 +50,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Clerk.Add(clerk);
+                db.Clerks.Add(clerk);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -65,7 +65,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerk.Find(id);
+            Clerk clerk = db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
@@ -96,7 +96,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerk.Find(id);
+            Clerk clerk = db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
@@ -109,8 +109,8 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Clerk clerk = db.Clerk.Find(id);
-            db.Clerk.Remove(clerk);
+            Clerk clerk = db.Clerks.Find(id);
+            db.Clerks.Remove(clerk);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

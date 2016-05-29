@@ -17,7 +17,7 @@ namespace CashReceipts.Controllers
         // GET: Tenders
         public ActionResult Index()
         {
-            return View(db.Tender.ToList());
+            return View(db.Tenders.ToList());
         }
 
         // GET: Tenders/Details/5
@@ -27,7 +27,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tender.Find(id);
+            Tender tender = db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -50,7 +50,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Tender.Add(tender);
+                db.Tenders.Add(tender);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -65,7 +65,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tender.Find(id);
+            Tender tender = db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -96,7 +96,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tender.Find(id);
+            Tender tender = db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -109,8 +109,8 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Tender tender = db.Tender.Find(id);
-            db.Tender.Remove(tender);
+            Tender tender = db.Tenders.Find(id);
+            db.Tenders.Remove(tender);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

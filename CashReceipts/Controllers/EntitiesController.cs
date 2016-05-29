@@ -29,7 +29,7 @@ namespace CashReceipts.Controllers
         // GET: Entities
         public ActionResult Index()
         {
-            return View(db.Entity.ToList());
+            return View(db.Entities.ToList());
         }
 
         // GET: Entities/Details/5
@@ -39,7 +39,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entity.Find(id);
+            Entity entity = db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -62,7 +62,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entity.Add(entity);
+                db.Entities.Add(entity);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -77,7 +77,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entity.Find(id);
+            Entity entity = db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -108,7 +108,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entity.Find(id);
+            Entity entity = db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -121,8 +121,8 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Entity entity = db.Entity.Find(id);
-            db.Entity.Remove(entity);
+            Entity entity = db.Entities.Find(id);
+            db.Entities.Remove(entity);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

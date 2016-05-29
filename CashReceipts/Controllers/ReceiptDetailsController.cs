@@ -39,7 +39,7 @@ namespace CashReceipts.Controllers
         // GET: ReceiptDetails/Create
         public ActionResult Create()
         {
-            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBody, "ReceiptBodyID", "ReceiptBodyID");
+            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBodies, "ReceiptBodyID", "ReceiptBodyID");
             return View();
         }
 
@@ -57,7 +57,7 @@ namespace CashReceipts.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBody, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
+            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBodies, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
             return View(receiptDetail);
         }
 
@@ -73,7 +73,7 @@ namespace CashReceipts.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBody, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
+            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBodies, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
             return View(receiptDetail);
         }
 
@@ -90,7 +90,7 @@ namespace CashReceipts.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBody, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
+            ViewBag.ReceiptBodyID = new SelectList(db.ReceiptBodies, "ReceiptBodyID", "ReceiptBodyID", receiptDetail.ReceiptBodyID);
             return View(receiptDetail);
         }
 

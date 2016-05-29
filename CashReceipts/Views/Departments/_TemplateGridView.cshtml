@@ -1,0 +1,199 @@
+﻿@model int
+<div id="templates" class="">
+    <div class="">
+        <div class="title-section">
+            <h2>Department Templates</h2>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div id="SystemRolesLst" class="k-content my-k-content">
+                <div id="templateGrid"></div>
+                <script>
+                    var selectedRows = undefined;
+                    var SysRolesDataSources;
+
+                    $(document).ready(function () {
+
+                        templatesDataSources = new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: '@Url.Action("ProjectTemplates_Read", "Departments")?departmentId=@Model',
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url: '@Url.Action("ProjectTemplates_Update", "Departments")?departmentId=@Model',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    type: "POST"
+                                },
+                                destroy: {
+                                    url: '@Url.Action("ProjectTemplates_Destroy", "Departments")?departmentId=@Model',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    type: "POST"
+                                },
+                                create: {
+                                    url: '@Url.Action("ProjectTemplates_Create", "Departments")?departmentId=@Model',
+                                    dataType: "json",
+                                    contentType: "application/json; charset=utf-8",
+                                    type: "POST"
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation !== "read" && options.models) {
+                                        return JSON.stringify({ templates: options.models });
+                                    }
+                                    //return JSON.stringify(options.models);
+                                }
+                            },
+                            batch: true,
+                            pageSize: 10,
+                            serverPaging: false,
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                model: {
+                                    id: "TemplateID",
+                                    fields: {
+                                        TemplateID: { editable: false, nullable: false, defaultValue: 0 },
+                                        Fund: {
+                                            validation: {
+                                                custom: function (input) {
+                                                    if (input.attr("data-bind") == "value:Name") {
+                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                        return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                }
+                                            },
+                                            type: "string"
+                                        },
+                                        Dept: {
+                                            validation: {
+                                                custom: function (input) {
+                                                    if (input.attr("data-bind") == "value:Name") {
+                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                        return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                }
+                                            },
+                                            type: "string"
+                                        },
+                                        Program: { type: "string", maxlength: 2 },
+                                        Project: { type: "string", maxlength: 4 },
+                                        BaseElementObjectDetail: { type: "string", maxlength: 9 },
+                                        Description: { type: "string", maxlength: 35 },
+                                        DepartmentID: { type: "number", defaultvalue: @Model },
+                                        Order: { type: "number", defaultvalue: 0 },
+                                    }
+                                },
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                if (e.errors && e.errors["_addKey"]) {
+                                    alert(e.errors["_addKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_deleteKey"]) {
+                                    alert(e.errors["_deleteKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_updateKey"]) {
+                                    alert(e.errors["_updateKey"].errors[0]);
+                                }
+                                else {
+                                    alert('An error has been occurred, please contact system admin.');
+                                }
+                                this.cancelChanges();
+                            }
+                        });
+
+                        $("#templateGrid").kendoGrid({
+                            dataSource: templatesDataSources,
+                            //width: 600,
+                            selectable: "row",
+                            resizable: true,
+                            scrollable: true,
+                            sortable: true,
+                            filterable: true,
+                            groupable: true,
+                            reorderable: true,
+                            columnMenu: true,
+                            pageable: {
+                                refresh: true,
+                                input: true,
+                                numeric: false,
+                                pageSizes: [10, 20, 30, 50, 75, 100]
+                            },
+                            columns: [
+                                {
+                                    field: "Fund",
+                                    title: "Fund",
+                                    width: 100
+                                },{
+                                    field: "Dept",
+                                    title: "Dept",
+                                    width: 100
+                                },
+                                {
+                                    field: "Program",
+                                    title: "Prog",
+                                    width: 100
+                                },
+                                {
+                                    field: "Project",
+                                    title: "Proj",
+                                    width: 100
+                                },
+                                {
+                                    field: "BaseElementObjectDetail",
+                                    title: "Base/Elem/Obj/Dtl",
+                                    width: 130
+                                },
+                                {
+                                    field: "Description",
+                                    title: "Description",
+                                    width: 100
+                                },
+                                {
+                                    field: "Order",
+                                    title: "Order",
+                                    width: 100
+                                },
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "120px" }
+                            ],
+                            editable: "inline",
+                            toolbar: ["create"],
+                            edit: function (e) {
+                                //var popupWindow = $(e.container.data('kendoWindow'));
+                                //e.container.data('kendoWindow').bind('activate', function (ee) {
+                                //    $(popupWindow).attr('element').find('input:first').focus();
+                                //});
+                            },
+                            change: function () {
+                                //selectedRows = this.select();
+                            },
+                            save: function (e) {
+                                var updateButton = $(e.container).find('.k-grid-update');
+                                if (!updateButton.hasClass('k-state-disabled')) {
+                                    updateButton.addClass('k-state-disabled');
+                                }
+                                else {
+                                    e.preventDefault();
+                                }
+                            }
+                        });
+                    });
+
+                    function isBlank(str) {
+                        return (!str || /^\s*$/.test(str));
+                    }
+
+                    function lessThanOrEqual(val, charLength) {
+                        return val.length <= charLength
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>

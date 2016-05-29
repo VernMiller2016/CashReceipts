@@ -18,7 +18,7 @@ namespace CashReceipts.Controllers
         // GET: ReceiptHeaders
         public ActionResult Index()
         {
-            var receiptHeader = db.ReceiptHeader.Include(r => r.Clerks);
+            var receiptHeader = db.ReceiptHeaders.Include(r => r.Clerks);
             return View(receiptHeader.ToList());
         }
 
@@ -29,7 +29,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeader.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x=> x.ReceiptHeaderID == id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x=> x.ReceiptHeaderID == id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
@@ -40,7 +40,7 @@ namespace CashReceipts.Controllers
         // GET: ReceiptHeaders/Create
         public ActionResult Create()
         {
-            ViewBag.ClerkID = new SelectList(db.Clerk, "ClerkID", "FirstName");
+            ViewBag.ClerkID = new SelectList(db.Clerks, "ClerkID", "FirstName");
             return View();
         }
 
@@ -53,12 +53,12 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ReceiptHeader.Add(receiptHeader);
+                db.ReceiptHeaders.Add(receiptHeader);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ClerkID = new SelectList(db.Clerk, "ClerkID", "FirstName", receiptHeader.ClerkID);
+            ViewBag.ClerkID = new SelectList(db.Clerks, "ClerkID", "FirstName", receiptHeader.ClerkID);
             return View(receiptHeader);
         }
 
@@ -69,13 +69,13 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeader.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x => x.ReceiptHeaderID == id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x => x.ReceiptHeaderID == id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
             }
             TempData["HeaderId"] = id;
-            ViewBag.ClerkID = new SelectList(db.Clerk, "ClerkID", "FirstName", receiptHeader.ClerkID);
+            ViewBag.ClerkID = new SelectList(db.Clerks, "ClerkID", "FirstName", receiptHeader.ClerkID);
             return View(receiptHeader);
         }
 
@@ -92,7 +92,7 @@ namespace CashReceipts.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.ClerkID = new SelectList(db.Clerk, "ClerkID", "FirstName", receiptHeader.ClerkID);
+            ViewBag.ClerkID = new SelectList(db.Clerks, "ClerkID", "FirstName", receiptHeader.ClerkID);
             return View(receiptHeader);
         }
 
@@ -103,7 +103,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeader.Find(id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Find(id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
@@ -116,8 +116,8 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            ReceiptHeader receiptHeader = db.ReceiptHeader.Find(id);
-            db.ReceiptHeader.Remove(receiptHeader);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Find(id);
+            db.ReceiptHeaders.Remove(receiptHeader);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
@@ -126,8 +126,8 @@ namespace CashReceipts.Controllers
         {
             ReceiptBody receiptbody = new ReceiptBody();
             receiptbody.ReceiptHeaderID = id;
-            ViewBag.DepartmentId = new SelectList(db.Department, "DepartmentID", "Name");
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description");
+            ViewBag.DepartmentId = new SelectList(db.Departments, "DepartmentID", "Name");
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description");
             return View(receiptbody);
         }
 
@@ -136,12 +136,12 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ReceiptBody.Add(receiptbody);
+                db.ReceiptBodies.Add(receiptbody);
                 db.SaveChanges();
                 return RedirectToAction("Edit", new { id = receiptbody.ReceiptHeaderID });
             }
-            ViewBag.DepartmentId = new SelectList(db.Department, "DepartmentID", "Name");
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description", receiptbody.TemplateID);
+            ViewBag.DepartmentId = new SelectList(db.Departments, "DepartmentID", "Name");
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description", receiptbody.TemplateID);
             return View(receiptbody);
         }
 
@@ -157,7 +157,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Tender.Add(tenders);
+                db.Tenders.Add(tenders);
                 db.SaveChanges();
                 return RedirectToAction("Edit", new { id = tenders.ReceiptHeaderID });
             }
@@ -167,7 +167,7 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult GetDepartmentTemplates(int id)
         {
-            var templates = db.Template.Where(x => x.DepartmentID == id).Select(x=>new { TemplateId = x.TemplateID,TemplateName =  x.Description}).ToList();
+            var templates = db.Templates.Where(x => x.DepartmentID == id).Select(x=>new { TemplateId = x.TemplateID,TemplateName =  x.Description}).ToList();
             return Json(templates, JsonRequestBehavior.AllowGet);
         }
 
