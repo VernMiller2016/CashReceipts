@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System;
 
 namespace CashReceipts.Models
 {
@@ -22,7 +23,7 @@ namespace CashReceipts.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("CashReceipts", throwIfV1Schema: false)
+            : base(Environment.MachineName, throwIfV1Schema: false)
         {
         }
 
