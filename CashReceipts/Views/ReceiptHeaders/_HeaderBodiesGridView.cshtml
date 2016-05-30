@@ -1,7 +1,4 @@
 ﻿@model int
-
-@model dynamic
-
 @{
     Layout = null;
 }
@@ -26,12 +23,7 @@
                     });
 
                     function detailInit(e) {
-                        //var receiptBodyId = e.data.Id;
-                        function getItemFormValues() {
-                            return {
-                                receiptBodyId: e.data.ReceiptBodyID
-                            };
-                        }
+                        var receiptBodyId = e.data.ReceiptBodyID;
                         $("<div/ id='receiptDetailsGrid'>").appendTo(e.detailCell).kendoGrid({
                             dataSource:
                                 new kendo.data.DataSource({
@@ -63,13 +55,13 @@
                                         parameterMap: function (options, operation) {
                                             if (operation !== "read" && options.models) {
                                                 if (operation == "create")
-                                                { return (JSON.stringify({ receiptBodyId: getItemFormValues(), receiptDetails: options.models })); }
+                                                { return (JSON.stringify({ receiptBodyId: receiptBodyId, receiptDetails: options.models })); }
                                                 else
                                                     return (JSON.stringify({ receiptDetails: options.models }));
                                             }
                                             else if (operation == "read")
                                             {
-                                                return { receiptBodyId: getItemFormValues() };
+                                                return {receiptBodyId: receiptBodyId};
                                             }
                                         }
                                     },
@@ -249,6 +241,7 @@
                             },
                               {
                                   field: "TemplateID",
+                                  title: "Template",
                                   values: templatesList,
                                   width: 69
                               },

@@ -197,7 +197,7 @@ namespace CashReceipts.Controllers
             var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
             if (receiptDetailsList.Any() && ModelState.IsValid)
             {
-                foreach (var receiptDetail in receiptDetailsList)
+                foreach (var receiptDetail in receiptDetails)
                 {
                     receiptDetail.ReceiptBodyID = receiptBodyId;
                     db.ReceiptDetails.Add(receiptDetail);
@@ -221,7 +221,7 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
-        public ActionResult ReceiptDetails_Update([DataSourceRequest] DataSourceRequest request, int receiptBodyId, IEnumerable<ReceiptDetail> receiptDetails)
+        public ActionResult ReceiptDetails_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptDetail> receiptDetails)
         {
             var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
             if (receiptDetailsList.Any() && ModelState.IsValid)
@@ -249,7 +249,7 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
-        public ActionResult ReceiptDetails_Destroy([DataSourceRequest] DataSourceRequest request, int receiptBodyId, IEnumerable<ReceiptDetail> receiptDetails)
+        public ActionResult ReceiptDetails_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptDetail> receiptDetails)
         {
             var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
             if (receiptDetailsList.Any() && ModelState.IsValid)
@@ -320,7 +320,7 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
-        public ActionResult ProjectTemplates_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
         {
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
@@ -345,7 +345,7 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
-        public ActionResult ProjectTemplates_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        public ActionResult ReceiptsBody_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
         {
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
