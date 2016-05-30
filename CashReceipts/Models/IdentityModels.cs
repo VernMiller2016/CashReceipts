@@ -23,7 +23,11 @@ namespace CashReceipts.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
+#if DEBUG
             : base(Environment.MachineName, throwIfV1Schema: false)
+else
+            : base("CashReceipts", throwIfV1Schema: false)
+#endif
         {
         }
 

@@ -248,6 +248,25 @@ namespace CashReceipts.Controllers
             }
             return Json(templates.ToDataSourceResult(request, ModelState));
         }
+
+        [HttpPost]
+        public ActionResult ReorderTemplates(int currOrderId, int newOrderid)
+        {
+            var result = false;
+            var firstTemplate = db.Templates.SingleOrDefault(x => x.TemplateID == currOrderId);
+            var secondTemplate = db.Templates.SingleOrDefault(x => x.TemplateID == newOrderid);
+            if (firstTemplate != null && secondTemplate != null)
+            {
+                var temp = firstTemplate.Order;
+                firstTemplate.Order = secondTemplate.Order;
+                secondTemplate.Order = temp;
+                db.SaveChanges();
+                result = true;
+            }
+            return Json(new { Result = result });
+        }
+        
+
         #endregion
     }
 }

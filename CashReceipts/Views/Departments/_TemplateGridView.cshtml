@@ -9,9 +9,8 @@
             <div id="SystemRolesLst" class="k-content my-k-content">
                 <div id="templateGrid"></div>
                 <script>
-                    var selectedRows = undefined;
-                    var SysRolesDataSources;
-
+                    var selectedRows = undefined,
+                        currentGrid = null;
                     $(document).ready(function () {
 
                         templatesDataSources = new kendo.data.DataSource({
@@ -48,6 +47,7 @@
                             batch: true,
                             pageSize: 10,
                             serverPaging: false,
+                            sort: [{ field: "Order", dir: "asc" }],
                             schema: {
                                 data: "Data",
                                 total: "Total",
@@ -93,16 +93,16 @@
                             },
                             error: function (e) {
                                 if (e.errors && e.errors["_addKey"]) {
-                                    alert(e.errors["_addKey"].errors[0]);
+                                    notify.showError(e.errors["_addKey"].errors[0]);
                                 }
                                 else if (e.errors && e.errors["_deleteKey"]) {
-                                    alert(e.errors["_deleteKey"].errors[0]);
+                                    notify.showError(e.errors["_deleteKey"].errors[0]);
                                 }
                                 else if (e.errors && e.errors["_updateKey"]) {
-                                    alert(e.errors["_updateKey"].errors[0]);
+                                    notify.showError(e.errors["_updateKey"].errors[0]);
                                 }
                                 else {
-                                    alert('An error has been occurred, please contact system admin.');
+                                    notify.showError('An error has been occurred, please contact system admin.');
                                 }
                                 this.cancelChanges();
                             }
@@ -129,26 +129,26 @@
                                 {
                                     field: "Fund",
                                     title: "Fund",
-                                    width: 100
+                                    width: 60
                                 },{
                                     field: "Dept",
                                     title: "Dept",
-                                    width: 100
+                                    width: 60
                                 },
                                 {
                                     field: "Program",
                                     title: "Prog",
-                                    width: 100
+                                    width: 60
                                 },
                                 {
                                     field: "Project",
                                     title: "Proj",
-                                    width: 100
+                                    width: 60
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
-                                    width: 130
+                                    width: 100
                                 },
                                 {
                                     field: "Description",
@@ -158,12 +158,22 @@
                                 {
                                     field: "Order",
                                     title: "Order",
-                                    width: 100
+                                    width: 60
                                 },
-                                { command: ["edit", "destroy"], title: "&nbsp;", width: "120px" }
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
                             ],
                             editable: "inline",
-                            toolbar: ["create"],
+                            toolbar: ["create",
+                                {
+                                    text: "", template: "<a class='k-button k-grid-MoveUp'><span class='k-icon icon-arrow-up'></span></a>"
+                                }, {
+                                    text: "", template: "<a class='k-button k-grid-MoveDown'><span class='k-icon icon-arrow-down'></span></a>"
+                                }],
+                            dataBound: function (e) {
+                                enableDisableActions(false);
+                                if (!currentGrid)
+                                    currentGrid = $("#templateGrid").data("kendoGrid");
+                            },
                             edit: function (e) {
                                 //var popupWindow = $(e.container.data('kendoWindow'));
                                 //e.container.data('kendoWindow').bind('activate', function (ee) {
@@ -172,6 +182,7 @@
                             },
                             change: function () {
                                 //selectedRows = this.select();
+                                enableDisableActions(true);
                             },
                             save: function (e) {
                                 var updateButton = $(e.container).find('.k-grid-update');
@@ -191,6 +202,76 @@
 
                     function lessThanOrEqual(val, charLength) {
                         return val.length <= charLength
+                    }
+
+
+                    function enableDisableActions(isEnable) {
+                        if (!isEnable) {
+                            $('.k-grid-MoveUp').addClass("k-state-disabled").unbind("click");
+                            $('.k-grid-MoveDown').addClass("k-state-disabled").unbind("click");
+                        } else {
+                            $(".k-grid-MoveUp").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                                moveRecord(true);
+                            });
+                            $(".k-grid-MoveDown").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                                moveRecord(false);
+                            });
+                        }
+                    }
+
+                    function getOrders(order, up) {
+                        var prevOrders;
+                        if (up) prevOrders = $(templatesDataSources.data()).map(function (index, elem) { if (elem.Order < order) return { Index: templatesDataSources.indexOf(elem), Order: elem.Order }; });
+                        else prevOrders = $(templatesDataSources.data()).map(function (index, elem) { if (elem.Order > order) return { Index: templatesDataSources.indexOf(elem), Order: elem.Order }; });
+                        var newOrder = { Index: 0, Order: order };
+                        if (prevOrders.length > 0) {
+                            prevOrders.sort(sortRecords);
+                            if (up) newOrder = prevOrders.slice(-1)[0];
+                            else newOrder = prevOrders[0];
+                        }
+                        return newOrder;
+                    }
+
+                    function sortRecords(a, b) {
+                        return a.Order < b.Order ? -1 : (a.Order > b.Order ? 1 : 0);
+                    }
+
+                    function moveRecord(up) {
+                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+
+                        //if there are changes save first & then reorder
+                        if (templatesDataSources.hasChanges()) {
+                            //templatesDataSources.sync();
+                            notify.showError('Please save changes first & then reorder');
+                            return;
+                        }
+
+                        var currOrder = templatesDataSources.getByUid(recordUid);
+                        if (currOrder != null && currOrder != undefined) {
+                            var newOrder = getOrders(currOrder.Order, up);
+                            if (currOrder.Order != newOrder.Order) {
+                                var newOrderElem = templatesDataSources.at(newOrder.Index);
+                                debugger;
+                                updateRecordOrderAjax(currOrder.TemplateID, newOrderElem.TemplateID);
+                                var temp = currOrder.Order;
+                                currOrder.Order = newOrder.Order;
+                                newOrderElem.Order = temp;
+                            }
+                            templatesDataSources.sort([{ field: "Order", dir: "asc" }]);
+                        }
+                        currentGrid.select('tr[data-uid=' + recordUid + ']');
+                    }
+
+                    function updateRecordOrderAjax(currOrderId, newOrderid) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ReorderTemplates", "Departments")',
+                            data: { currOrderId: currOrderId, newOrderid: newOrderid }
+                        }).done(function (data) {
+                            if (data.Result != true) {
+                                notify.showError("An error has been occurred, please contact system administrator.");
+                            }
+                        });
                     }
                 </script>
             </div>
