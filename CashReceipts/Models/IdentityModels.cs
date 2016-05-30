@@ -25,7 +25,7 @@ namespace CashReceipts.Models
         public ApplicationDbContext()
 #if DEBUG
             : base(Environment.MachineName, throwIfV1Schema: false)
-else
+#else
             : base("CashReceipts", throwIfV1Schema: false)
 #endif
         {
