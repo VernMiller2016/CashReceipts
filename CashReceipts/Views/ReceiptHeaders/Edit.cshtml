@@ -69,8 +69,10 @@
         </div>
     </div>
 }
-@Html.Partial("_HeaderBodies", Model.ReceiptsBody)
-@Html.Partial("_HeaderTenders", Model.Tenders)
+@Html.Partial("_HeaderBodiesGridView", Model.ReceiptHeaderID)
+
+@*@Html.Partial("_HeaderBodies", Model.ReceiptsBody)
+@Html.Partial("_HeaderTenders", Model.Tenders)*@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

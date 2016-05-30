@@ -123,7 +123,7 @@ namespace CashReceipts.Controllers
         public ActionResult AddTemplate(int id)
         {
             var department = db.Departments.SingleOrDefault(m => m.DepartmentID == id);
-            if(department!=null)
+            if (department != null)
             {
                 ViewBag.DepartmentName = department.Name;
                 //ViewData["DepartmentName"] = department.Name;
@@ -165,7 +165,7 @@ namespace CashReceipts.Controllers
 
             return Json(templates.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpPost]
         public ActionResult ProjectTemplates_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<Template> templates, int departmentId)
         {
@@ -204,17 +204,17 @@ namespace CashReceipts.Controllers
                 foreach (var template in templateList)
                 {
                     db.Entry(template).State = EntityState.Modified;
-                        try
-                        {
-                            if (db.SaveChanges() <= 0)
-                            {
-                                ModelState.AddModelError("_updateKey", "Can't update this template to database");
-                            }
-                        }
-                        catch (Exception)
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
                         {
                             ModelState.AddModelError("_updateKey", "Can't update this template to database");
                         }
+                    }
+                    catch (Exception)
+                    {
+                        ModelState.AddModelError("_updateKey", "Can't update this template to database");
+                    }
                 }
             }
             return Json(templates.ToDataSourceResult(request, ModelState));
@@ -265,7 +265,7 @@ namespace CashReceipts.Controllers
             }
             return Json(new { Result = result });
         }
-        
+
 
         #endregion
     }
