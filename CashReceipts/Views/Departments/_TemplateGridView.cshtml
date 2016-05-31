@@ -2,7 +2,7 @@
 <div id="templates" class="">
     <div class="">
         <div class="title-section">
-            <h2>Department Templates</h2>
+            <h4>Department Templates</h4>
             <hr />
         </div>
         <div class="MainDivToScroll MainDiv">
@@ -57,9 +57,9 @@
                                         TemplateID: { editable: false, nullable: false, defaultValue: 0 },
                                         Fund: {
                                             validation: {
-                                                custom: function (input) {
-                                                    if (input.attr("data-bind") == "value:Name") {
-                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                custom1: function (input) {
+                                                    if (input.attr("data-bind") == "value:Fund") {
+                                                        input.attr("data-custom1-msg", "Fund must be less than or equal to 3");
                                                         return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
                                                     } else {
                                                         return true;
@@ -70,9 +70,9 @@
                                         },
                                         Dept: {
                                             validation: {
-                                                custom: function (input) {
-                                                    if (input.attr("data-bind") == "value:Name") {
-                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                custom2: function (input) {
+                                                    if (input.attr("data-bind") == "value:Dept") {
+                                                        input.attr("data-custom2-msg", "Dept must be less than or equal to 3");
                                                         return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
                                                     } else {
                                                         return true;
@@ -81,10 +81,46 @@
                                             },
                                             type: "string"
                                         },
-                                        Program: { type: "string", maxlength: 2 },
-                                        Project: { type: "string", maxlength: 4 },
-                                        BaseElementObjectDetail: { type: "string", maxlength: 9 },
-                                        Description: { type: "string", maxlength: 35 },
+                                        Program: { type: "string", validation: {
+                                            custom3: function (input) {
+                                                if (input.attr("data-bind") == "value:Program") {
+                                                    input.attr("data-custom3-msg", "Program must be less than or equal to 2");
+                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 2);
+                                                } else {
+                                                    return true;
+                                                }
+                                            }
+                                        } },
+                                        Project: { type: "string", validation: {
+                                            custom4: function (input) {
+                                                if (input.attr("data-bind") == "value:Project") {
+                                                    input.attr("data-custom4-msg", "Project must be less than or equal to 4");
+                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 4);
+                                                } else {
+                                                    return true;
+                                                }
+                                            }
+                                        } },
+                                        BaseElementObjectDetail: { type: "string", validation: {
+                                            custom5: function (input) {
+                                                if (input.attr("data-bind") == "value:BaseElementObjectDetail") {
+                                                    input.attr("data-custom5-msg", "Base/Elem/Obj/Dtl must be less than or equal to 9");
+                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 9);
+                                                } else {
+                                                    return true;
+                                                }
+                                            }
+                                        } },
+                                        Description: { type: "string", validation: {
+                                            custom6: function (input) {
+                                                if (input.attr("data-bind") == "value:Description") {
+                                                    input.attr("data-custom6-msg", "Description must be less than or equal to 35");
+                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 35);
+                                                } else {
+                                                    return true;
+                                                }
+                                            }
+                                        }  },
                                         DepartmentID: { type: "number", defaultvalue: @Model },
                                         Order: { type: "number", defaultvalue: 0 },
                                     }
@@ -129,38 +165,38 @@
                                 {
                                     field: "Fund",
                                     title: "Fund",
-                                    width: 60
+                                    width: 50
                                 },{
                                     field: "Dept",
                                     title: "Dept",
-                                    width: 60
+                                    width: 50
                                 },
                                 {
                                     field: "Program",
                                     title: "Prog",
-                                    width: 60
+                                    width: 50
                                 },
                                 {
                                     field: "Project",
                                     title: "Proj",
-                                    width: 60
+                                    width: 50
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
-                                    width: 100
+                                    width: 90
                                 },
                                 {
                                     field: "Description",
                                     title: "Description",
-                                    width: 100
+                                    width: 130
                                 },
                                 {
                                     field: "Order",
                                     title: "Order",
-                                    width: 60
+                                    width: 50
                                 },
-                                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
                             ],
                             editable: "inline",
                             toolbar: ["create",

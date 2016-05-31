@@ -23,7 +23,19 @@ textarea {
     max-width: 280px;
 }
 
-.form-control{
+.form-control {
     width: 30% !important; /*150px*/
 }
 
+.form-group {
+    margin-bottom: 5px;
+}
+
+hr {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+h2, h4 {
+    margin-top: 5px;
+}
