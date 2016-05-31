@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System;
 
 namespace CashReceipts.Models
 {
@@ -22,7 +23,11 @@ namespace CashReceipts.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
+#if DEBUG
+            : base(Environment.MachineName, throwIfV1Schema: false)
+#else
             : base("CashReceipts", throwIfV1Schema: false)
+#endif
         {
         }
 
@@ -53,13 +58,14 @@ namespace CashReceipts.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<Clerk> Clerk { get; set; }
-        public DbSet<Entity> Entity { get; set; }
-        public DbSet<Tender> Tender { get; set; }
-        public DbSet<Department> Department { get; set; }
-        public DbSet<Template> Template { get; set; }
-        public DbSet<ReceiptHeader> ReceiptHeader { get; set; }
-        public DbSet<ReceiptBody> ReceiptBody { get; set; }
+        public DbSet<Clerk> Clerks { get; set; }
+        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Tender> Tenders { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Template> Templates { get; set; }
+        public DbSet<ReceiptHeader> ReceiptHeaders { get; set; }
+        public DbSet<ReceiptBody> ReceiptBodies { get; set; }
+        public DbSet<GlobalSetting> GlobalSettings { get; set; }
 
         public System.Data.Entity.DbSet<CashReceipts.Models.ReceiptDetail> ReceiptDetails { get; set; }
     }

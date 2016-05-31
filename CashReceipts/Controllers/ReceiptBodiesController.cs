@@ -24,11 +24,11 @@ namespace CashReceipts.Controllers
         // GET: ReceiptBodies
         public ActionResult Index(int? SelectedTemplate)
         {
-            var templates = db.Template.OrderBy(q => q.Description).ToList();
+            var templates = db.Templates.OrderBy(q => q.Description).ToList();
             ViewBag.SelectedTemplate = new SelectList(templates, "TemplateID", "Description", SelectedTemplate);
             int templateID = SelectedTemplate.GetValueOrDefault();
 
-            IQueryable<ReceiptBody> receiptbodies = db.ReceiptBody
+            IQueryable<ReceiptBody> receiptbodies = db.ReceiptBodies
                 .Where(c => !SelectedTemplate.HasValue || c.TemplateID == templateID)
                 .OrderBy(d => d.ReceiptBodyID)
                 .Include(d => d.Templates);
@@ -43,7 +43,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptBody receiptBody = db.ReceiptBody.Find(id);
+            ReceiptBody receiptBody = db.ReceiptBodies.Find(id);
             if (receiptBody == null)
             {
                 return HttpNotFound();
@@ -54,8 +54,8 @@ namespace CashReceipts.Controllers
         // GET: ReceiptBodies/Create
         public ActionResult Create()
         {
-            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeader, "ReceiptHeaderID", "ReceiptHeaderID");
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description");
+            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeaders, "ReceiptHeaderID", "ReceiptHeaderID");
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description");
             return View();
         }
 
@@ -68,13 +68,13 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.ReceiptBody.Add(receiptBody);
+                db.ReceiptBodies.Add(receiptBody);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeader, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description", receiptBody.TemplateID);
+            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeaders, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description", receiptBody.TemplateID);
             return View(receiptBody);
         }
 
@@ -85,13 +85,13 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptBody receiptBody = db.ReceiptBody.Include(x=>x.ReceiptDetails).FirstOrDefault(x=>x.ReceiptBodyID == id);
+            ReceiptBody receiptBody = db.ReceiptBodies.Include(x=>x.ReceiptDetails).FirstOrDefault(x=>x.ReceiptBodyID == id);
             if (receiptBody == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeader, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description", receiptBody.TemplateID);
+            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeaders, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description", receiptBody.TemplateID);
             return View(receiptBody);
         }
 
@@ -108,8 +108,8 @@ namespace CashReceipts.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeader, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
-            ViewBag.TemplateID = new SelectList(db.Template, "TemplateID", "Description", receiptBody.TemplateID);
+            ViewBag.ReceiptHeaderID = new SelectList(db.ReceiptHeaders, "ReceiptHeaderID", "ReceiptHeaderID", receiptBody.ReceiptHeaderID);
+            ViewBag.TemplateID = new SelectList(db.Templates, "TemplateID", "Description", receiptBody.TemplateID);
             return View(receiptBody);
         }
 
@@ -120,7 +120,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptBody receiptBody = db.ReceiptBody.Find(id);
+            ReceiptBody receiptBody = db.ReceiptBodies.Find(id);
             if (receiptBody == null)
             {
                 return HttpNotFound();
@@ -133,15 +133,15 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            ReceiptBody receiptBody = db.ReceiptBody.Find(id);
-            db.ReceiptBody.Remove(receiptBody);
+            ReceiptBody receiptBody = db.ReceiptBodies.Find(id);
+            db.ReceiptBodies.Remove(receiptBody);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
 
         private void PopulateTemplatesDropDownList(object selectedTemplate = null)
         {
-            var templatesQuery = from d in db.Template
+            var templatesQuery = from d in db.Templates
                                    orderby d.Description
                                    select d;
             ViewBag.TemplateID = new SelectList(templatesQuery, "TemplateID", "Description", selectedTemplate);

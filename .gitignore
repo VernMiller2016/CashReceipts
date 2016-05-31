@@ -12,3 +12,5 @@ log/
 *.db
 [Oo]bj
 [Bb]in
+packages/
+PublishProfiles/

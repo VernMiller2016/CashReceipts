@@ -1,0 +1,280 @@
+﻿@model int
+<div id="templates" class="">
+    <div class="">
+        <div class="title-section">
+            <h2>Department Templates</h2>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div id="SystemRolesLst" class="k-content my-k-content">
+                <div id="templateGrid"></div>
+                <script>
+                    var selectedRows = undefined,
+                        currentGrid = null;
+                    $(document).ready(function () {
+
+                        templatesDataSources = new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: '@Url.Action("ProjectTemplates_Read", "Departments")?departmentId=@Model',
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url: '@Url.Action("ProjectTemplates_Update", "Departments")?departmentId=@Model',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    type: "POST"
+                                },
+                                destroy: {
+                                    url: '@Url.Action("ProjectTemplates_Destroy", "Departments")?departmentId=@Model',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    type: "POST"
+                                },
+                                create: {
+                                    url: '@Url.Action("ProjectTemplates_Create", "Departments")?departmentId=@Model',
+                                    dataType: "json",
+                                    contentType: "application/json; charset=utf-8",
+                                    type: "POST"
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation !== "read" && options.models) {
+                                        return JSON.stringify({ templates: options.models });
+                                    }
+                                    //return JSON.stringify(options.models);
+                                }
+                            },
+                            batch: true,
+                            pageSize: 10,
+                            serverPaging: false,
+                            sort: [{ field: "Order", dir: "asc" }],
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                model: {
+                                    id: "TemplateID",
+                                    fields: {
+                                        TemplateID: { editable: false, nullable: false, defaultValue: 0 },
+                                        Fund: {
+                                            validation: {
+                                                custom: function (input) {
+                                                    if (input.attr("data-bind") == "value:Name") {
+                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                        return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                }
+                                            },
+                                            type: "string"
+                                        },
+                                        Dept: {
+                                            validation: {
+                                                custom: function (input) {
+                                                    if (input.attr("data-bind") == "value:Name") {
+                                                        input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                        return !isBlank(input.val()) && lessThanOrEqual(input.val(), 3);
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                }
+                                            },
+                                            type: "string"
+                                        },
+                                        Program: { type: "string", maxlength: 2 },
+                                        Project: { type: "string", maxlength: 4 },
+                                        BaseElementObjectDetail: { type: "string", maxlength: 9 },
+                                        Description: { type: "string", maxlength: 35 },
+                                        DepartmentID: { type: "number", defaultvalue: @Model },
+                                        Order: { type: "number", defaultvalue: 0 },
+                                    }
+                                },
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                if (e.errors && e.errors["_addKey"]) {
+                                    notify.showError(e.errors["_addKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_deleteKey"]) {
+                                    notify.showError(e.errors["_deleteKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_updateKey"]) {
+                                    notify.showError(e.errors["_updateKey"].errors[0]);
+                                }
+                                else {
+                                    notify.showError('An error has been occurred, please contact system admin.');
+                                }
+                                this.cancelChanges();
+                            }
+                        });
+
+                        $("#templateGrid").kendoGrid({
+                            dataSource: templatesDataSources,
+                            //width: 600,
+                            selectable: "row",
+                            resizable: true,
+                            scrollable: true,
+                            sortable: true,
+                            filterable: true,
+                            groupable: true,
+                            reorderable: true,
+                            columnMenu: true,
+                            pageable: {
+                                refresh: true,
+                                input: true,
+                                numeric: false,
+                                pageSizes: [10, 20, 30, 50, 75, 100]
+                            },
+                            columns: [
+                                {
+                                    field: "Fund",
+                                    title: "Fund",
+                                    width: 60
+                                },{
+                                    field: "Dept",
+                                    title: "Dept",
+                                    width: 60
+                                },
+                                {
+                                    field: "Program",
+                                    title: "Prog",
+                                    width: 60
+                                },
+                                {
+                                    field: "Project",
+                                    title: "Proj",
+                                    width: 60
+                                },
+                                {
+                                    field: "BaseElementObjectDetail",
+                                    title: "Base/Elem/Obj/Dtl",
+                                    width: 100
+                                },
+                                {
+                                    field: "Description",
+                                    title: "Description",
+                                    width: 100
+                                },
+                                {
+                                    field: "Order",
+                                    title: "Order",
+                                    width: 60
+                                },
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+                            ],
+                            editable: "inline",
+                            toolbar: ["create",
+                                {
+                                    text: "", template: "<a class='k-button k-grid-MoveUp'><span class='k-icon icon-arrow-up'></span></a>"
+                                }, {
+                                    text: "", template: "<a class='k-button k-grid-MoveDown'><span class='k-icon icon-arrow-down'></span></a>"
+                                }],
+                            dataBound: function (e) {
+                                enableDisableActions(false);
+                                if (!currentGrid)
+                                    currentGrid = $("#templateGrid").data("kendoGrid");
+                            },
+                            edit: function (e) {
+                                //var popupWindow = $(e.container.data('kendoWindow'));
+                                //e.container.data('kendoWindow').bind('activate', function (ee) {
+                                //    $(popupWindow).attr('element').find('input:first').focus();
+                                //});
+                            },
+                            change: function () {
+                                //selectedRows = this.select();
+                                enableDisableActions(true);
+                            },
+                            save: function (e) {
+                                var updateButton = $(e.container).find('.k-grid-update');
+                                if (!updateButton.hasClass('k-state-disabled')) {
+                                    updateButton.addClass('k-state-disabled');
+                                }
+                                else {
+                                    e.preventDefault();
+                                }
+                            }
+                        });
+                    });
+
+                    function isBlank(str) {
+                        return (!str || /^\s*$/.test(str));
+                    }
+
+                    function lessThanOrEqual(val, charLength) {
+                        return val.length <= charLength
+                    }
+
+
+                    function enableDisableActions(isEnable) {
+                        if (!isEnable) {
+                            $('.k-grid-MoveUp').addClass("k-state-disabled").unbind("click");
+                            $('.k-grid-MoveDown').addClass("k-state-disabled").unbind("click");
+                        } else {
+                            $(".k-grid-MoveUp").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                                moveRecord(true);
+                            });
+                            $(".k-grid-MoveDown").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                                moveRecord(false);
+                            });
+                        }
+                    }
+
+                    function getOrders(order, up) {
+                        var prevOrders;
+                        if (up) prevOrders = $(templatesDataSources.data()).map(function (index, elem) { if (elem.Order < order) return { Index: templatesDataSources.indexOf(elem), Order: elem.Order }; });
+                        else prevOrders = $(templatesDataSources.data()).map(function (index, elem) { if (elem.Order > order) return { Index: templatesDataSources.indexOf(elem), Order: elem.Order }; });
+                        var newOrder = { Index: 0, Order: order };
+                        if (prevOrders.length > 0) {
+                            prevOrders.sort(sortRecords);
+                            if (up) newOrder = prevOrders.slice(-1)[0];
+                            else newOrder = prevOrders[0];
+                        }
+                        return newOrder;
+                    }
+
+                    function sortRecords(a, b) {
+                        return a.Order < b.Order ? -1 : (a.Order > b.Order ? 1 : 0);
+                    }
+
+                    function moveRecord(up) {
+                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+
+                        //if there are changes save first & then reorder
+                        if (templatesDataSources.hasChanges()) {
+                            //templatesDataSources.sync();
+                            notify.showError('Please save changes first & then reorder');
+                            return;
+                        }
+
+                        var currOrder = templatesDataSources.getByUid(recordUid);
+                        if (currOrder != null && currOrder != undefined) {
+                            var newOrder = getOrders(currOrder.Order, up);
+                            if (currOrder.Order != newOrder.Order) {
+                                var newOrderElem = templatesDataSources.at(newOrder.Index);
+                                debugger;
+                                updateRecordOrderAjax(currOrder.TemplateID, newOrderElem.TemplateID);
+                                var temp = currOrder.Order;
+                                currOrder.Order = newOrder.Order;
+                                newOrderElem.Order = temp;
+                            }
+                            templatesDataSources.sort([{ field: "Order", dir: "asc" }]);
+                        }
+                        currentGrid.select('tr[data-uid=' + recordUid + ']');
+                    }
+
+                    function updateRecordOrderAjax(currOrderId, newOrderid) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ReorderTemplates", "Departments")',
+                            data: { currOrderId: currOrderId, newOrderid: newOrderid }
+                        }).done(function (data) {
+                            if (data.Result != true) {
+                                notify.showError("An error has been occurred, please contact system administrator.");
+                            }
+                        });
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>

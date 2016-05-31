@@ -5,13 +5,16 @@ using System.Web;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using System.Data.Entity;
+using CashReceipts.Filters;
+using Kendo.Mvc.UI;
+using Kendo.Mvc.Extensions;
 
 namespace CashReceipts.Controllers
 {
     public class TemplatesController : Controller
     {
         private ApplicationDbContext db;
-        public TemplatesController(): this(new ApplicationDbContext())
+        public TemplatesController() : this(new ApplicationDbContext())
         {
 
         }
@@ -23,11 +26,11 @@ namespace CashReceipts.Controllers
         // GET: Templates
         public ActionResult Index(int? SelectedDepartment)
         {
-            var departments = db.Department.OrderBy(q => q.Name).ToList();
+            var departments = db.Departments.OrderBy(q => q.Name).ToList();
             ViewBag.SelectedDepartment = new SelectList(departments, "DepartmentID", "Name", SelectedDepartment);
             int departmentID = SelectedDepartment.GetValueOrDefault();
 
-            IQueryable<Template> templates = db.Template
+            IQueryable<Template> templates = db.Templates
                 .Where(c => !SelectedDepartment.HasValue || c.DepartmentID == departmentID)
                 .OrderBy(d => d.TemplateID)
                 .Include(d => d.Departments);
@@ -42,7 +45,7 @@ namespace CashReceipts.Controllers
             {
                 return HttpNotFound();
             }
-            Template template = db.Template.Include(x=>x.Departments).Single(m => m.TemplateID == id);
+            Template template = db.Templates.Include(x => x.Departments).Single(m => m.TemplateID == id);
 
             if (template == null)
             {
@@ -65,7 +68,7 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Template.Add(template);
+                db.Templates.Add(template);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -81,7 +84,7 @@ namespace CashReceipts.Controllers
                 return HttpNotFound();
             }
 
-            Template template = db.Template.Single(m => m.TemplateID == id);
+            Template template = db.Templates.Single(m => m.TemplateID == id);
             if (template == null)
             {
                 return HttpNotFound();
@@ -107,7 +110,7 @@ namespace CashReceipts.Controllers
 
         private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
         {
-            var departmentsQuery = from d in db.Department
+            var departmentsQuery = from d in db.Departments
                                    orderby d.Name
                                    select d;
             ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
@@ -122,7 +125,7 @@ namespace CashReceipts.Controllers
                 return HttpNotFound();
             }
 
-            Template template = db.Template.Single(m => m.TemplateID == id);
+            Template template = db.Templates.Single(m => m.TemplateID == id);
             if (template == null)
             {
                 return HttpNotFound();
@@ -136,10 +139,12 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Template template = db.Template.Single(m => m.TemplateID == id);
-            db.Template.Remove(template);
+            Template template = db.Templates.Single(m => m.TemplateID == id);
+            db.Templates.Remove(template);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        
     }
 }
