@@ -14,3 +14,4 @@ log/
 [Bb]in
 packages/
 PublishProfiles/
+.vs/
