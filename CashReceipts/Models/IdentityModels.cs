@@ -66,7 +66,7 @@ namespace CashReceipts.Models
         public DbSet<ReceiptHeader> ReceiptHeaders { get; set; }
         public DbSet<ReceiptBody> ReceiptBodies { get; set; }
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
-
-        public System.Data.Entity.DbSet<CashReceipts.Models.ReceiptDetail> ReceiptDetails { get; set; }
+        public DbSet<ReceiptDetail> ReceiptDetails { get; set; }
+        public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
     }
 }

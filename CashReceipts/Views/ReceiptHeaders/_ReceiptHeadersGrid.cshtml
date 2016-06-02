@@ -51,7 +51,8 @@
         clerksList,
         receiptsBodyDataSource,
         receiptsTendersDataSource,
-        templatesList;
+        templatesList,
+        paymentMethods;
 
     $(document).ready(function () {
         $.getJSON('@Url.Action("GetClerksList", "ReceiptHeaders")', function (data) {
@@ -173,7 +174,7 @@
                     title: "ReceiptNumber",
                     format: "{0}",
                     width: 100
-                },{
+                }, {
                     field: "ReceiptDate",
                     title: "Receipt Date",
                     format: "{0:MM/dd/yyyy}",
@@ -181,6 +182,7 @@
                 }, {
                     field: "ReceiptTotal",
                     title: "Receipt Total",
+                    format: "{0:n2}",
                     width: 100
                 },
                 {
@@ -239,7 +241,11 @@
             initReceiptsBodyGrid(detailRow.find(".receiptsBodyGrid"), e);
         });
 
-        initTendersGrid(detailRow.find(".tendersGrid"), e);
+        $.getJSON('@Url.Action("GetPaymentMethods", "ReceiptHeaders")', function (data) {
+            paymentMethods = data;
+            initTendersGrid(detailRow.find(".tendersGrid"), e);
+        });
+
     }
 
     function initTendersGrid(receiptTendersDiv, headersGridRef) {
@@ -291,7 +297,8 @@
                         TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false },
                         Description: { validation: { required: true }, type: "string" },
-                        Amount: { validation: { required: true }, type: "number" }
+                        Amount: { validation: { required: true }, type: "number" },
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false }
                     }
                 },
                 errors: "Errors"
@@ -335,9 +342,16 @@
                     title: "Description",
                     width: 140
                 },
+                {
+                    field: "PaymentMethodId",
+                    title: "Payment Method",
+                    values: paymentMethods,
+                    width: 140
+                },
                   {
                       field: "Amount",
                       title: "Amount",
+                      format: "{0:n2}",
                       width: 69
                   },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
@@ -406,6 +420,9 @@
             dataBound: function () {
             },
             serverPaging: false,
+            aggregate: [
+                { field: "LineTotal", aggregate: "sum" },
+            ],
             schema: {
                 data: "Data",
                 total: "Total",
@@ -459,15 +476,17 @@
                 {
                     field: "LineTotal",
                     title: "Line Total",
+                    format: "{0:n2}",
+                    footerTemplate: "Total: #=sum#",
                     width: 140
                 },
                   {
                       field: "TemplateID",
                       title: "Template",
                       values: templatesList,
-                      width: 69
+                      width: 100
                   },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "60px" }
 
             ],
             editable: "popup",
@@ -608,6 +627,7 @@
                 {
                     field: "CheckWarrantAmount",
                     title: "Amount",
+                    format: "{0:n2}",
                     width: 200
                 },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "210px" }

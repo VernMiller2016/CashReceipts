@@ -185,7 +185,7 @@ namespace CashReceipts.Controllers
         public ActionResult GetClerksList()
         {
             var clerksList = db.Clerks
-                .Select(x => new { value = x.ClerkID, text = x.FirstName + ", " + x.FirstName }).ToList();
+                .Select(x => new { value = x.ClerkID, text = x.LastName + ", " + x.FirstName }).ToList();
             return Json(clerksList, JsonRequestBehavior.AllowGet);
         }
 
@@ -499,12 +499,19 @@ namespace CashReceipts.Controllers
         #endregion
 
         #region Receipt Tenders Grid Actions
-        
+        [NoCache]
+        public ActionResult GetPaymentMethods()
+        {
+            var paymentMethods = db.TenderPaymentMethods
+                .Select(x => new { value = x.Id, text = x.Name }).ToList();
+            return Json(paymentMethods, JsonRequestBehavior.AllowGet);
+        }
+
         [NoCache]
         public ActionResult ReceiptsTenders_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptTenders = db.Tenders
-                .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID }).ToList();
+                .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId }).ToList();
             return Json(receiptTenders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -534,7 +541,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptTendersList.Select(
-                    x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]

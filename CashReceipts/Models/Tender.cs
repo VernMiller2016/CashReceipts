@@ -19,5 +19,9 @@ namespace CashReceipts.Models
         public int ReceiptHeaderID { get; set; }
 
         public virtual ReceiptHeader ReceiptHeader { get; set; }
+
+        public int PaymentMethodId { get; set; }
+
+        public PaymentMethod PaymentMethod { get; set; }
     }
 }

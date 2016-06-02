@@ -245,6 +245,10 @@
     </Compile>
     <Compile Include="Helpers\ConstStrings.cs" />
     <Compile Include="Helpers\LookupHelper.cs" />
+    <Compile Include="Migrations\201606022253285_adding_Payment_Methods_Enum.cs" />
+    <Compile Include="Migrations\201606022253285_adding_Payment_Methods_Enum.Designer.cs">
+      <DependentUpon>201606022253285_adding_Payment_Methods_Enum.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Clerk.cs" />
     <Compile Include="Models\Department.cs" />
@@ -252,6 +256,7 @@
     <Compile Include="Models\GlobalSettings.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\PaymentMethods.cs" />
     <Compile Include="Models\ReceiptBody.cs" />
     <Compile Include="Models\ReceiptBodyMap.cs" />
     <Compile Include="Models\ReceiptDetail.cs" />
@@ -2034,6 +2039,11 @@
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201606022253285_adding_Payment_Methods_Enum.resx">
+      <DependentUpon>201606022253285_adding_Payment_Methods_Enum.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
