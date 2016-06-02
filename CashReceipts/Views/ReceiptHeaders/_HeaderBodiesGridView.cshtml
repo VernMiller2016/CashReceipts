@@ -99,9 +99,9 @@
                                     filters: [{ field: "ReceiptBodyID", operator: "eq", value: e.data.ReceiptBodyID }],
                                     error: function (ee) {
                                         if (ee.errors["_deleteKey"]) {
-                                            alert(ee.errors["_deleteKey"].errors[0]);
+                                            notify.showError(ee.errors["_deleteKey"].errors[0]);
                                         } else {
-                                            alert('An error has been occurred, please contact system admin.');
+                                            notify.showError('An error has been occurred, please contact system admin.');
                                         }
                                         this.cancelChanges();
                                     }
@@ -205,11 +205,11 @@
                         error: function (e) {
                             if (e && e.errors) {
                             if (e.errors["_deleteKey"]) {
-                                alert(e.errors["_deleteKey"].errors[0]);
+                                notify.showError(e.errors["_deleteKey"].errors[0]);
                                 } else if (e.errors["_updateKey"]) {
-                                    alert(e.errors["_updateKey"].errors[0]);
+                                    notify.showError(e.errors["_updateKey"].errors[0]);
                             } else {
-                                alert('An error has been occurred, please contact system admin.');
+                                    notify.showError('An error has been occurred, please contact system admin.');
                             }
                             }
                             this.cancelChanges();

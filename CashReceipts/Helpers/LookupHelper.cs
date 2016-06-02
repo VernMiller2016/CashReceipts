@@ -16,12 +16,18 @@ namespace CashReceipts.Helpers
         }
 
 
-        public string LastReceiptId
+        public int LastReceiptId
         {
             get
             {
                 var lastReceipt = _context.GlobalSettings.SingleOrDefault(x => x.Key == ConstStrings._lastReceiptId);
-                return lastReceipt != null ? lastReceipt.Value : "No value in database";
+                return lastReceipt != null ? int.Parse(lastReceipt.Value) : 1;
+            }
+            set
+            {
+                var lastReceipt = _context.GlobalSettings.SingleOrDefault(x => x.Key == ConstStrings._lastReceiptId);
+                if (lastReceipt != null)
+                    lastReceipt.Value = value.ToString();
             }
         }
     }

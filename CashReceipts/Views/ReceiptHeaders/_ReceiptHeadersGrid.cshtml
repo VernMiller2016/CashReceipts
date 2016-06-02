@@ -1,0 +1,635 @@
+﻿<div id="receipts" class="">
+    <div class="">
+        <div class="title-section">
+            <h4>Receipts</h4>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div class="k-content my-k-content">
+                <div id="headersGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/x-kendo-template" id="template">
+    <div class="tabstrip">
+        <ul>
+            <li class="k-state-active">
+                Receipt Body
+            </li>
+            <li>
+                Tenders
+            </li>
+        </ul>
+        <div>
+            <div class="receiptsBodyGrid"></div>
+        </div>
+        <div>
+            <div class="tendersGrid"></div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-kendo-template" id="receiptBodyTemplate">
+    <div class="tabstrip">
+        <ul>
+            <li class="k-state-active">
+                Receipt Details
+            </li>
+        </ul>
+        <div>
+            <div class="receiptsDetailsGrid"></div>
+        </div>
+    </div>
+</script>
+
+<script>
+    var selectedRows = undefined,
+        currentGrid = null,
+        clerksList,
+        receiptsBodyDataSource,
+        receiptsTendersDataSource,
+        templatesList;
+
+    $(document).ready(function () {
+        $.getJSON('@Url.Action("GetClerksList", "ReceiptHeaders")', function (data) {
+            clerksList = data;
+            receiptsHeaderGridInit();
+        });
+    });
+
+    var receiptsHeaderGridInit = function () {
+        headersDataSources = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("ReceiptHeaders_Read", "ReceiptHeaders")',
+                    dataType: "json"
+                },
+                update: {
+                    url: '@Url.Action("ReceiptHeaders_Update", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: '@Url.Action("ReceiptHeaders_Destroy", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                create: {
+                    url: '@Url.Action("ReceiptHeaders_Create", "ReceiptHeaders")',
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    type: "POST"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        return JSON.stringify({ receiptHeaders: options.models });
+                    }
+                    //return JSON.stringify(options.models);
+                }
+            },
+            batch: true,
+            pageSize: 10,
+            serverPaging: false,
+            sort: [{ field: "Order", dir: "asc" }],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "ReceiptHeaderID",
+                    fields: {
+                        ReceiptHeaderID: { editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptNumber: {
+                            validation: {
+                                required: true
+                            },
+                            type: "number"//, editable: false
+                        },
+                        ReceiptDate: {
+                            validation: {
+                                required: true
+                            },
+                            type: "date"
+                        },
+                        ReceiptTotal: {
+                            validation: {
+                                required: true
+                            },
+                            type: "number"
+                        },
+                        ClerkID: {
+                            validation: {
+                                required: true
+                            },
+                            type: "number"
+                        }
+                    }
+                },
+                errors: "Errors"
+            },
+            error: function (e) {
+                if (e.errors && e.errors["_addKey"]) {
+                    notify.showError(e.errors["_addKey"].errors[0]);
+                }
+                else if (e.errors && e.errors["_deleteKey"]) {
+                    notify.showError(e.errors["_deleteKey"].errors[0]);
+                }
+                else if (e.errors && e.errors["_updateKey"]) {
+                    notify.showError(e.errors["_updateKey"].errors[0]);
+                }
+                else {
+                    notify.showError('An error has been occurred, please contact system admin.');
+                }
+                this.cancelChanges();
+            }
+        });
+
+        $("#headersGrid").kendoGrid({
+            dataSource: headersDataSources,
+            //width: 600,
+            selectable: "row",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            groupable: true,
+            reorderable: true,
+            columnMenu: true,
+            pageable: {
+                refresh: true,
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            detailTemplate: kendo.template($("#template").html()),
+            detailInit: receiptHeaderDetailInit,
+            columns: [
+                {
+                    field: "ReceiptNumber",
+                    title: "ReceiptNumber",
+                    format: "{0}",
+                    width: 100
+                },{
+                    field: "ReceiptDate",
+                    title: "Receipt Date",
+                    format: "{0:MM/dd/yyyy}",
+                    width: 100
+                }, {
+                    field: "ReceiptTotal",
+                    title: "Receipt Total",
+                    width: 100
+                },
+                {
+                    field: "ClerkID",
+                    title: "Clerk",
+                    values: clerksList,
+                    width: 100
+                },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
+            ],
+            editable: "inline",
+            toolbar: ["create"],
+            dataBound: function (e) {
+                if (!currentGrid)
+                    currentGrid = $("#headersGrid").data("kendoGrid");
+                this.expandRow(this.tbody.find("tr.k-master-row").first());
+            },
+            edit: function (e) {
+                debugger;
+                var editRow = e.container;
+                if (e.model.isNew()) {
+                    var receipts = this.dataSource.data();
+                    var lastReceiptId = Math.max.apply(Math, receipts.map(function (r) { return r.ReceiptNumber; }));
+                    e.model.set("ReceiptNumber", (lastReceiptId + 1))
+                }
+                editRow.find('td:eq(1) span.k-numeric-wrap span:first').remove();
+                editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
+                editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
+            },
+            change: function () {
+                //selectedRows = this.select();
+            },
+            save: function (e) {
+                var updateButton = $(e.container).find('.k-grid-update');
+                if (!updateButton.hasClass('k-state-disabled')) {
+                    updateButton.addClass('k-state-disabled');
+                }
+                else {
+                    e.preventDefault();
+                }
+            }
+        });
+    }
+
+    function receiptHeaderDetailInit(e) {
+        var detailRow = e.detailRow;
+
+        detailRow.find(".tabstrip").kendoTabStrip({
+            animation: {
+                open: { effects: "fadeIn" }
+            }
+        });
+
+        $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")', function (data) {
+            templatesList = data;
+            initReceiptsBodyGrid(detailRow.find(".receiptsBodyGrid"), e);
+        });
+
+        initTendersGrid(detailRow.find(".tendersGrid"), e);
+    }
+
+    function initTendersGrid(receiptTendersDiv, headersGridRef) {
+        receiptsTendersDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("ReceiptsTenders_Read", "ReceiptHeaders")',
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                },
+                update: {
+                    url: '@Url.Action("ReceiptsTenders_Update", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: '@Url.Action("ReceiptsTenders_Destroy", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                create: {
+                    url: '@Url.Action("ReceiptsTenders_Create", "ReceiptHeaders")',
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    type: "POST"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        if (operation == "create")
+                            return (JSON.stringify({ receiptHeaderId: headersGridRef.data.ReceiptHeaderID, receiptTenders: options.models }));
+                        return JSON.stringify({ receiptTenders: options.models });
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 10,
+            filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
+            dataBound: function () {
+            },
+            serverPaging: false,
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "TenderID",
+                    fields: {
+                        TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false },
+                        Description: { validation: { required: true }, type: "string" },
+                        Amount: { validation: { required: true }, type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+
+            },
+            error: function (e) {
+                if (e && e.errors) {
+                    if (e.errors["_deleteKey"]) {
+                        notify.showError(e.errors["_deleteKey"].errors[0]);
+                    } else if (e.errors["_updateKey"]) {
+                        notify.showError(e.errors["_updateKey"].errors[0]);
+                    } else {
+                        notify.showError('An error has been occurred, please contact system admin.');
+                    }
+                }
+                this.cancelChanges();
+            }
+        });
+
+        receiptTendersDiv.kendoGrid({
+            dataSource: receiptsTendersDataSource,
+            selectable: "row",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            groupable: true,
+            reorderable: true,
+            columnMenu: true,
+            pageable: {
+                refresh: true,
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            columns: [
+                {
+                    field: "Description",
+                    title: "Description",
+                    width: 140
+                },
+                  {
+                      field: "Amount",
+                      title: "Amount",
+                      width: 69
+                  },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+
+            ],
+            editable: "popup",
+            toolbar: ["create"],
+            change: function () {
+                selectedRows = this.select();
+            },
+            edit: function (e) {
+                var popupWindow = $(e.container.data('kendoWindow'));
+                e.container.data('kendoWindow').bind('activate', function (e) {
+                    $(popupWindow).attr('element').find('input:first').focus();
+                });
+            },
+            save: function (e) {
+                var updateButton = $(e.container).find('.k-grid-update');
+                if (!updateButton.hasClass('k-state-disabled')) {
+                    updateButton.addClass('k-state-disabled');
+                }
+                else {
+                    e.preventDefault();
+                }
+            }
+        });
+    }
+
+    function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
+        receiptsBodyDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("ReceiptsBody_Read", "ReceiptHeaders")',
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                },
+                update: {
+                    url: '@Url.Action("ReceiptsBody_Update", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                destroy: {
+                    url: '@Url.Action("ReceiptsBody_Destroy", "ReceiptHeaders")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    type: "POST"
+                },
+                create: {
+                    url: '@Url.Action("ReceiptsBody_Create", "ReceiptHeaders")',
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    type: "POST"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        if (operation == "create")
+                            return (JSON.stringify({ receiptHeaderId: headersGridRef.data.ReceiptHeaderID, receiptBodies: options.models }));
+                        return JSON.stringify({ receiptBodies: options.models });
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 10,
+            filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
+            dataBound: function () {
+            },
+            serverPaging: false,
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "ReceiptBodyID",
+                    fields: {
+                        ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false },
+                        LineTotal: { validation: { required: true }, type: "number" },
+                        TemplateID: { type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+
+            },
+            error: function (e) {
+                if (e && e.errors) {
+                    if (e.errors["_deleteKey"]) {
+                        notify.showError(e.errors["_deleteKey"].errors[0]);
+                    } else if (e.errors["_updateKey"]) {
+                        notify.showError(e.errors["_updateKey"].errors[0]);
+                    } else {
+                        notify.showError('An error has been occurred, please contact system admin.');
+                    }
+                }
+                this.cancelChanges();
+            }
+        });
+
+        receiptBodyDiv.kendoGrid({
+            dataSource: receiptsBodyDataSource,
+            selectable: "row",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            groupable: true,
+            reorderable: true,
+            columnMenu: true,
+            pageable: {
+                refresh: true,
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            detailTemplate: kendo.template($("#receiptBodyTemplate").html()),
+            detailInit: receiptBodyDetailInit,
+            columns: [
+                {
+                    field: "LineTotal",
+                    title: "Line Total",
+                    width: 140
+                },
+                  {
+                      field: "TemplateID",
+                      title: "Template",
+                      values: templatesList,
+                      width: 69
+                  },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+
+            ],
+            editable: "popup",
+            toolbar: ["create"],
+            change: function () {
+                selectedRows = this.select();
+            },
+            edit: function (e) {
+                var popupWindow = $(e.container.data('kendoWindow'));
+                e.container.data('kendoWindow').bind('activate', function (e) {
+                    $(popupWindow).attr('element').find('input:first').focus();
+                });
+            },
+            save: function (e) {
+                var updateButton = $(e.container).find('.k-grid-update');
+                if (!updateButton.hasClass('k-state-disabled')) {
+                    updateButton.addClass('k-state-disabled');
+                }
+                else {
+                    e.preventDefault();
+                }
+            }
+        });
+    }
+
+    function receiptBodyDetailInit(e) {
+        var receiptBodyId = e.data.ReceiptBodyID;
+        var detailRow = e.detailRow;
+
+        detailRow.find(".tabstrip").kendoTabStrip({
+            animation: {
+                open: { effects: "fadeIn" }
+            }
+        });
+
+        detailRow.find(".receiptsDetailsGrid").kendoGrid({
+            dataSource:
+                new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: '@Url.Action("ReceiptDetails_Read", "ReceiptHeaders")',
+                            //contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+
+                        },
+                        update: {
+                            url: '@Url.Action("ReceiptDetails_Update", "ReceiptHeaders")',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            type: "POST"
+                        },
+                        destroy: {
+                            url: '@Url.Action("ReceiptDetails_Destroy", "ReceiptHeaders")',
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            type: "POST"
+                        },
+                        create: {
+                            url: '@Url.Action("ReceiptDetails_Create", "ReceiptHeaders")',
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            type: "POST"
+                        },
+                        parameterMap: function (options, operation) {
+                            if (operation !== "read" && options.models) {
+                                if (operation == "create")
+                                { return (JSON.stringify({ receiptBodyId: receiptBodyId, receiptDetails: options.models })); }
+                                else
+                                    return (JSON.stringify({ receiptDetails: options.models }));
+                            }
+                            else if (operation == "read") {
+                                return { receiptBodyId: receiptBodyId };
+                            }
+                        }
+                    },
+                    batch: true,
+                    pageSize: 10,
+                    dataBound: function () {
+                        //this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    },
+                    serverPaging: false,
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        model: {
+                            id: "ReceiptDetailID",
+                            fields: {
+                                ReceiptDetailID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                                CheckWarrant: {
+                                    validation: {
+                                        custom: function (input) {
+                                            if (input.attr("data-bind") == "value:Name") {
+                                                input.attr("data-custom-msg", "Text must not be empty or only spaces");
+                                                return !isBlank(input.val());
+                                            } else {
+                                                return true;
+                                            }
+                                        }
+                                    }, type: "string"
+                                },
+                                CheckWarrantAmount: { validation: { required: true }, type: "number" },
+                                ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                            }
+                        },
+                        errors: "Errors"
+                    },
+                    filters: [{ field: "ReceiptBodyID", operator: "eq", value: e.data.ReceiptBodyID }],
+                    error: function (ee) {
+                        if (ee.errors["_deleteKey"]) {
+                            notify.showError(ee.errors["_deleteKey"].errors[0]);
+                        } else {
+                            notify.showError('An error has been occurred, please contact system admin.');
+                        }
+                        this.cancelChanges();
+                    }
+                }),
+            pageSize: 10,
+            filters: [{ field: "ReceiptBodyID", operator: "eq", value: e.data.ReceiptBodyID }],
+            selectable: "row",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            pageable: {
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            change: function () {
+                selectedRows = this.select();
+            },
+            columns: [
+                {
+                    field: "CheckWarrant",
+                    title: "Check/Warrant/Other",
+                    width: 200
+                },
+                {
+                    field: "CheckWarrantAmount",
+                    title: "Amount",
+                    width: 200
+                },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "210px" }
+            ],
+            editable: "popup",
+            toolbar: ["create"],
+            edit: function (ee) {
+                var popupWindow = $(ee.container.data('kendoWindow'));
+                ee.container.data('kendoWindow').bind('activate', function (eee) {
+                    $(popupWindow).attr('element').find('input:first').focus();
+                });
+            }
+        });
+    }
+
+    function isBlank(str) {
+        return (!str || /^\s*$/.test(str));
+    }
+
+    function lessThanOrEqual(val, charLength) {
+        return val.length <= charLength
+    }
+
+
+</script>

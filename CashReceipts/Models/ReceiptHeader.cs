@@ -20,6 +20,8 @@ namespace CashReceipts.Models
         //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:c}")]
         public decimal ReceiptTotal { get; set; }
 
+        public int ReceiptNumber { get; set; }
+
         public virtual IList<ReceiptBody> ReceiptsBody { get; set; }
 
         public virtual IList<Tender> Tenders { get; set; }

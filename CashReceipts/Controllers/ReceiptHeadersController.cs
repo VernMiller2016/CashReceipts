@@ -10,18 +10,25 @@ using CashReceipts.Models;
 using CashReceipts.Filters;
 using Kendo.Mvc.UI;
 using Kendo.Mvc.Extensions;
+using CashReceipts.Helpers;
+using System.Data.Entity.Infrastructure;
 
 namespace CashReceipts.Controllers
 {
     public class ReceiptHeadersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private LookupHelper _lookupHelper;
+
+        public ReceiptHeadersController()
+        {
+            _lookupHelper = new LookupHelper(db);
+        }
 
         // GET: ReceiptHeaders
         public ActionResult Index()
         {
-            var receiptHeader = db.ReceiptHeaders.Include(r => r.Clerks);
-            return View(receiptHeader.ToList());
+            return View();
         }
 
         // GET: ReceiptHeaders/Details/5
@@ -31,7 +38,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x=> x.ReceiptHeaderID == id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x => x.ReceiptHeaderID == id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
@@ -169,16 +176,226 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult GetDepartmentTemplates(int id)
         {
-            var templates = db.Templates.Where(x => x.DepartmentID == id).Select(x=>new { TemplateId = x.TemplateID,TemplateName =  x.Description}).ToList();
+            var templates = db.Templates.Where(x => x.DepartmentID == id).Select(x => new { TemplateId = x.TemplateID, TemplateName = x.Description }).ToList();
             return Json(templates, JsonRequestBehavior.AllowGet);
         }
 
-#region Receipt Details Grid Actions
+        #region Receipt Header Grid Actions
+        [NoCache]
+        public ActionResult GetClerksList()
+        {
+            var clerksList = db.Clerks
+                .Select(x => new { value = x.ClerkID, text = x.FirstName + ", " + x.FirstName }).ToList();
+            return Json(clerksList, JsonRequestBehavior.AllowGet);
+        }
+
+        [NoCache]
+        public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var receiptHeaders = db.ReceiptHeaders
+                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber }).ToList();
+            return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptHeaders_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptHeader> receiptHeaders)
+        {
+            var lastReciptId = _lookupHelper.LastReceiptId;
+            var receiptHeadersList = receiptHeaders as List<ReceiptHeader> ?? receiptHeaders.ToList();
+            if (receiptHeadersList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptHeader in receiptHeadersList)
+                {
+                    if (db.ReceiptHeaders.Any(x => x.ReceiptNumber == lastReciptId + 1))
+                    {
+                        ModelState.AddModelError("_addKey", "A receipt with same number is found in database!");
+                        break;
+                    }
+                    receiptHeader.ReceiptNumber = lastReciptId + 1;
+                    _lookupHelper.LastReceiptId = receiptHeader.ReceiptNumber;
+                    db.ReceiptHeaders.Add(receiptHeader);
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
+                        {
+                            //todo supports localization
+                            ModelState.AddModelError("_addKey", "Can't add this receipt header to database");
+                        }
+                    }
+                    catch (DbUpdateConcurrencyException e)
+                    {
+                        ModelState.AddModelError("_addKey", "A receipt with same number is found in database!");
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError("_addKey", "Can't add this receipt header to database");
+                    }
+                }
+            }
+
+            return Json(receiptHeadersList.Select(
+                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber }).ToList().ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptHeaders_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptHeader> receiptHeaders)
+        {
+            var receiptHeadersList = receiptHeaders as List<ReceiptHeader> ?? receiptHeaders.ToList();
+            if (receiptHeadersList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptHeader in receiptHeadersList)
+                {
+                    db.Entry(receiptHeader).State = EntityState.Modified;
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
+                        {
+                            ModelState.AddModelError("_updateKey", "Can't update this receipt header to database");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        ModelState.AddModelError("_updateKey", "Can't update this receipt header to database");
+                    }
+                }
+            }
+            return Json(receiptHeadersList.ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptHeaders_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptHeader> receiptHeaders)
+        {
+            var receiptHeadersList = receiptHeaders as List<ReceiptHeader> ?? receiptHeaders.ToList();
+            if (receiptHeadersList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptHeader in receiptHeadersList)
+                {
+                    var receiptHeaderInDb = db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeader.ReceiptHeaderID);
+                    if (receiptHeaderInDb != null)
+                    {
+                        db.ReceiptHeaders.Remove(receiptHeaderInDb);
+                        try
+                        {
+                            if (db.SaveChanges() <= 0)
+                            {
+                                ModelState.AddModelError("_deleteKey", "Can't remove this receipt header from database");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            ModelState.AddModelError("_deleteKey", "Can't remove this receipt header from database");
+                        }
+                    }
+                }
+            }
+            return Json(receiptHeadersList.ToDataSourceResult(request, ModelState));
+        }
+        #endregion
+
+        #region Receipt Body Grid Actions
+        //[NoCache]
+        //public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request, int receiptHeaderId)
+        //{
+        //    var receiptBodies = db.ReceiptBodies.Where(x => x.ReceiptHeaderID == receiptHeaderId)
+        //        .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList();
+        //    return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        //}
+
+        [NoCache]
+        public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var receiptBodies = db.ReceiptBodies
+                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList();
+            return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptsBody_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        {
+            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
+            if (receiptBodiesList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptBody in receiptBodiesList)
+                {
+                    receiptBody.ReceiptHeaderID = receiptHeaderId;
+                    db.ReceiptBodies.Add(receiptBody);
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
+                        {
+                            //todo supports localization
+                            ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
+                    }
+                }
+            }
+
+            return Json(receiptBodiesList.Select(
+                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList().ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies)
+        {
+            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
+            if (receiptBodiesList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptBody in receiptBodiesList)
+                {
+                    db.Entry(receiptBody).State = EntityState.Modified;
+                    try
+                    {
+                        if (db.SaveChanges() <= 0)
+                            ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
+                    }
+                    catch (Exception)
+                    {
+                        ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
+                    }
+                }
+            }
+            return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
+        }
+
+        [HttpPost]
+        public ActionResult ReceiptsBody_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies)
+        {
+            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
+            if (receiptBodiesList.Any() && ModelState.IsValid)
+            {
+                foreach (var receiptBody in receiptBodiesList)
+                {
+                    var receiptBodyInDb = db.ReceiptBodies.SingleOrDefault(x => x.ReceiptBodyID == receiptBody.ReceiptBodyID);
+                    if (receiptBodyInDb != null)
+                    {
+                        db.ReceiptBodies.Remove(receiptBodyInDb);
+                        try
+                        {
+                            if (db.SaveChanges() <= 0)
+                                ModelState.AddModelError("_deleteKey", "Can't remove this receipt body from database");
+                        }
+                        catch (Exception)
+                        {
+                            ModelState.AddModelError("_deleteKey", "Can't remove this receipt body from database");
+                        }
+                    }
+                }
+            }
+            return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
+        }
+
+        #endregion
+
+        #region Receipt Details Grid Actions
         [NoCache]
         public ActionResult GetTemplatesList()
         {
             var templatesList = db.Templates
-                .Select(x => new {value = x.TemplateID, text = x.Description}).ToList();
+                .Select(x => new { value = x.TemplateID, text = x.Description }).ToList();
             return Json(templatesList, JsonRequestBehavior.AllowGet);
         }
 
@@ -281,101 +498,96 @@ namespace CashReceipts.Controllers
         }
         #endregion
 
-        #region Receipt Body Grid Actions
+        #region Receipt Tenders Grid Actions
+        
         [NoCache]
-        public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request, int receiptHeaderId)
+        public ActionResult ReceiptsTenders_Read([DataSourceRequest] DataSourceRequest request)
         {
-            var receiptBodies = db.ReceiptBodies.Where(x => x.ReceiptHeaderID == receiptHeaderId)
-                .Select(x => new {x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID}).ToList();
-            return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+            var receiptTenders = db.Tenders
+                .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID }).ToList();
+            return Json(receiptTenders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult ReceiptsBody_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        public ActionResult ReceiptsTenders_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<Tender> receiptTenders, int receiptHeaderId)
         {
-            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
-            if (receiptBodiesList.Any() && ModelState.IsValid)
+            var receiptTendersList = receiptTenders as List<Tender> ?? receiptTenders.ToList();
+            if (receiptTendersList.Any() && ModelState.IsValid)
             {
-                foreach (var receiptBody in receiptBodiesList)
+                foreach (var receiptTender in receiptTendersList)
                 {
-                    receiptBody.ReceiptHeaderID = receiptHeaderId;
-                    db.ReceiptBodies.Add(receiptBody);
+                    receiptTender.ReceiptHeaderID = receiptHeaderId;
+                    db.Tenders.Add(receiptTender);
                     try
                     {
                         if (db.SaveChanges() <= 0)
                         {
                             //todo supports localization
-                            ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
+                            ModelState.AddModelError("_addKey", "Can't add this tender to database");
                         }
                     }
                     catch (Exception e)
                     {
-                        ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
+                        ModelState.AddModelError("_addKey", "Can't add this tender to database");
                     }
                 }
             }
 
-            return Json(receiptBodiesList.Select(
-                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList().ToDataSourceResult(request, ModelState));
+            return Json(receiptTendersList.Select(
+                    x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
-        public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        public ActionResult ReceiptsTenders_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<Tender> receiptTenders)
         {
-            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
-            if (receiptBodiesList.Any() && ModelState.IsValid)
+            var receiptTendersList = receiptTenders as List<Tender> ?? receiptTenders.ToList();
+            if (receiptTendersList.Any() && ModelState.IsValid)
             {
-                foreach (var receiptBody in receiptBodiesList)
+                foreach (var receiptTender in receiptTendersList)
                 {
-                    db.Entry(receiptBody).State = EntityState.Modified;
+                    db.Entry(receiptTender).State = EntityState.Modified;
                     try
                     {
                         if (db.SaveChanges() <= 0)
-                        {
-                            ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
-                        }
+                            ModelState.AddModelError("_updateKey", "Can't update this tender to database");
                     }
                     catch (Exception)
                     {
-                        ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
+                        ModelState.AddModelError("_updateKey", "Can't update this tender to database");
                     }
                 }
             }
-            return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
+            return Json(receiptTendersList.ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
-        public ActionResult ReceiptsBody_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
+        public ActionResult ReceiptsTenders_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<Tender> receiptTenders)
         {
-            var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
-            if (receiptBodiesList.Any() && ModelState.IsValid)
+            var receiptTendersList = receiptTenders as List<Tender> ?? receiptTenders.ToList();
+            if (receiptTendersList.Any() && ModelState.IsValid)
             {
-                foreach (var receiptBody in receiptBodiesList)
+                foreach (var receiptTender in receiptTendersList)
                 {
-                    var receiptBodyInDb = db.ReceiptBodies.SingleOrDefault(x => x.ReceiptBodyID == receiptBody.ReceiptBodyID);
-                    if (receiptBodyInDb != null)
+                    var receiptTenderInDb = db.Tenders.SingleOrDefault(x => x.TenderID == receiptTender.TenderID);
+                    if (receiptTenderInDb != null)
                     {
-                        db.ReceiptBodies.Remove(receiptBodyInDb);
+                        db.Tenders.Remove(receiptTenderInDb);
                         try
                         {
                             if (db.SaveChanges() <= 0)
-                            {
-                                ModelState.AddModelError("_deleteKey", "Can't remove this receipt body from database");
-                            }
+                                ModelState.AddModelError("_deleteKey", "Can't remove this tender from database");
                         }
                         catch (Exception)
                         {
-                            ModelState.AddModelError("_deleteKey", "Can't remove this receipt body from database");
+                            ModelState.AddModelError("_deleteKey", "Can't remove this tender from database");
                         }
                     }
                 }
             }
-            return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
+            return Json(receiptTendersList.ToDataSourceResult(request, ModelState));
         }
 
         #endregion
-
-        
 
         protected override void Dispose(bool disposing)
         {
