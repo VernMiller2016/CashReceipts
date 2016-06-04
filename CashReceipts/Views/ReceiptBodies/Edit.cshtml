@@ -50,36 +50,6 @@
 }
 
 
-<table class="table">
-    <tr>
-        <th>
-            CheckWarrant
-        </th>
-        <th>
-            CheckWarrantAmount
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model.ReceiptDetails)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CheckWarrant)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CheckWarrantAmount)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", "ReceiptDetails", new { id = item.ReceiptDetailID }, null) |
-                @Html.ActionLink("Details", "Details", "ReceiptDetails", new { id = item.ReceiptDetailID }, null) |
-                @Html.ActionLink("Delete", "Delete", "ReceiptDetails", new { id = item.ReceiptDetailID }, null)
-            </td>
-        </tr>
-    }
-
-</table>
-
 <div>
     @Html.ActionLink("Back to List", "Edit", "ReceiptHeaders", new { id = TempData["HeaderId"] }, null)
 </div>

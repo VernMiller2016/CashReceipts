@@ -21,6 +21,5 @@ namespace CashReceipts.Models
 
         public virtual Template Templates { get; set; }
 
-        public virtual IList<ReceiptDetail> ReceiptDetails { get; set; }
     }
 }

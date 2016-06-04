@@ -1,4 +1,35 @@
-﻿<div id="receipts" class="">
+﻿<style type="text/css">
+    .k-widget.k-window .k-edit-form-container input.k-textbox {
+        width: 277px !important;
+    }
+
+    .k-animation-container {
+        width: 270px !important;
+    }
+
+    .k-animation-container .k-list-container {
+        width: 270px !important;
+    }
+
+    .k-edit-form-container .k-dropdown-wrap.k-state-default {
+        width: 250px !important;
+    }
+
+    .k-widget.k-window .k-widget.k-numerictextbox {
+        width: 277px !important;
+    }
+
+    .k-widget.k-window .k-edit-form-container {
+        position: relative;
+        width: 500px;
+    }
+
+    /*.receiptsBodyGrid .k-grid-content tbody tr td:first-child {
+        text-align: right;
+    }*/
+</style>
+
+<div id="receipts" class="">
     <div class="">
         <div class="title-section">
             <h4>Receipts</h4>
@@ -28,19 +59,6 @@
         </div>
         <div>
             <div class="tendersGrid"></div>
-        </div>
-    </div>
-</script>
-
-<script type="text/x-kendo-template" id="receiptBodyTemplate">
-    <div class="tabstrip">
-        <ul>
-            <li class="k-state-active">
-                Receipt Details
-            </li>
-        </ul>
-        <div>
-            <div class="receiptsDetailsGrid"></div>
         </div>
     </div>
 </script>
@@ -288,6 +306,9 @@
             dataBound: function () {
             },
             serverPaging: false,
+            aggregate: [
+                { field: "Amount", aggregate: "sum" },
+            ],
             schema: {
                 data: "Data",
                 total: "Total",
@@ -352,6 +373,7 @@
                       field: "Amount",
                       title: "Amount",
                       format: "{0:n2}",
+                      footerTemplate: "Total: #=sum#",
                       width: 69
                   },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
@@ -470,21 +492,19 @@
                 numeric: false,
                 pageSizes: [10, 20, 30, 50, 75, 100]
             },
-            detailTemplate: kendo.template($("#receiptBodyTemplate").html()),
-            detailInit: receiptBodyDetailInit,
             columns: [
                 {
                     field: "LineTotal",
                     title: "Line Total",
                     format: "{0:n2}",
                     footerTemplate: "Total: #=sum#",
-                    width: 140
+                    width: 100
                 },
                   {
                       field: "TemplateID",
                       title: "Template",
                       values: templatesList,
-                      width: 100
+                      width: 160
                   },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "60px" }
 
@@ -512,137 +532,6 @@
         });
     }
 
-    function receiptBodyDetailInit(e) {
-        var receiptBodyId = e.data.ReceiptBodyID;
-        var detailRow = e.detailRow;
-
-        detailRow.find(".tabstrip").kendoTabStrip({
-            animation: {
-                open: { effects: "fadeIn" }
-            }
-        });
-
-        detailRow.find(".receiptsDetailsGrid").kendoGrid({
-            dataSource:
-                new kendo.data.DataSource({
-                    transport: {
-                        read: {
-                            url: '@Url.Action("ReceiptDetails_Read", "ReceiptHeaders")',
-                            //contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-
-                        },
-                        update: {
-                            url: '@Url.Action("ReceiptDetails_Update", "ReceiptHeaders")',
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            type: "POST"
-                        },
-                        destroy: {
-                            url: '@Url.Action("ReceiptDetails_Destroy", "ReceiptHeaders")',
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            type: "POST"
-                        },
-                        create: {
-                            url: '@Url.Action("ReceiptDetails_Create", "ReceiptHeaders")',
-                            dataType: "json",
-                            contentType: "application/json; charset=utf-8",
-                            type: "POST"
-                        },
-                        parameterMap: function (options, operation) {
-                            if (operation !== "read" && options.models) {
-                                if (operation == "create")
-                                { return (JSON.stringify({ receiptBodyId: receiptBodyId, receiptDetails: options.models })); }
-                                else
-                                    return (JSON.stringify({ receiptDetails: options.models }));
-                            }
-                            else if (operation == "read") {
-                                return { receiptBodyId: receiptBodyId };
-                            }
-                        }
-                    },
-                    batch: true,
-                    pageSize: 10,
-                    dataBound: function () {
-                        //this.expandRow(this.tbody.find("tr.k-master-row").first());
-                    },
-                    serverPaging: false,
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        model: {
-                            id: "ReceiptDetailID",
-                            fields: {
-                                ReceiptDetailID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
-                                CheckWarrant: {
-                                    validation: {
-                                        custom: function (input) {
-                                            if (input.attr("data-bind") == "value:Name") {
-                                                input.attr("data-custom-msg", "Text must not be empty or only spaces");
-                                                return !isBlank(input.val());
-                                            } else {
-                                                return true;
-                                            }
-                                        }
-                                    }, type: "string"
-                                },
-                                CheckWarrantAmount: { validation: { required: true }, type: "number" },
-                                ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
-                            }
-                        },
-                        errors: "Errors"
-                    },
-                    filters: [{ field: "ReceiptBodyID", operator: "eq", value: e.data.ReceiptBodyID }],
-                    error: function (ee) {
-                        if (ee.errors["_deleteKey"]) {
-                            notify.showError(ee.errors["_deleteKey"].errors[0]);
-                        } else {
-                            notify.showError('An error has been occurred, please contact system admin.');
-                        }
-                        this.cancelChanges();
-                    }
-                }),
-            pageSize: 10,
-            filters: [{ field: "ReceiptBodyID", operator: "eq", value: e.data.ReceiptBodyID }],
-            selectable: "row",
-            resizable: true,
-            scrollable: true,
-            sortable: true,
-            filterable: true,
-            pageable: {
-                input: true,
-                numeric: false,
-                pageSizes: [10, 20, 30, 50, 75, 100]
-            },
-            change: function () {
-                selectedRows = this.select();
-            },
-            columns: [
-                {
-                    field: "CheckWarrant",
-                    title: "Check/Warrant/Other",
-                    width: 200
-                },
-                {
-                    field: "CheckWarrantAmount",
-                    title: "Amount",
-                    format: "{0:n2}",
-                    width: 200
-                },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "210px" }
-            ],
-            editable: "popup",
-            toolbar: ["create"],
-            edit: function (ee) {
-                var popupWindow = $(ee.container.data('kendoWindow'));
-                ee.container.data('kendoWindow').bind('activate', function (eee) {
-                    $(popupWindow).attr('element').find('input:first').focus();
-                });
-            }
-        });
-    }
-
     function isBlank(str) {
         return (!str || /^\s*$/.test(str));
     }
@@ -650,6 +539,5 @@
     function lessThanOrEqual(val, charLength) {
         return val.length <= charLength
     }
-
 
 </script>

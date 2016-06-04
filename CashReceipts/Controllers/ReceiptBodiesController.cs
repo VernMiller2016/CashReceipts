@@ -85,7 +85,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptBody receiptBody = db.ReceiptBodies.Include(x=>x.ReceiptDetails).FirstOrDefault(x=>x.ReceiptBodyID == id);
+            ReceiptBody receiptBody = db.ReceiptBodies.FirstOrDefault(x=>x.ReceiptBodyID == id);
             if (receiptBody == null)
             {
                 return HttpNotFound();

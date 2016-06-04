@@ -293,13 +293,20 @@ namespace CashReceipts.Controllers
         #endregion
 
         #region Receipt Body Grid Actions
-        //[NoCache]
-        //public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request, int receiptHeaderId)
-        //{
-        //    var receiptBodies = db.ReceiptBodies.Where(x => x.ReceiptHeaderID == receiptHeaderId)
-        //        .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList();
-        //    return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
-        //}
+
+        [NoCache]
+        public ActionResult GetTemplatesList()
+        {
+            var templatesList = db.Templates.ToList()
+                .Select(x => new { value = x.TemplateID, text = GetTemplateText(x) }).ToList();
+            return Json(templatesList, JsonRequestBehavior.AllowGet);
+        }
+
+        private object GetTemplateText(Template template)
+        {
+            return string.Format("{0} | {1}.{2}.{3}.{4}.{5}", template.Description, template.Fund,
+                template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
+        }
 
         [NoCache]
         public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
@@ -388,114 +395,6 @@ namespace CashReceipts.Controllers
             return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
         }
 
-        #endregion
-
-        #region Receipt Details Grid Actions
-        [NoCache]
-        public ActionResult GetTemplatesList()
-        {
-            var templatesList = db.Templates
-                .Select(x => new { value = x.TemplateID, text = x.Description }).ToList();
-            return Json(templatesList, JsonRequestBehavior.AllowGet);
-        }
-
-        [NoCache]
-        public ActionResult ReceiptDetails_Read([DataSourceRequest] DataSourceRequest request, int receiptBodyId)
-        {
-            var receiptDetails =
-          db.ReceiptDetails.Where(p => p.ReceiptBodyID == receiptBodyId).Select(
-               p => new { p.ReceiptDetailID, p.ReceiptBodyID, p.CheckWarrant, p.CheckWarrantAmount }).ToList();
-            return Json(receiptDetails.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public ActionResult ReceiptDetails_Create([DataSourceRequest] DataSourceRequest request, int receiptBodyId, IEnumerable<ReceiptDetail> receiptDetails)
-        {
-            var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
-            if (receiptDetailsList.Any() && ModelState.IsValid)
-            {
-                foreach (var receiptDetail in receiptDetails)
-                {
-                    receiptDetail.ReceiptBodyID = receiptBodyId;
-                    db.ReceiptDetails.Add(receiptDetail);
-                    try
-                    {
-                        if (db.SaveChanges() <= 0)
-                        {
-                            //todo supports localization
-                            ModelState.AddModelError("_addKey", "Can't add this receipt Detail to database");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        ModelState.AddModelError("_addKey", "Can't add this receipt Detail to database");
-                    }
-                }
-            }
-
-            return Json(receiptDetailsList.Select(
-                    p => new { p.ReceiptDetailID, p.ReceiptBodyID, p.CheckWarrant, p.CheckWarrantAmount }).ToList().ToDataSourceResult(request, ModelState));
-        }
-
-        [HttpPost]
-        public ActionResult ReceiptDetails_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptDetail> receiptDetails)
-        {
-            var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
-            if (receiptDetailsList.Any() && ModelState.IsValid)
-            {
-                foreach (var receiptDetail in receiptDetailsList)
-                {
-                    db.Entry(receiptDetail).State = EntityState.Modified;
-                    try
-                    {
-                        if (db.SaveChanges() <= 0)
-                        {
-                            //todo supports localization
-                            ModelState.AddModelError("_addKey", "Can't update this receipt Detail to database");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        ModelState.AddModelError("_addKey", "Can't update this receipt Detail to database");
-                    }
-                }
-            }
-
-            return Json(receiptDetailsList.Select(
-                    p => new { p.ReceiptDetailID, p.ReceiptBodyID, p.CheckWarrant, p.CheckWarrantAmount }).ToList().ToDataSourceResult(request, ModelState));
-        }
-
-        [HttpPost]
-        public ActionResult ReceiptDetails_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptDetail> receiptDetails)
-        {
-            var receiptDetailsList = receiptDetails as List<ReceiptDetail> ?? receiptDetails.ToList();
-            if (receiptDetailsList.Any() && ModelState.IsValid)
-            {
-                foreach (var receiptDetail in receiptDetailsList)
-                {
-                    var receiptDetailInDb = db.ReceiptDetails.SingleOrDefault(x => x.ReceiptDetailID == receiptDetail.ReceiptDetailID);
-                    if (receiptDetailInDb != null)
-                    {
-                        db.ReceiptDetails.Remove(receiptDetailInDb);
-                        try
-                        {
-                            if (db.SaveChanges() <= 0)
-                            {
-                                //todo supports localization
-                                ModelState.AddModelError("_addKey", "Can't remove this receipt Detail to database");
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            ModelState.AddModelError("_addKey", "Can't remove this receipt Detail to database");
-                        }
-                    }
-                }
-            }
-
-            return Json(receiptDetailsList.Select(
-                    p => new { p.ReceiptDetailID, p.ReceiptBodyID, p.CheckWarrant, p.CheckWarrantAmount }).ToList().ToDataSourceResult(request, ModelState));
-        }
         #endregion
 
         #region Receipt Tenders Grid Actions

@@ -234,7 +234,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ReceiptBodiesController.cs" />
-    <Compile Include="Controllers\ReceiptDetailsController.cs" />
     <Compile Include="Controllers\ReceiptHeadersController.cs" />
     <Compile Include="Controllers\TemplatesController.cs" />
     <Compile Include="Controllers\TendersController.cs" />
@@ -250,16 +249,16 @@
       <DependentUpon>201606022253285_adding_Payment_Methods_Enum.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\Clerk.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\GlobalSettings.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\PaymentMethods.cs" />
     <Compile Include="Models\ReceiptBody.cs" />
     <Compile Include="Models\ReceiptBodyMap.cs" />
-    <Compile Include="Models\ReceiptDetail.cs" />
     <Compile Include="Models\ReceiptHeader.cs" />
     <Compile Include="Models\Template.cs" />
     <Compile Include="Models\Tender.cs" />
@@ -1320,11 +1319,6 @@
     <Content Include="Views\ReceiptBodies\Details.cshtml" />
     <Content Include="Views\ReceiptBodies\Edit.cshtml" />
     <Content Include="Views\ReceiptBodies\Index.cshtml" />
-    <Content Include="Views\ReceiptDetails\Create.cshtml" />
-    <Content Include="Views\ReceiptDetails\Delete.cshtml" />
-    <Content Include="Views\ReceiptDetails\Details.cshtml" />
-    <Content Include="Views\ReceiptDetails\Edit.cshtml" />
-    <Content Include="Views\ReceiptDetails\Index.cshtml" />
     <Content Include="Views\ReceiptHeaders\_HeaderTenders.cshtml" />
     <Content Include="Views\ReceiptHeaders\_HeaderBodies.cshtml" />
     <Content Include="Views\ReceiptHeaders\AddReceiptBody.cshtml" />
