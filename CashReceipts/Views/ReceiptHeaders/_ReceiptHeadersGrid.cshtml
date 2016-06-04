@@ -27,6 +27,10 @@
     /*.receiptsBodyGrid .k-grid-content tbody tr td:first-child {
         text-align: right;
     }*/
+
+    .k-numerictextbox.k-input {
+        float: right;width: 56% !important;margin-right: 6%;
+    }
 </style>
 
 <div id="receipts" class="">
@@ -63,6 +67,32 @@
     </div>
 </script>
 
+<script id="receiptBodyEditTemplate" type="text/x-kendo-template">
+    <div class="k-edit-form-container">
+        <div class="k-edit-label"><label for="LineTotal">Line Total</label></div>
+        <input type="text" name="LineTotal" required="required" data-type="number" data-bind="value:LineTotal" 
+               data-role="numerictextbox" role="spinbutton" class="k-input k-total" aria-disabled="false" aria-readonly="false">
+        
+        <div class="k-edit-label"><label for="DepartmentID">Department</label></div>
+        <input name="DepartmentID"
+               data-value-field="DepartmentID"
+               data-text-field="Description"
+               data-source="departmentDataSource"
+               data-role="dropdownlist" 
+               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 2%;padding: 0 0 .6em;"/>
+        
+        <div class="k-edit-label"><label for="TemplateID">Template</label></div>
+        <input name="TemplateID"
+               data-bind="value:TemplateID"
+               data-value-field="TemplateID"
+               data-text-field="Description"
+               data-source="templatesDataSource"
+               data-role="dropdownlist"
+               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 2%;padding: 0 0 .6em;"/>
+        
+    </div>
+</script>
+
 <script>
     var selectedRows = undefined,
         currentGrid = null,
@@ -70,7 +100,10 @@
         receiptsBodyDataSource,
         receiptsTendersDataSource,
         templatesList,
-        paymentMethods;
+        paymentMethods,
+        templatesDataSource,
+        departmentDataSource,
+        templatesReadUrl = '@Url.Action("Templates_Read", "ReceiptHeaders")?departmentId=';
 
     $(document).ready(function () {
         $.getJSON('@Url.Action("GetClerksList", "ReceiptHeaders")', function (data) {
@@ -369,15 +402,14 @@
                     values: paymentMethods,
                     width: 140
                 },
-                  {
-                      field: "Amount",
-                      title: "Amount",
-                      format: "{0:n2}",
-                      footerTemplate: "Total: #=sum#",
-                      width: 69
-                  },
+                {
+                    field: "Amount",
+                    title: "Amount",
+                    format: "{0:n2}",
+                    footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                    width: 69
+                },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
-
             ],
             editable: "popup",
             toolbar: ["create"],
@@ -403,6 +435,61 @@
     }
 
     function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
+        departmentDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("Departments_Read", "ReceiptHeaders")',
+                    dataType: "json"
+                }
+            },
+            serverPaging: false,
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "DepartmentID",
+                    fields: {
+                        Description: { type: "string" },
+                        DepartmentID: { type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+            },
+            error: function (e) {
+                this.cancelChanges();
+            }
+        });
+
+        templatesDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: templatesReadUrl,
+                    dataType: "json"
+                }
+            },
+            serverPaging: false,
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "TemplateID",
+                    fields: {
+                        Description: { type: "string" },
+                        TemplateID: { type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+
+            },
+            error: function (e) {
+                this.cancelChanges();
+            }
+        });
+
         receiptsBodyDataSource = new kendo.data.DataSource({
             transport: {
                 read: {
@@ -454,7 +541,7 @@
                         ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false },
                         LineTotal: { validation: { required: true }, type: "number" },
-                        TemplateID: { type: "number" }
+                        TemplateID: { validation: { required: true }, type: "number" }
                     }
                 },
                 errors: "Errors"
@@ -499,19 +586,22 @@
                     format: "{0:n2}",
                     headerAttributes: { style: "text-align:right" },
                     attributes: { class: "text-right" },
-                    footerTemplate: "Total: #=sum#",
-                    width: 30
+                    footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                    width: 40
                 },
-                  {
-                      field: "TemplateID",
-                      title: "Template",
-                      values: templatesList,
-                      width: 160
-                  },
+                {
+                    field: "TemplateID",
+                    title: "Template",
+                    values: templatesList,
+                    width: 160
+                },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "60px" }
 
             ],
-            editable: "popup",
+            editable: {
+                mode: "popup",
+                template: kendo.template($("#receiptBodyEditTemplate").html())
+            },
             toolbar: ["create"],
             change: function () {
                 selectedRows = this.select();
@@ -521,6 +611,18 @@
                 e.container.data('kendoWindow').bind('activate', function (e) {
                     $(popupWindow).attr('element').find('input:first').focus();
                 });
+
+                $(e.container)
+                    .find("input[name='DepartmentID']")
+                    .data("kendoDropDownList")
+                    .bind("select",
+                        function(e) {
+                            console.log("drop down changed");
+                            var departmentId = this.dataItem(e.item).DepartmentID;
+                            templatesDataSource.options.transport.read
+                                .url = templatesReadUrl + departmentId;
+                            templatesDataSource.read();
+                        });
             },
             save: function (e) {
                 var updateButton = $(e.container).find('.k-grid-update');

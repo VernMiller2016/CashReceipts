@@ -293,6 +293,21 @@ namespace CashReceipts.Controllers
         #endregion
 
         #region Receipt Body Grid Actions
+        [NoCache]
+        public ActionResult Departments_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            var departmentsList = db.Departments.ToList()
+                .Select(x => new { x.DepartmentID, Description = x.Name }).ToList();
+            return Json(departmentsList.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        }
+
+        [NoCache]
+        public ActionResult Templates_Read([DataSourceRequest] DataSourceRequest request, int? departmentId)
+        {
+            var templatesList = db.Templates.Where(x=>!departmentId.HasValue || x.DepartmentID == departmentId).ToList()
+                .Select(x => new { x.TemplateID, Description = GetTemplateText(x) }).ToList();
+            return Json(templatesList.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+        }
 
         [NoCache]
         public ActionResult GetTemplatesList()
@@ -302,7 +317,7 @@ namespace CashReceipts.Controllers
             return Json(templatesList, JsonRequestBehavior.AllowGet);
         }
 
-        private object GetTemplateText(Template template)
+        private string GetTemplateText(Template template)
         {
             return string.Format("{0} | {1}.{2}.{3}.{4}.{5}", template.Description, template.Fund,
                 template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
@@ -311,8 +326,8 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
         {
-            var receiptBodies = db.ReceiptBodies
-                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList();
+            var receiptBodies = db.ReceiptBodies.Include(x=>x.Templates.DepartmentID)
+                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, x.Templates.DepartmentID }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
