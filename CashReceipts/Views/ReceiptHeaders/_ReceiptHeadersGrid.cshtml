@@ -1,35 +1,46 @@
 ﻿<style type="text/css">
     .k-widget.k-window .k-edit-form-container input.k-textbox {
-        width: 277px !important;
+        width: 407px !important;
     }
 
     .k-animation-container {
-        width: 270px !important;
+        width: 400px !important;
     }
 
     .k-animation-container .k-list-container {
-        width: 270px !important;
+        width: 400px !important;
     }
 
     .k-edit-form-container .k-dropdown-wrap.k-state-default {
-        width: 250px !important;
+        width: 380px !important;
     }
 
     .k-widget.k-window .k-widget.k-numerictextbox {
-        width: 277px !important;
+        width: 407px !important;
     }
 
     .k-widget.k-window .k-edit-form-container {
         position: relative;
-        width: 500px;
+        width: 630px;
     }
 
     /*.receiptsBodyGrid .k-grid-content tbody tr td:first-child {
         text-align: right;
     }*/
-
+    .k-edit-form-container .k-edit-field{
+        margin-right: 10.5%;
+    }
     .k-numerictextbox.k-input {
         float: right;width: 56% !important;margin-right: 6%;
+    }
+
+    .k-edit-form-container .editor-label, .k-edit-label {
+        float: left;
+        clear: both;
+        width: 20%;
+        padding: .4em 0 1em;
+        margin-left: 2%;
+        text-align: right;
     }
 </style>
 
@@ -79,7 +90,7 @@
                data-text-field="Description"
                data-source="departmentDataSource"
                data-role="dropdownlist" 
-               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 2%;padding: 0 0 .6em;"/>
+               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 10.5%;padding: 0 0 .6em;"/>
         
         <div class="k-edit-label"><label for="TemplateID">Template</label></div>
         <input name="TemplateID"
@@ -88,7 +99,7 @@
                data-text-field="Description"
                data-source="templatesDataSource"
                data-role="dropdownlist"
-               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 2%;padding: 0 0 .6em;"/>
+               data-type="number" style="float: right;clear: right;width: 60%;margin-right: 10.5%;padding: 0 0 .6em;"/>
         
     </div>
 </script>
