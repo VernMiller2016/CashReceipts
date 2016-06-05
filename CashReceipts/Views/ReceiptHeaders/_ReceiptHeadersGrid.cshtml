@@ -425,7 +425,7 @@
             editable: "popup",
             toolbar: ["create"],
             change: function () {
-                selectedRows = this.select();
+                //selectedRows = this.select();
             },
             edit: function (e) {
                 var popupWindow = $(e.container.data('kendoWindow'));
@@ -606,7 +606,19 @@
                     values: templatesList,
                     width: 160
                 },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "60px" }
+                {
+                    command: ["edit", {
+                        name: "Delete", imageClass: "k-icon k-i-close", click: function (e) {
+                            e.preventDefault();
+                            var dataItem = this.dataItem($(e.target).closest("tr"));
+                            if (confirm('Are you sure you want to delete this record?')) {
+                                var dataSource = this.dataSource;
+                                dataSource.remove(dataItem);
+                                dataSource.sync();
+                            }
+                        }
+                    }], title: "&nbsp;", width: "60px"
+                }
 
             ],
             editable: {
@@ -615,7 +627,7 @@
             },
             toolbar: ["create"],
             change: function () {
-                selectedRows = this.select();
+                //selectedRows = this.select();
             },
             edit: function (e) {
                 var popupWindow = $(e.container.data('kendoWindow'));
