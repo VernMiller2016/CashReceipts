@@ -38,7 +38,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x => x.ReceiptHeaderID == id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptBodyRecords).FirstOrDefault(x => x.ReceiptHeaderID == id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
@@ -78,7 +78,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptsBody).FirstOrDefault(x => x.ReceiptHeaderID == id);
+            ReceiptHeader receiptHeader = db.ReceiptHeaders.Include(x => x.Tenders).Include(x => x.ReceiptBodyRecords).FirstOrDefault(x => x.ReceiptHeaderID == id);
             if (receiptHeader == null)
             {
                 return HttpNotFound();
@@ -182,6 +182,14 @@ namespace CashReceipts.Controllers
 
         #region Receipt Header Grid Actions
         [NoCache]
+        public ActionResult GetDepartmentsList()
+        {
+            var departmentsList = db.Departments.ToList()
+                .Select(x => new { value = x.DepartmentID, text = x.Name }).ToList();
+            return Json(departmentsList, JsonRequestBehavior.AllowGet);
+        }
+
+        [NoCache]
         public ActionResult GetClerksList()
         {
             var clerksList = db.Clerks
@@ -193,7 +201,7 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptHeaders = db.ReceiptHeaders
-                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber }).ToList();
+                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -213,6 +221,15 @@ namespace CashReceipts.Controllers
                     }
                     receiptHeader.ReceiptNumber = lastReciptId + 1;
                     _lookupHelper.LastReceiptId = receiptHeader.ReceiptNumber;
+                    var templatesList = db.Templates.Where(x => x.DepartmentID == receiptHeader.DepartmentID).ToList();
+                    foreach (var template in templatesList)
+                    {
+                        receiptHeader.ReceiptBodyRecords.Add(new ReceiptBody
+                        {
+                            LineTotal = 0,
+                            TemplateID = template.TemplateID
+                        });
+                    }
                     db.ReceiptHeaders.Add(receiptHeader);
                     try
                     {
@@ -234,7 +251,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptHeadersList.Select(
-                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -304,7 +321,7 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult Templates_Read([DataSourceRequest] DataSourceRequest request, int? departmentId)
         {
-            var templatesList = db.Templates.Where(x=>!departmentId.HasValue || x.DepartmentID == departmentId).ToList()
+            var templatesList = db.Templates.Where(x => !departmentId.HasValue || x.DepartmentID == departmentId).ToList()
                 .Select(x => new { x.TemplateID, Description = GetTemplateText(x) }).ToList();
             return Json(templatesList.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -313,7 +330,7 @@ namespace CashReceipts.Controllers
         public ActionResult GetTemplatesList()
         {
             var templatesList = db.Templates.ToList()
-                .Select(x => new { value = x.TemplateID, text = GetTemplateText(x) }).ToList();
+                .Select(x => new { value = x.TemplateID, text = x.Description }).ToList();
             return Json(templatesList, JsonRequestBehavior.AllowGet);
         }
 
@@ -323,11 +340,26 @@ namespace CashReceipts.Controllers
                 template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
         }
 
+        private string GetTemplateAccountNumber(int templateID)
+        {
+            var template = db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
+            if (template!=null)
+                return string.Format("{0}.{1}.{2}.{3}.{4}", template.Fund,
+                    template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
+            return string.Empty;
+        }
+
+        private string GetTemplateAccountNumber(Template template)
+        {
+            return string.Format("{0}.{1}.{2}.{3}.{4}", template.Fund,
+                template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
+        }
+
         [NoCache]
         public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
         {
-            var receiptBodies = db.ReceiptBodies.Include(x=>x.Templates.DepartmentID)
-                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, x.Templates.DepartmentID }).ToList();
+            var receiptBodies = db.ReceiptBodies.Include(x => x.Template).ToList()
+                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, x.Template.DepartmentID, AccountNumber = GetTemplateAccountNumber(x.Template) }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -357,7 +389,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptBodiesList.Select(
-                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -380,7 +412,8 @@ namespace CashReceipts.Controllers
                     }
                 }
             }
-            return Json(receiptBodiesList.ToDataSourceResult(request, ModelState));
+            return Json(receiptBodiesList.Select(
+                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]

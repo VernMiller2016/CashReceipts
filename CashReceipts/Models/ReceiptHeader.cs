@@ -5,6 +5,13 @@ namespace CashReceipts.Models
 {
     public class ReceiptHeader
     {
+
+        public ReceiptHeader()
+        {
+            ReceiptBodyRecords = new List<ReceiptBody>();
+            Tenders = new List<Tender>();
+        }
+
         [Key]
         [Display(Name = "Receipt #")]
         public int ReceiptHeaderID { get; set; }
@@ -22,12 +29,16 @@ namespace CashReceipts.Models
 
         public int ReceiptNumber { get; set; }
 
-        public virtual IList<ReceiptBody> ReceiptsBody { get; set; }
+        public virtual IList<ReceiptBody> ReceiptBodyRecords { get; set; }
 
         public virtual IList<Tender> Tenders { get; set; }
 
         public int ClerkID { get; set; }
 
         public virtual Clerk Clerks { get; set; }
+
+        public int DepartmentID { get; set; }
+
+        public virtual Department Department { get; set; }
     }
 }

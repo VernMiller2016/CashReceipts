@@ -17,14 +17,10 @@ namespace CashReceipts.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            // modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
-            //modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
-
-            // Configure Asp Net Identity Tables
-            //modelBuilder.Entity<IdentityUser>().ToTable("User");
-            //modelBuilder.Entity<IdentityUser>().Property(u => u.PasswordHash).HasMaxLength(500);
-            //modelBuilder.Entity<IdentityUser>().Property(u => u.SecurityStamp).HasMaxLength(500);
-            //modelBuilder.Entity<IdentityUser>().Property(u => u.PhoneNumber).HasMaxLength(50);
+            modelBuilder.Entity<ReceiptHeader>()
+                .HasRequired(c => c.Department)
+                .WithMany()
+                .WillCascadeOnDelete(false);
 
             //modelBuilder.Entity<IdentityRole>().ToTable("Role");
             modelBuilder.Entity<IdentityUserRole>().HasKey(x => new { x.RoleId, x.UserId}).ToTable("UserRole");

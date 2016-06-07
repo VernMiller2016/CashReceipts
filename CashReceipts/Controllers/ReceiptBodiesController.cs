@@ -31,7 +31,7 @@ namespace CashReceipts.Controllers
             IQueryable<ReceiptBody> receiptbodies = db.ReceiptBodies
                 .Where(c => !SelectedTemplate.HasValue || c.TemplateID == templateID)
                 .OrderBy(d => d.ReceiptBodyID)
-                .Include(d => d.Templates);
+                .Include(d => d.Template);
             var sql = templates.ToString();
             return View(templates.ToList());
         }

@@ -19,7 +19,7 @@ namespace CashReceipts.Models
 
         public int TemplateID { get; set; }
 
-        public virtual Template Templates { get; set; }
+        public virtual Template Template { get; set; }
 
     }
 }
