@@ -571,7 +571,7 @@
                     fields: {
                         ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
-                        AccountNumber: { type: "string", editable: false, defaultValue: "" },
+                        AccountNumber: { type: "string", editable: false, defaultValue: "Auto retrieved" },
                         LineTotal: { validation: { required: true }, type: "number" },
                         TemplateID: { validation: { required: true }, type: "number" },
                         TemplateOrder: { validation: { required: false }, type: "number" }
