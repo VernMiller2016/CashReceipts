@@ -340,10 +340,15 @@ namespace CashReceipts.Controllers
                 template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
         }
 
+        private int GetTemplateOrder(int templateID)
+        {
+            var template = db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
+            return template != null ? template.Order : 0;
+        }
         private string GetTemplateAccountNumber(int templateID)
         {
             var template = db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
-            if (template!=null)
+            if (template != null)
                 return string.Format("{0}.{1}.{2}.{3}.{4}", template.Fund,
                     template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
             return string.Empty;
@@ -359,7 +364,16 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptBodies = db.ReceiptBodies.Include(x => x.Template).ToList()
-                .Select(x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, x.Template.DepartmentID, AccountNumber = GetTemplateAccountNumber(x.Template) }).ToList();
+                .Select(x => new
+                {
+                    x.ReceiptHeaderID,
+                    x.ReceiptBodyID,
+                    x.LineTotal,
+                    x.TemplateID,
+                    x.Template.DepartmentID,
+                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    TemplateOrder = x.Template.Order
+                }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -389,7 +403,8 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptBodiesList.Select(
-                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        TemplateOrder = GetTemplateOrder(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -413,7 +428,11 @@ namespace CashReceipts.Controllers
                 }
             }
             return Json(receiptBodiesList.Select(
-                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new
+                    {
+                        x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        TemplateOrder = GetTemplateOrder(x.TemplateID)
+                    }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
