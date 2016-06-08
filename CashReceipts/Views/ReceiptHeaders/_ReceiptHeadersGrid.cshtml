@@ -45,6 +45,25 @@
         margin-left: 2%;
         text-align: right;
     }
+
+    .btn-destroy span {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        font-size: 0;
+        line-height: 0;
+        text-align: center;
+        margin-right: 3px;
+        margin-right: .3rem;
+        margin-left: -3px;
+        margin-left: -.3rem;
+        vertical-align: middle;
+        background-image: url(/Scripts/KendoUI2016.2.504/styles/Bootstrap/sprite.png);
+        border-color: transparent;
+        background-position: -32px -16px;
+    }
 </style>
 
 <div id="receipts" class="">
@@ -661,12 +680,14 @@
                 },
                 {
                     command: [{
-                        name: "Delete",
+                        name: "remove",
                         click: function (e) {
                             var tr = $(e.target).closest("tr");
                             this.removeRow(tr);
                             this.saveChanges();
-                        }
+                        },
+                        text: "Delete",
+                        className: "btn-destroy"
                     }], title: "&nbsp;", width: "60px"
                 }
 
