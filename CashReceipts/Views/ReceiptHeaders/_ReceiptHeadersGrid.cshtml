@@ -166,7 +166,7 @@
             batch: true,
             pageSize: 10,
             serverPaging: false,
-            sort: [{ field: "Order", dir: "asc" }],
+            sort: [{ field: "ReceiptHeaderID", dir: "desc" }],
             schema: {
                 data: "Data",
                 total: "Total",
@@ -247,19 +247,20 @@
             columns: [
                 {
                     field: "ReceiptNumber",
-                    title: "ReceiptNumber",
+                    title: "Receipt Number",
                     format: "{0}",
                     width: 100
                 }, {
                     field: "ReceiptDate",
                     title: "Receipt Date",
                     format: "{0:MM/dd/yyyy}",
-                    width: 100
+                    width: 90
                 }, {
                     field: "ReceiptTotal",
                     title: "Receipt Total",
+                    editor: oldNumericBoxEditor,
                     format: "{0:n2}",
-                    width: 100
+                    width: 90
                 },
                 {
                     field: "DepartmentID",
@@ -380,7 +381,7 @@
                     id: "TenderID",
                     fields: {
                         TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
-                        ReceiptHeaderID: { type: "number", editable: false, nullable: false },
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
                         Description: { validation: { required: true }, type: "string" },
                         Amount: { validation: { required: true }, type: "number" },
                         PaymentMethodId: { validation: { required: true }, type: "number", nullable: false }
@@ -436,30 +437,52 @@
                 {
                     field: "Amount",
                     title: "Amount",
+                    editor: oldNumericBoxEditor,
                     format: "{0:n2}",
                     footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                     width: 69
                 },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "140px" }
+                { command: ["destroy"], title: "&nbsp;", width: "140px" }
             ],
-            editable: "popup",
-            toolbar: ["create"],
+            editable: true,
+            toolbar: ["create", "save", "cancel"],
             change: function () {
                 //selectedRows = this.select();
             },
             edit: function (e) {
-                var popupWindow = $(e.container.data('kendoWindow'));
-                e.container.data('kendoWindow').bind('activate', function (e) {
-                    $(popupWindow).attr('element').find('input:first').focus();
-                });
+                //var popupWindow = $(e.container.data('kendoWindow'));
+                //e.container.data('kendoWindow').bind('activate', function (e) {
+                //    $(popupWindow).attr('element').find('input:first').focus();
+                //});
             },
             save: function (e) {
-                var updateButton = $(e.container).find('.k-grid-update');
-                if (!updateButton.hasClass('k-state-disabled')) {
-                    updateButton.addClass('k-state-disabled');
-                }
-                else {
-                    e.preventDefault();
+                if (!e.values.Amount)
+                    return;
+                var oldModel = e.model,
+                    receiptsTenderTotal = 0,
+                    currentDataSource = this.dataSource,
+                    oldModelAmount = currentDataSource.get(oldModel.TenderID).Amount;
+
+                $(currentDataSource.data())
+                    .map(function (i, item) {
+                        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
+                            if (!e.values.Amount || item.TenderID != e.model.TenderID)
+                                receiptsTenderTotal += item.Amount;
+                            else {
+                                receiptsTenderTotal += e.values.Amount;
+                            }
+                    });
+                var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
+                if (receiptsTenderTotal > receiptHeaderTotal) {
+                    notify.confirm("Tenders total amount(" +
+                        receiptsTenderTotal + ") is greater than receipt total(" +
+                        receiptHeaderTotal + ")",
+                        "Are you sure you want to continue?",
+                        function (isConfirmed) {
+                            if (!isConfirmed) {
+                                currentDataSource.get(oldModel.TenderID).set("Amount", oldModelAmount);
+                            }
+                        });
                 }
             }
         });
@@ -572,7 +595,7 @@
                         ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
                         AccountNumber: { type: "string", editable: false, defaultValue: "Auto retrieved" },
-                        LineTotal: { validation: { required: true }, type: "number" },
+                        LineTotal: { validation: { required: true }, type: "number", spinners: false },
                         TemplateID: { validation: { required: true }, type: "number" },
                         TemplateOrder: { validation: { required: false }, type: "number" }
                     }
@@ -622,6 +645,7 @@
                 {
                     field: "LineTotal",
                     title: "Line Total",
+                    editor: oldNumericBoxEditor,
                     format: "{0:n2}",
                     headerAttributes: { style: "text-align:right" },
                     attributes: { class: "text-right" },
@@ -632,6 +656,7 @@
                     field: "TemplateID",
                     title: "Template",
                     values: templatesList,
+                    editor: templateDropDownEditor,
                     width: 100
                 },
                 {
@@ -687,15 +712,73 @@
                         });*/
             },
             save: function (e) {
-                var updateButton = $(e.container).find('.k-grid-update');
-                if (!updateButton.hasClass('k-state-disabled')) {
-                    updateButton.addClass('k-state-disabled');
-                }
-                else {
-                    e.preventDefault();
+                if (!e.values.LineTotal)
+                    return;
+                var oldModel = e.model,
+                    receiptsLineTotal = 0,
+                    currentDataSource = this.dataSource,
+                    oldModelAmount = currentDataSource.get(oldModel.ReceiptBodyID).LineTotal;
+                $(currentDataSource.data())
+                    .map(function (i, item) {
+                        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
+                            if (!e.values.LineTotal || item.ReceiptBodyID != e.model.ReceiptBodyID)
+                                receiptsLineTotal += item.LineTotal;
+                            else {
+                                receiptsLineTotal += e.values.LineTotal;
+                            }
+                    });
+                var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
+                if (receiptsLineTotal > receiptHeaderTotal) {
+                    notify.confirm("Receipt body total line sum(" +
+                        receiptsLineTotal + ") is greater than receipt total(" +
+                        receiptHeaderTotal + ")",
+                        "Are you sure you want to continue?",
+                        function (isConfirmed) {
+                            if (!isConfirmed) {
+                                currentDataSource.get(oldModel.ReceiptBodyID).set("LineTotal", oldModelAmount);
+                            }
+                        });
                 }
             }
         });
+    }
+
+    function oldNumericBoxEditor(container, options) {
+        $('<input data-bind="value:' + options.field + '"/>')
+            .appendTo(container)
+            .kendoNumericTextBox({
+                spinners: false
+            }).off("keydown");
+    }
+
+    function templateDropDownEditor(container, options) {
+        $('<input required data-text-field="text" data-value-field="value" data-bind="value:' + options.field + '"/>')
+            .appendTo(container)
+            .kendoDropDownList({
+                dataTextField: "text",
+                dataValueField: "value",
+                filter: "contains",
+                height: 400,
+                dataSource: {
+                    transport: {
+                        dataType: "json",
+                        read: "@Url.Action("GetTemplatesList", "ReceiptHeaders")"
+                    },
+                    batch: false,
+                    pageSize: 1000,
+                    group: { field: "DepartmentName" },
+                    schema: {
+                        model: {
+                            id: "value",
+                            fields: {
+                                value: { editable: false, nullable: false },
+                                text: { validation: { required: true } },
+                                DepartmentName: { validation: { required: true } },
+                            }
+                        }
+                    }
+                }
+            });
     }
 
     function isBlank(str) {

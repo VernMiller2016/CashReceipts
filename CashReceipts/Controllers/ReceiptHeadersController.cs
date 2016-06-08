@@ -329,8 +329,13 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult GetTemplatesList()
         {
-            var templatesList = db.Templates.ToList()
-                .Select(x => new { value = x.TemplateID, text = x.Description }).ToList();
+            var templatesList = db.Templates.Include(x=>x.Department).ToList()
+                .Select(x => new
+                {
+                    value = x.TemplateID, text = x.Description,
+                    DepartmentId = x.DepartmentID,
+                    DepartmentName = x.Department.Name
+                }).ToList();
             return Json(templatesList, JsonRequestBehavior.AllowGet);
         }
 

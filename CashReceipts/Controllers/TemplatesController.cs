@@ -33,7 +33,7 @@ namespace CashReceipts.Controllers
             IQueryable<Template> templates = db.Templates
                 .Where(c => !SelectedDepartment.HasValue || c.DepartmentID == departmentID)
                 .OrderBy(d => d.TemplateID)
-                .Include(d => d.Departments);
+                .Include(d => d.Department);
             var sql = templates.ToString();
             return View(templates.ToList());
         }
@@ -45,7 +45,7 @@ namespace CashReceipts.Controllers
             {
                 return HttpNotFound();
             }
-            Template template = db.Templates.Include(x => x.Departments).Single(m => m.TemplateID == id);
+            Template template = db.Templates.Include(x => x.Department).Single(m => m.TemplateID == id);
 
             if (template == null)
             {

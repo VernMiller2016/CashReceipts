@@ -26,10 +26,20 @@ namespace CashReceipts
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css"));
 
-            bundles.Add(new StyleBundle("~/Content/maincss").Include(
-                      "~/lib/bootstrap/dist/css/bootstrap-theme.css",
-                      "~/lib/bootstrap/dist/css/bootstrap.css",
-                      "~/css/site.css"));
+            bundles.Add(new StyleBundle("~/Content/allcss").Include(
+                "~/Content/bootstrap3.3.5.min.css",
+                "~/Content/site.css",
+                "~/Scripts/KendoUI2016.2.504/styles/kendo.common.min.css",
+                "~/Scripts/KendoUI2016.2.504/styles/kendo.bootstrap.min.css",
+                "~/Scripts/sweetalert/sweetalert.css",
+                "~/Content/KendoCustomization.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/scripts").Include(
+                "~/Scripts/jquery-2.1.4.min.js",
+                "~/Scripts/bootstrap3.3.5.min.js",
+                "~/Scripts/KendoUI2016.2.504/js/kendo.all.min.js",
+                "~/Scripts/sweetalert/sweetalert.min.js",
+                "~/Scripts/SwetAlertHelper.js"));
         }
     }
 }
