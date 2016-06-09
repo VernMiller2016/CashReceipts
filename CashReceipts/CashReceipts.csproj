@@ -235,7 +235,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ReceiptBodiesController.cs" />
     <Compile Include="Controllers\ReceiptHeadersController.cs" />
-    <Compile Include="Controllers\TemplatesController.cs" />
+    <Compile Include="Controllers\AccountsController.cs" />
     <Compile Include="Controllers\TendersController.cs" />
     <Compile Include="Filters\NoCacheAttribute.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
@@ -1282,11 +1282,11 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\Templates\Create.cshtml" />
-    <Content Include="Views\Templates\Delete.cshtml" />
-    <Content Include="Views\Templates\Details.cshtml" />
-    <Content Include="Views\Templates\Edit.cshtml" />
-    <Content Include="Views\Templates\Index.cshtml" />
+    <Content Include="Views\Accounts\Create.cshtml" />
+    <Content Include="Views\Accounts\Delete.cshtml" />
+    <Content Include="Views\Accounts\Details.cshtml" />
+    <Content Include="Views\Accounts\Edit.cshtml" />
+    <Content Include="Views\Accounts\Index.cshtml" />
     <Content Include="Views\_ViewImports.cshtml" />
     <Content Include="Views\Departments\Create.cshtml" />
     <Content Include="Views\Departments\Delete.cshtml" />

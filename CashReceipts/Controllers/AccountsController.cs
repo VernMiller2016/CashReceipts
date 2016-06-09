@@ -11,14 +11,14 @@ using Kendo.Mvc.Extensions;
 
 namespace CashReceipts.Controllers
 {
-    public class TemplatesController : Controller
+    public class AccountsController : Controller
     {
         private ApplicationDbContext db;
-        public TemplatesController() : this(new ApplicationDbContext())
+        public AccountsController() : this(new ApplicationDbContext())
         {
 
         }
-        public TemplatesController(ApplicationDbContext context)
+        public AccountsController(ApplicationDbContext context)
         {
             db = context;
         }
