@@ -72,6 +72,18 @@
       <HintPath>..\packages\Glimpse.Mvc5.1.5.3\lib\net45\Glimpse.Mvc5.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\Libs\ReportingPackages\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>..\Libs\ReportingPackages\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.pdfa">
+      <HintPath>..\Libs\ReportingPackages\itextsharp.pdfa.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xtra">
+      <HintPath>..\Libs\ReportingPackages\itextsharp.xtra.dll</HintPath>
+    </Reference>
     <Reference Include="Kendo.Mvc">
       <HintPath>..\Libs\Kendo.Mvc.dll</HintPath>
     </Reference>
@@ -108,6 +120,18 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NPOI">
+      <HintPath>..\Libs\ReportingPackages\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\Libs\ReportingPackages\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\Libs\ReportingPackages\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\Libs\ReportingPackages\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -273,6 +297,7 @@
     <Content Include="Content\KendoCustomization.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="fonts\Intelicon.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Images\glyphicons-halflings-white.png" />
@@ -284,6 +309,16 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="fonts\Intelicon.eot" />
+    <Content Include="fonts\Intelicon.ttf" />
+    <Content Include="fonts\Intelicon.woff" />
+    <Content Include="fonts\OpenSans-Bold.old.ttf" />
+    <Content Include="fonts\OpenSans-Bold.ttf" />
+    <Content Include="fonts\opensans-bold.woff" />
+    <Content Include="fonts\OpenSans-Light.ttf" />
+    <Content Include="fonts\OpenSans-Regular.old.ttf" />
+    <Content Include="fonts\OpenSans-Regular.ttf" />
+    <Content Include="fonts\opensans-regular.woff" />
     <None Include="Properties\PublishProfiles\CashReceipting - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipts - FTP %282%29.pubxml" />

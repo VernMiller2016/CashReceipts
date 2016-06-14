@@ -35,7 +35,7 @@ namespace CashReceipts.Models
 
         public int ClerkID { get; set; }
 
-        public virtual Clerk Clerks { get; set; }
+        public virtual Clerk Clerk { get; set; }
 
         public int DepartmentID { get; set; }
 

@@ -12,6 +12,9 @@ using Kendo.Mvc.UI;
 using Kendo.Mvc.Extensions;
 using CashReceipts.Helpers;
 using System.Data.Entity.Infrastructure;
+using System.IO;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace CashReceipts.Controllers
 {
@@ -329,10 +332,11 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult GetTemplatesList()
         {
-            var templatesList = db.Templates.Include(x=>x.Department).ToList()
+            var templatesList = db.Templates.Include(x => x.Department).ToList()
                 .Select(x => new
                 {
-                    value = x.TemplateID, text = x.Description,
+                    value = x.TemplateID,
+                    text = x.Description,
                     DepartmentId = x.DepartmentID,
                     DepartmentName = x.Department.Name
                 }).ToList();
@@ -408,8 +412,15 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptBodiesList.Select(
-                    x => new { x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID),
-                        TemplateOrder = GetTemplateOrder(x.TemplateID) }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new
+                    {
+                        x.ReceiptHeaderID,
+                        x.ReceiptBodyID,
+                        x.LineTotal,
+                        x.TemplateID,
+                        AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        TemplateOrder = GetTemplateOrder(x.TemplateID)
+                    }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -435,7 +446,11 @@ namespace CashReceipts.Controllers
             return Json(receiptBodiesList.Select(
                     x => new
                     {
-                        x.ReceiptHeaderID, x.ReceiptBodyID, x.LineTotal, x.TemplateID, AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        x.ReceiptHeaderID,
+                        x.ReceiptBodyID,
+                        x.LineTotal,
+                        x.TemplateID,
+                        AccountNumber = GetTemplateAccountNumber(x.TemplateID),
                         TemplateOrder = GetTemplateOrder(x.TemplateID)
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
@@ -574,6 +589,299 @@ namespace CashReceipts.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        [HttpPost]
+        public ActionResult DownloadReceipt(int receiptHeaderId)
+        {
+            var receipt = db.ReceiptHeaders.Include(x => x.ReceiptBodyRecords)
+                .Include(x => x.ReceiptBodyRecords.Select(y => y.Template))
+                .Include(x => x.Tenders).Include(x => x.Tenders.Select(y => y.PaymentMethod))
+                .SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+            if (receipt == null)
+                return Content("");
+
+            //Start PDF Process
+            var document = new Document(PageSize.A4, 5, 5, 5, 5);
+            var filestream = new MemoryStream();
+            var writer = PdfWriter.GetInstance(document, filestream);
+            writer.CloseStream = false;
+            document.Open();
+
+            string fontpath = Server.MapPath("~/fonts/OpenSans-Regular.ttf");
+            BaseFont customfont = BaseFont.CreateFont(fontpath, BaseFont.CP1252, BaseFont.EMBEDDED);
+            var font = new Font(customfont, 10);
+            var boldFont = new Font(customfont, 12);
+
+            const int numOfColumns = 7;
+            var dataTable = new PdfPTable(numOfColumns);
+            dataTable.DefaultCell.PaddingTop = 10;
+            dataTable.DefaultCell.PaddingBottom = 10;
+            dataTable.DefaultCell.PaddingLeft = 3;
+            dataTable.DefaultCell.PaddingRight = 3;
+            dataTable.DefaultCell.Border = 0;
+            dataTable.DefaultCell.HorizontalAlignment = Element.ALIGN_CENTER;
+            dataTable.DefaultCell.VerticalAlignment = Element.ALIGN_MIDDLE;
+
+            // Adding headers
+            //string imagepath = Server.MapPath("~/Images");
+            //Image header = Image.GetInstance(imagepath + "/PASlogo.png");
+            //header.ScalePercent(75f);
+            //header.Alignment = 1;
+            //document.Add(header);
+
+            dataTable.SpacingBefore = 10f;
+            var cell = new PdfPCell(new Phrase(receipt.Department.Name, font))
+            {
+                Colspan = 7,
+                HorizontalAlignment = 1,
+                VerticalAlignment = 1,
+                //BackgroundColor = new BaseColor(24, 145, 238),
+                Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            };
+            dataTable.AddCell(cell);
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.DefaultCell.HorizontalAlignment = Element.ALIGN_LEFT;
+
+            cell = new PdfPCell(new Phrase("Received From", font))
+            {
+                Colspan = 4,
+                HorizontalAlignment = 1,
+                VerticalAlignment = 1,
+                //BackgroundColor = BaseColor.LIGHT_GRAY,
+                Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            };
+            dataTable.AddCell(cell);
+            dataTable.AddCell(new PdfPCell(new Phrase("", font)) { Colspan = 3, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+
+
+            cell = new PdfPCell(new Phrase(receipt.Department.Name, font))
+            {
+                Colspan = 4,
+                Rowspan = 4,
+                HorizontalAlignment = 1,
+                VerticalAlignment = 3,
+                //BackgroundColor = BaseColor.LIGHT_GRAY,
+                Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            };
+            dataTable.AddCell(cell);
+            dataTable.AddCell(new PdfPCell(new Phrase("**ORIGINAL**", font)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new Paragraph(" ", font));
+            dataTable.AddCell(new PdfPCell(new Phrase("Receipt Number", font)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new Paragraph(receipt.ReceiptNumber.ToString(), font));
+            dataTable.AddCell(new PdfPCell(new Phrase("Receipt Date", font)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new Paragraph(receipt.ReceiptDate.ToString("MM/dd/yyyy"), font));
+            dataTable.AddCell(new PdfPCell(new Phrase("Clerk", font)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new Paragraph($"{receipt.Clerk.LastName}, {receipt.Clerk.FirstName}", font));
+
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+
+            dataTable.AddCell(new PdfPCell(new Phrase("Fund/Dept", boldFont))
+            {
+                Colspan = 2,
+                Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase("Description", boldFont)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase("Revenue", boldFont)) { Colspan = 2, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new Paragraph("Paid", boldFont));
+
+            foreach (var receiptBody in receipt.ReceiptBodyRecords.ToList())
+            {
+                dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateAccountNumber(receiptBody.Template), font))
+                {
+                    Colspan = 2,
+                    Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3
+                });
+                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.Description, font)) { Colspan = 2, Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3
+                });
+                dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 2, Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3
+                });
+
+                dataTable.AddCell(new PdfPCell(new Phrase($"{receiptBody.LineTotal:0.00}", font))
+                {
+                    Colspan = 2,
+                    Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3,
+                    HorizontalAlignment = Element.ALIGN_RIGHT
+                });
+            }
+            dataTable.AddCell(new Paragraph(" ", font));
+            dataTable.AddCell(new PdfPCell(new Phrase("Total", font)) { Colspan = 5, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase($"{receipt.ReceiptBodyRecords.Sum(x => x.LineTotal):0.00}", font))
+            {
+                Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3,
+                HorizontalAlignment = Element.ALIGN_RIGHT
+            });
+
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 3, Rowspan = receipt.Tenders.Count, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase("Tender:", font)) { Rowspan = receipt.Tenders.Count, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+
+            foreach (var tender in receipt.Tenders.ToList())
+            {
+                dataTable.AddCell(new PdfPCell(new Phrase($"{tender.Description}({tender.PaymentMethod.Name})", font)) { Colspan = 2, Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3
+                });
+                dataTable.AddCell(new PdfPCell(new Phrase($"{tender.Amount:0.00}", font))
+                {
+                    Border = 0,
+                    PaddingTop = 10,
+                    PaddingBottom = 10,
+                    PaddingLeft = 3,
+                    PaddingRight = 3,
+                    HorizontalAlignment = Element.ALIGN_RIGHT
+                });
+            }
+
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+            dataTable.AddCell(new PdfPCell(new Phrase("© 2016 - Cash Receipting", font)) { Colspan = 7, Border = 0,
+                PaddingTop = 10,
+                PaddingBottom = 10,
+                PaddingLeft = 3,
+                PaddingRight = 3
+            });
+
+            //Image bottom = Image.GetInstance(imagepath + "/PASbottom.jpg");
+            //bottom.ScalePercent(75f);
+            //bottom.Alignment = 1;
+
+            dataTable.SpacingAfter = 10f;
+            document.Add(dataTable);
+            //var cImage = new Chunk(bottom, 30, -20, true);
+            //cImage.SetAnchor(GlobalSettings.SystemUrl);
+            //var anchor = new Anchor(cImage) { Reference = GlobalSettings.SystemUrl };
+            //document.Add(anchor);
+
+            //Finalizing PDF
+            document.Close();
+            filestream.Close();
+            return File(filestream.ToArray(), "pdf", $"Receipt_{receipt.ReceiptNumber}.pdf");
         }
     }
 }

@@ -130,6 +130,7 @@
     var selectedRows = undefined,
         currentGrid = null,
         clerksList,
+        departmentsList,
         receiptsBodyDataSource,
         receiptsTendersDataSource,
         templatesList,
@@ -296,11 +297,16 @@
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
             ],
             editable: "inline",
-            toolbar: ["create"],
+            toolbar: ["create",
+                        {
+                            text: "",
+                            template: "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
+                        }],
             dataBound: function (e) {
                 if (!currentGrid)
                     currentGrid = $("#headersGrid").data("kendoGrid");
                 this.expandRow(this.tbody.find("tr.k-master-row").first());
+                enableDisableReceiptHeadersButtons(false);
             },
             edit: function (e) {
                 debugger;
@@ -316,6 +322,7 @@
             },
             change: function () {
                 //selectedRows = this.select();
+                enableDisableReceiptHeadersButtons(true);
             },
             save: function (e) {
                 var updateButton = $(e.container).find('.k-grid-update');
@@ -325,8 +332,25 @@
                 else {
                     e.preventDefault();
                 }
+            }, destroy: function () {
+                enableDisableReceiptHeadersButtons(false);
             }
         });
+    }
+
+    function enableDisableReceiptHeadersButtons(isEnable) {
+        if (!isEnable) {
+            $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
+        } else {
+            $(".k-grid-PrintReceipt").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                var questionUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                var receipt = headersDataSources.getByUid(questionUid);
+                if (receipt) {
+                    $("#receiptHeaderId").val(receipt.ReceiptHeaderID);
+                    $("#exportReceiptPDF").submit();
+                }
+            });
+        }
     }
 
     function receiptHeaderDetailInit(e) {
@@ -811,3 +835,8 @@
     }
 
 </script>
+
+@using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
+{
+    <input type="hidden" id="receiptHeaderId" name="receiptHeaderId" />
+}

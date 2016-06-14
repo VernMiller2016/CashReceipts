@@ -17,6 +17,6 @@ namespace CashReceipts.Models
         [Required]
         public string LastName { get; set; }
 
-public virtual ICollection<ReceiptHeader> ReceiptHeaders { get; set; }
+        public virtual ICollection<ReceiptHeader> ReceiptHeaders { get; set; }
     }
 }

@@ -22,6 +22,6 @@ namespace CashReceipts.Models
 
         public int PaymentMethodId { get; set; }
 
-        public PaymentMethod PaymentMethod { get; set; }
+        public virtual PaymentMethod PaymentMethod { get; set; }
     }
 }
