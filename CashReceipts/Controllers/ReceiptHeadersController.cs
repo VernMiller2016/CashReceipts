@@ -582,15 +582,6 @@ namespace CashReceipts.Controllers
 
         #endregion
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         [HttpPost]
         public ActionResult DownloadReceipt(int receiptHeaderId)
         {
@@ -882,6 +873,15 @@ namespace CashReceipts.Controllers
             document.Close();
             filestream.Close();
             return File(filestream.ToArray(), "pdf", $"Receipt_{receipt.ReceiptNumber}.pdf");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

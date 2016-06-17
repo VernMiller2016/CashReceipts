@@ -1,0 +1,230 @@
+﻿  
+/* Box Styles */
+
+.box {
+    margin: 4.5em 7.5em;
+    padding: 1em;
+    background-color: rgba(20,53,80,0.038);
+    border: 1px solid rgba(20,53,80,0.05);
+}
+
+.demo-section {
+    margin: 0 auto 4.5em;
+    padding: 3em;
+    border: 1px solid rgba(20,53,80,0.14);
+}
+
+.demo-section:not(.wide),
+#exampleWrap .box:not(.wide) {
+    max-width: 400px;
+}
+
+.box:after,
+.demo-section:after {
+    content: "";
+    display: block;
+    clear: both;
+    height: 0;
+}
+
+#exampleWrap .box {
+    margin: 4.5em auto;
+}
+
+#example .box:first-child {
+    margin-top: 0;
+}
+
+.demo-section.k-content {
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.08);
+}
+
+/* Remove k-header classes
+.box.k-header,
+.demo-section.k-header {
+    background-position: 50% 70%;
+}
+
+html.k-flat .demo-section.k-header {
+  background-color: #fff;
+  color: #4c5356;
+}
+
+html.k-nova .demo-section.k-header {
+  background-color: #fff;
+  color: #32364c;
+}
+
+html.k-material .demo-section.k-header,
+html.k-material .demo-section.k-content {
+     background-color: #fefefe;
+     border-color: #fefefe;
+     box-shadow: 0 1px 2px 1px rgba(0,0,0,.10), 0 2px 5px rgba(0,0,0,.10);
+     color: #444;
+     font-weight: normal;
+}
+
+html.k-materialblack .demo-section.k-header,
+html.k-materialblack .demo-section.k-content {
+     background-color: #1c1c1c;
+     border-color: #1c1c1c;
+     box-shadow: 0 1px 2px 1px rgba(0,0,0,.10), 0 2px 5px rgba(0,0,0,.10);
+     color: #fff;
+     font-weight: normal;
+}
+*/
+
+.box h4,
+.demo-section h4 {
+    margin-bottom: 1em;
+    font-size: 12px;
+    line-height: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.box-col {
+    display: block;
+    float: left;
+    padding: 0 3em 1.667em 0;
+}
+
+.box ul:not(.km-widget) li,
+.demo-section .box-col ul:not(.km-widget) li {
+    line-height: 3em;
+}
+
+.box li:last-child {
+    margin-bottom: 0;
+}
+
+.box li a {
+    font-size: 13px;
+}
+
+.box .k-widget {
+    background-color: #ebeef0;
+    border-color: #ccc;
+    color: #7c7c7c;
+}
+.box .k-widget.k-slider {
+    background-color: transparent;
+}
+
+.box .k-button {
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: inherit;
+    color: #333;
+    background: #e2e4e7;
+    border-color: #e2e4e7;
+    min-width: 90px;
+    box-shadow: none;
+}
+
+.box .k-upload-status .k-button-bare {
+    min-width: 0;
+}
+
+.box .k-button:hover,
+.box .k-button:focus:active:not(.k-state-disabled):not([disabled]),
+.box .k-button:focus:not(.k-state-disabled):not([disabled]) {
+    background: #cad0d6;
+    border-color: #cad0d6;
+    color: #000;
+    box-shadow: none;
+}
+
+.box .k-primary {
+    color: #fff;
+    background: #015991;
+    border-color: #015991;
+}
+
+.box .k-primary:hover,
+.box .k-primary:focus:active:not(.k-state-disabled):not([disabled]),
+.box .k-primary:focus:not(.k-state-disabled):not([disabled]) {
+    background: #013A5E;
+    border-color: #013A5E;
+    color: #fff;
+}
+
+.box .k-textbox,
+.box textarea {
+    background: #fff;
+    border-color: #e2e4e7;
+    color: #555;
+    border-radius: 2px;
+}
+
+.box .k-textbox:hover,
+.box .k-textbox:active,
+.box .k-textbox:focus,
+.box textarea:hover,
+.box textarea:active,
+.box textarea:focus {
+    border-color: #cad0d6;
+    background: #fff;
+    color: #333;
+    box-shadow: none;
+}
+
+.box.demo-description p {
+    line-height: 1.5em;
+    max-width: 1000px;
+    padding-bottom: 1em;
+}
+
+.box.demo-description p:last-child {
+    padding-bottom: 0;
+}
+
+.box.demo-description ul,
+.box.demo-description ul li {
+    list-style: disc inside;
+    line-height: 1.5em;
+    max-width: 1000px;
+}
+
+.box.demo-description ol,
+.box.demo-description ol li {
+    list-style: decimal inside;
+    line-height: 1.5em;
+    max-width: 1000px;
+}
+
+.box.demo-description ul,
+.box.demo-description ol {
+    margin: 1em;
+    padding: 0;
+}
+
+.demo-hint {
+    line-height: 22px;
+    color: #aaa;
+    font-style: italic;
+    font-size: .9em;
+    padding-top: 1em;
+}
+
+.responsive-message {
+    font-size: 17px;
+    display: none;
+    margin: 4em auto;
+    padding: 2.5em;
+    text-align: center;
+    background-color: #ffda3f;
+    color: #000;
+}
+
+.responsive-message:before {
+    content: "This demo requires browser or device screen width to be equal or greater than 1024px.";
+}
+
+@media screen and (max-width: 1023px) {
+  .hidden-on-narrow {
+      display: none !important;
+  }
+  .responsive-message {
+    display: block;
+  }
+}

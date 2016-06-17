@@ -24,21 +24,6 @@
         <th>
             Account Number
         </th>
-        @*<th>
-            @Html.DisplayNameFor(model => model.Fund)
-        </th>*@
-        @*<th>
-            @Html.DisplayNameFor(model => model.Dept)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Program)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Project)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.BaseElementObjectDetail)
-        </th>*@
         <th>
             @Html.DisplayNameFor(model => model.Description)
         </th>
@@ -53,18 +38,6 @@
         <td>
             @Html.DisplayFor(modelItem => item.Fund).@Html.DisplayFor(modelItem => item.Dept).@Html.DisplayFor(modelItem => item.Program).@Html.DisplayFor(modelItem => item.Project).@Html.DisplayFor(modelItem => item.BaseElementObjectDetail)
         </td>
-        @*<td>
-            @Html.DisplayFor(modelItem => item.Dept)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Program)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Project)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.BaseElementObjectDetail)
-        </td>*@
         <td>
             @Html.DisplayFor(modelItem => item.Description)
         </td>
@@ -79,3 +52,4 @@
     </tr>
 }
 </table>
+@Html.Partial("_HighlightMenu", 3)

@@ -5,10 +5,7 @@
     ViewData["Title"] = "Edit";
 
 }
-
 <h2>Edit</h2>
-
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -43,12 +40,13 @@
             </div>
         </div>
     </form>
-        }
+}
 
-        <div>
-            @Html.ActionLink("Back to List", "Index")
-        </div>
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
 
-        @section Scripts {
-            @Scripts.Render("~/bundles/jqueryval")
-        }
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+@Html.Partial("_HighlightMenu", 0)

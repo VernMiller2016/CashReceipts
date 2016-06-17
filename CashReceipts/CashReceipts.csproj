@@ -260,6 +260,7 @@
     <Compile Include="Controllers\ReceiptBodiesController.cs" />
     <Compile Include="Controllers\ReceiptHeadersController.cs" />
     <Compile Include="Controllers\AccountsController.cs" />
+    <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\TendersController.cs" />
     <Compile Include="Filters\NoCacheAttribute.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
@@ -294,12 +295,16 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap3.3.5.min.css" />
+    <Content Include="Content\DaySummaryReport.css" />
+    <Content Include="Content\KendoBoxStyles.css" />
     <Content Include="Content\KendoCustomization.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="fonts\Intelicon.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\ajax-loader.gif" />
+    <Content Include="Images\company_logo.jpg" />
     <Content Include="Images\glyphicons-halflings-white.png" />
     <Content Include="Images\glyphicons-halflings.png" />
     <Content Include="Scripts\ai.0.22.9-build00167.js" />
@@ -319,7 +324,12 @@
     <Content Include="fonts\OpenSans-Regular.old.ttf" />
     <Content Include="fonts\OpenSans-Regular.ttf" />
     <Content Include="fonts\opensans-regular.woff" />
+    <Content Include="fonts\DejaVuSans\DejaVuSans-Bold.ttf" />
+    <Content Include="fonts\DejaVuSans\DejaVuSans-Oblique.ttf" />
+    <Content Include="fonts\DejaVuSans\DejaVuSans.ttf" />
+    <None Include="Properties\PublishProfiles\CashReceipting - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipts - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipts - FTP.pubxml" />
@@ -940,6 +950,7 @@
     <Content Include="Scripts\KendoUI2016.2.504\js\messages\kendo.messages.zh-CN.min.js" />
     <Content Include="Scripts\KendoUI2016.2.504\js\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\KendoUI2016.2.504\js\messages\kendo.messages.zh-TW.min.js" />
+    <Content Include="Scripts\KendoUI2016.2.504\js\pako.min.js" />
     <Content Include="Scripts\KendoUI2016.2.504\js\pako_deflate.min.js" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\Black\editor.png" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\Black\imagebrowser.png" />
@@ -2056,6 +2067,8 @@
     <Content Include="Scripts\KendoUI2016.2.504\styles\kendo.uniform.mobile.min.css.map" />
     <Content Include="Views\ReceiptHeaders\_HeaderBodiesGridView.cshtml" />
     <Content Include="Views\ReceiptHeaders\_ReceiptHeadersGrid.cshtml" />
+    <Content Include="Views\Reports\SummaryReport.cshtml" />
+    <Content Include="Views\Shared\_HighlightMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

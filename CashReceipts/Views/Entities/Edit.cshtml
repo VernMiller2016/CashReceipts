@@ -5,8 +5,6 @@
 }
 
 <h2>Edit</h2>
-
-
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -88,3 +86,4 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+@Html.Partial("_HighlightMenu", 1)

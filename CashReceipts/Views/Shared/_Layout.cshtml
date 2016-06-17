@@ -28,7 +28,14 @@
                     @*<li>@Html.ActionLink("Tender", "Index", "Tenders")</li>*@
                     <li>@Html.ActionLink("Departments", "Index", "Departments")</li>
                     <li>@Html.ActionLink("Accounts", "Index", "Accounts")</li>
-                    <li>@Html.ActionLink("Receipt", "Index", "ReceiptHeaders")</li>
+                    <li>@Html.ActionLink("Receipts", "Index", "ReceiptHeaders")</li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Day Summary Report", "SummaryReport", "Reports")</li>
+                            @*<li role="separator" class="divider"></li>*@
+                        </ul>
+                    </li>
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

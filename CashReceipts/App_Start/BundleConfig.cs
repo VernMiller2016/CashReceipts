@@ -40,6 +40,7 @@ namespace CashReceipts
                 "~/Scripts/jquery-2.1.4.min.js",
                 "~/Scripts/bootstrap3.3.5.min.js",
                 "~/Scripts/KendoUI2016.2.504/js/kendo.all.min.js",
+                "~/Scripts/KendoUI2016.2.504/js/jszip.min.js",
                 "~/Scripts/sweetalert/sweetalert.min.js",
                 "~/Scripts/SwetAlertHelper.js"));
         }

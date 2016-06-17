@@ -1,0 +1,238 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "System Reports";
+}
+@section styles{
+    <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
+    <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
+}
+
+<div id="example">
+    <div class="box wide hidden-on-narrow">
+        <div class="box-col">
+        </div>
+        <div class="box-col">
+        </div>
+        <div class="box-col">
+        </div>
+        <div class="box-col">
+        </div>
+        <div class="box-col">
+        </div>
+        <div class="box-col">
+            <h4>Select Page size</h4>
+            <select id="paper" style="width: 100px;">
+                <option value="size-a4" selected>A4</option>
+                <option value="size-letter">Letter</option>
+                <option value="size-executive">Executive</option>
+            </select>
+        </div>
+        <div class="box-col" style="padding-right: 10px;">
+            <h4>Select Date</h4>
+            <input id="datepicker" style="width: 100%" />
+        </div>
+        <div class="box-col">
+            <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+        </div>
+        <div class="box-col">
+            <h4>Get PDF</h4>
+            <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
+        </div>
+    </div>
+
+    <div class="page-container hidden-on-narrow">
+        <div class="pdf-page size-a4">
+            <div class="pdf-header">
+                <span class="company-logo">
+                    <img src="~/Images/company_logo.jpg" /> Cash Receipting System
+                </span>
+                <span class="invoice-number"></span>
+            </div>
+            <div class="pdf-footer">
+                <p>
+                    Cash Receipting System<br />
+                    Company Street Name<br />
+                    Company City & Country
+                </p>
+            </div>
+            <div class="for">
+                <h3>Summary report of the day</h3>
+                <p>
+                    Summary Date: <span class="selectedDate"></span>
+                </p>
+            </div>
+
+            <div class="from" style="display: none">
+                <h3>From</h3>
+                <p style="padding-bottom: 20px; border-bottom: 1px solid #e5e5e5;">
+                    Hanna Moos <br />
+                    Lützowplatz 456<br />
+                    Berlin, Germany, 10785
+                </p>
+                <p style="padding-top: 20px;">
+                    Invoice ID: 23543<br />
+                    Invoice Date: 12.03.2014<br />
+                    Due Date: 27.03.2014
+                </p>
+            </div>
+            <div class="pdf-body">
+                <div id="grid"></div>
+                <p class="signature">
+                    Signature: ________________ <br /><br />
+                    Generation Date: <span class="todayDate"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="responsive-message"></div>
+
+    <style>
+        /*
+                Use the DejaVu Sans font for display and embedding in the PDF file.
+                The standard PDF fonts have no support for Unicode characters.
+            */
+        .pdf-page {
+            font-family: "DejaVu Sans", "Arial", sans-serif;
+        }
+    </style>
+
+    <script>
+        // Import DejaVu Sans font for embedding
+
+        // NOTE: Only required if the Kendo UI stylesheets are loaded
+        // from a different origin, e.g. cdn.kendostatic.com
+        kendo.pdf.defineFont({
+            "DejaVu Sans": "~/fonts/DejaVu/DejaVuSans.ttf",
+            "DejaVu Sans|Bold": "~/fonts/DejaVu/DejaVuSans-Bold.ttf",
+            "DejaVu Sans|Bold|Italic": "~/fonts/DejaVu/DejaVuSans-Oblique.ttf",
+            "DejaVu Sans|Italic": "~/fonts/DejaVu/DejaVuSans-Oblique.ttf"
+        });
+    </script>
+
+    <!-- Load Pako ZLIB library to enable PDF compression -->
+    <script src="~/Scripts/KendoUI2016.2.504/js/pako.min.js"></script>
+    <script>
+        var summaryGrid;
+
+        function getPDF(selector) {
+            kendo.drawing.drawDOM($(selector))
+                .then(function (group) {
+                    kendo.drawing.pdf.saveAs(group, "Invoice.pdf");
+                });
+        }
+
+        function getSelectedDate() {
+            return kendo.toString($("#datepicker").data("kendoDatePicker").value(), "d");
+        }
+
+        $(document)
+            .ready(function () {
+                $('.todayDate').text(kendo.toString(new Date(), "d"));
+
+                $("#datepicker")
+                    .kendoDatePicker({
+                        format: "MM/dd/yyyy",
+                        value: new Date(),
+                        change: function () {
+                            var value = this.value();
+                            $('.selectedDate').text(kendo.toString(value, "d"));
+                            var grid = summaryGrid.data("kendoGrid");
+                            grid.dataSource.read();
+                            grid.refresh();
+                        }
+                    });
+
+                var aggregate = [
+                    { field: "Total", aggregate: "sum" }
+                ];
+                var columns = [
+                    { field: "DepartmentName", title: "Department Name", footerTemplate: "Total" },
+                    {
+                        field: "Total",
+                        title: "Total",
+                        width: 150,
+                        aggregates: ["sum"],
+                        footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                        format: "{0:n2}",
+                        headerAttributes: { style: "text-align:right" },
+                        attributes: { class: "text-right" }
+                    }
+                ];
+                summaryGrid = $("#grid")
+                    .kendoGrid({
+                        editable: false,
+                        sortable: true,
+                        resizable: true,
+                        reorderable: true,
+                        dataSource: new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: '@Url.Action("DepartmentsSummary_Read", "Reports")',
+                                    dataType: "json",
+
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation === "read") {
+                                        return { date: getSelectedDate() };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            pageSize: 10,
+                            serverPaging: false,
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                model: {
+                                    id: "DepartmentId",
+                                    fields: {
+                                        DepartmentId: {
+                                            type: "number"
+                                        },
+                                        DepartmentName: {
+                                            type: "string"
+                                        },
+                                        Total: { type: "number" }
+                                    }
+                                },
+                                errors: "Errors"
+                            },
+                            aggregate: aggregate,
+                            error: function (ee) {
+                                if (ee.errors && ee.errors["_readKey"]) {
+                                    notify.showError(ee.errors["_readKey"].errors[0]);
+                                } else {
+                                    notify.showError('An error has been occurred, please contact system admin.');
+                                }
+                                this.cancelChanges();
+                            },
+                            requestStart: function (e) {
+                                $('.summaryLoading').show();
+                            },
+                            requestEnd: function (e) {
+                                $('.summaryLoading').hide();
+                            }
+                        }),
+                        columns: columns,
+                        dataBound: function (e) {
+                            $('.selectedDate').text(getSelectedDate());
+                        }
+                    });
+
+                $("#paper")
+                    .kendoDropDownList({
+                        change: function () {
+                            $(".pdf-page")
+                                .removeClass("size-a4")
+                                .removeClass("size-letter")
+                                .removeClass("size-executive")
+                                .addClass(this.value());
+                        }
+                    });
+            });
+    </script>
+</div>
+
+@Html.Partial("_HighlightMenu", 5)
