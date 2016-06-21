@@ -749,8 +749,17 @@ namespace CashReceipts.Controllers
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
-            dataTable.AddCell(new Paragraph("Paid", boldFont));
 
+            dataTable.AddCell(new PdfPCell(new Phrase("Paid", boldFont))
+            {
+                Colspan = 2,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight,
+                HorizontalAlignment = Element.ALIGN_RIGHT
+            });
             foreach (var receiptBody in receipt.ReceiptBodyRecords.ToList())
             {
                 dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateFundDept(receiptBody.Template), font))
