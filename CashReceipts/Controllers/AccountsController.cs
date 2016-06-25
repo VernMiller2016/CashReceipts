@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using System.Data.Entity;
-using CashReceipts.Filters;
-using Kendo.Mvc.UI;
-using Kendo.Mvc.Extensions;
 
 namespace CashReceipts.Controllers
 {
+    [Authorize]
     public class AccountsController : Controller
     {
         private ApplicationDbContext db;

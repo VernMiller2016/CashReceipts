@@ -10,6 +10,7 @@ using CashReceipts.Models;
 
 namespace CashReceipts.Controllers
 {
+    [Authorize]
     public class TendersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

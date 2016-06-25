@@ -18,10 +18,11 @@ using iTextSharp.text.pdf;
 
 namespace CashReceipts.Controllers
 {
+    [Authorize]
     public class ReceiptHeadersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-        private LookupHelper _lookupHelper;
+        private readonly LookupHelper _lookupHelper;
 
         public ReceiptHeadersController()
         {
@@ -254,7 +255,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptHeadersList.Select(
-                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate.Date, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = x.ReceiptDate.Date, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]

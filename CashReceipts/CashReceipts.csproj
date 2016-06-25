@@ -1361,10 +1361,7 @@
     <Content Include="Views\Tenders\Edit.cshtml" />
     <Content Include="Views\Tenders\Index.cshtml" />
     <Content Include="Views\ReceiptBodies\Create.cshtml" />
-    <Content Include="Views\ReceiptBodies\Delete.cshtml" />
-    <Content Include="Views\ReceiptBodies\Details.cshtml" />
     <Content Include="Views\ReceiptBodies\Edit.cshtml" />
-    <Content Include="Views\ReceiptBodies\Index.cshtml" />
     <Content Include="Views\ReceiptHeaders\_HeaderTenders.cshtml" />
     <Content Include="Views\ReceiptHeaders\_HeaderBodies.cshtml" />
     <Content Include="Views\ReceiptHeaders\AddReceiptBody.cshtml" />

@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using CashReceipts.Helpers;
 using CashReceipts.Models;
 
 namespace CashReceipts.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+        [AllowAnonymous]
         public ActionResult Index()
         {
-            ViewBag.LastReceiptId = new LookupHelper(db).LastReceiptId;
             return View();
         }
 

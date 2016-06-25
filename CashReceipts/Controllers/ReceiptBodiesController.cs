@@ -10,46 +10,10 @@ using CashReceipts.Models;
 
 namespace CashReceipts.Controllers
 {
+    [Authorize]
     public class ReceiptBodiesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
-        //// GET: ReceiptBodies
-        //public ActionResult Index()
-        //{
-        //    var receiptBody = db.ReceiptBody.Include(r => r.ReceiptHeaders).Include(r => r.Templates);
-        //    return View(receiptBody.ToList());
-        //}
-
-        // GET: ReceiptBodies
-        public ActionResult Index(int? SelectedTemplate)
-        {
-            var templates = db.Templates.OrderBy(q => q.Description).ToList();
-            ViewBag.SelectedTemplate = new SelectList(templates, "TemplateID", "Description", SelectedTemplate);
-            int templateID = SelectedTemplate.GetValueOrDefault();
-
-            IQueryable<ReceiptBody> receiptbodies = db.ReceiptBodies
-                .Where(c => !SelectedTemplate.HasValue || c.TemplateID == templateID)
-                .OrderBy(d => d.ReceiptBodyID)
-                .Include(d => d.Template);
-            var sql = templates.ToString();
-            return View(templates.ToList());
-        }
-
-        // GET: ReceiptBodies/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            ReceiptBody receiptBody = db.ReceiptBodies.Find(id);
-            if (receiptBody == null)
-            {
-                return HttpNotFound();
-            }
-            return View(receiptBody);
-        }
 
         // GET: ReceiptBodies/Create
         public ActionResult Create()
