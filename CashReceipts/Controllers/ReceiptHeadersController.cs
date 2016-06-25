@@ -204,7 +204,7 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptHeaders = db.ReceiptHeaders
-                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList();
+                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = DbFunctions.TruncateTime(x.ReceiptDate), x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -254,7 +254,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptHeadersList.Select(
-                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.ClerkID, x.ReceiptDate.Date, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
