@@ -276,6 +276,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\Clerk.cs" />
+    <Compile Include="Models\ColumnOrders.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\GlobalSettings.cs" />
@@ -335,6 +336,7 @@
     <None Include="Properties\PublishProfiles\CashReceipts - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipts - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipts - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap3.3.5.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -381,7 +383,9 @@
     <Content Include="Scripts\sweetalert\sweetalert.min.js" />
     <Content Include="Scripts\SwetAlertHelper.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

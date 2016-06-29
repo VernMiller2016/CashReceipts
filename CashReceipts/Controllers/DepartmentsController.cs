@@ -267,5 +267,30 @@ namespace CashReceipts.Controllers
 
 
         #endregion
+
+        public ActionResult GetGcAccountDetails([DataSourceRequest] DataSourceRequest request, AutoCompleteViewModel model)
+        {
+            var results = new List<Template>();
+            if (!string.IsNullOrEmpty(model.value))
+            {
+                switch (model.field)
+                {
+                    case "Description":
+                        results = db.GetGCAccounts(ColumnOrders.Description, 100, model.value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return Json(results, JsonRequestBehavior.AllowGet);
+        }
+    }
+
+    public class AutoCompleteViewModel
+    {
+        public string value { get; set; }
+        public string field { get; set; }
+        public string @operator { get; set; }
+        public bool ignoreCase { get; set; }
     }
 }

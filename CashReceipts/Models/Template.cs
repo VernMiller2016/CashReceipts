@@ -36,6 +36,5 @@ namespace CashReceipts.Models
 
         public int Order { get; set; }
 
-
     }
 }

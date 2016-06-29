@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
+using System.Linq;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace CashReceipts.Models
@@ -47,5 +51,15 @@ namespace CashReceipts.Models
         public DbSet<ReceiptBody> ReceiptBodies { get; set; }
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
+
+        public List<Template> GetGCAccounts(ColumnOrders colIndex, int rowsNum, string searchTerm)
+        {
+            var indexParam = new SqlParameter("@index", SqlDbType.Int) {Value = colIndex};
+            var resultsCountParam = new SqlParameter("@resultsCount", SqlDbType.Int) { Value = rowsNum };
+                var searchTermParam = new SqlParameter("@searchTerm", SqlDbType.NVarChar) { Value = searchTerm };
+
+            return this.Database.SqlQuery<Template>("SearchAccounts @index, @searchTerm, @resultsCount", indexParam,
+                searchTermParam, resultsCountParam).ToList();
+        }
     }
 }
