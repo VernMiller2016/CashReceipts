@@ -52,7 +52,7 @@ namespace CashReceipts.Models
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
 
-        public List<Template> GetGCAccounts(ColumnOrders colIndex, int rowsNum, string searchTerm)
+        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows)
         {
             var indexParam = new SqlParameter("@index", SqlDbType.Int) {Value = colIndex};
             var resultsCountParam = new SqlParameter("@resultsCount", SqlDbType.Int) { Value = rowsNum };

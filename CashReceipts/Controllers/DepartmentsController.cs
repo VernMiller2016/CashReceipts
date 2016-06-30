@@ -271,12 +271,19 @@ namespace CashReceipts.Controllers
         public ActionResult GetGcAccountDetails([DataSourceRequest] DataSourceRequest request, AutoCompleteViewModel model)
         {
             var results = new List<Template>();
+            var rowsNum = 100;
             if (!string.IsNullOrEmpty(model.value))
             {
                 switch (model.field)
                 {
                     case "Description":
-                        results = db.GetGCAccounts(ColumnOrders.Description, 100, model.value);
+                        results = db.GetGCAccounts(ColumnOrders.Description, model.value, rowsNum, model.skip);
+                        break;
+                    case "Project":
+                        results = db.GetGCAccounts(ColumnOrders.Project, model.value, rowsNum, model.skip);
+                        break;
+                    case "BaseElementObjectDetail":
+                        results = db.GetGCAccounts(ColumnOrders.BaseElementObjectDetail, model.value, rowsNum, model.skip);
                         break;
                     default:
                         break;
@@ -292,5 +299,7 @@ namespace CashReceipts.Controllers
         public string field { get; set; }
         public string @operator { get; set; }
         public bool ignoreCase { get; set; }
+        public int skip { get; set; }
+        public int page { get; set; }
     }
 }

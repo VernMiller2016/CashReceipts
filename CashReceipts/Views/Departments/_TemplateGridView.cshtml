@@ -179,11 +179,13 @@
                                 {
                                     field: "Project",
                                     title: "Proj",
+                                    editor: autocompleteEditor,
                                     width: 50
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
+                                    editor: autocompleteEditor,
                                     width: 90
                                 },
                                 {
@@ -241,12 +243,13 @@
                             .kendoAutoComplete({
                                 placeholder: "Enter value ...",
                                 suggest: true,
-                                dataTextField: "Description",
+                                dataTextField: options.field,
                                 filter: "contains",
                                 minLength: 3,
                                 dataSource: {
                                     type: "json",
                                     serverFiltering: true,
+                                    serverPaging: true,
                                     transport: {
                                         read: {
                                             url: '@Url.Action("GetGCAccountDetails", "Departments")',
@@ -259,20 +262,34 @@
                                     }
                                 },
                                 select: function(e) {
-                                    var dataItem = this.dataItem(e.item.index());
-                                    parentContainer.find('[data-bind="value:Fund"]').val(dataItem.Fund);
-                                    model.set("Fund", dataItem.Fund);
-                                    parentContainer.find('[data-bind="value:Dept"]').val(dataItem.Dept);
-                                    model.set("Dept", dataItem.Dept);
-                                    parentContainer.find('[data-bind="value:Program"]').val(dataItem.Program);
-                                    model.set("Program", dataItem.Program);
-                                    parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);
-                                    model.set("Project", dataItem.Project);
-                                    parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
-                                    model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
-                                    //model.set("Description", dataItem.Description);
+                                    autoCompleteOnSelect(parentContainer, options.field, model, e);
                                 }
                             });
+                    }
+
+                    function autoCompleteOnSelect(parentContainer, fieldName, model, e) {
+                        var dataItem = this.dataItem(e.item.index());
+                        if (fieldName == 'Description') {
+                            parentContainer.find('[data-bind="value:Fund"]').val(dataItem.Fund);
+                            model.set("Fund", dataItem.Fund);
+                            parentContainer.find('[data-bind="value:Dept"]').val(dataItem.Dept);
+                            model.set("Dept", dataItem.Dept);
+                            parentContainer.find('[data-bind="value:Program"]').val(dataItem.Program);
+                            model.set("Program", dataItem.Program);
+                            parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);
+                            model.set("Project", dataItem.Project);
+                            parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
+                            model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
+                            //model.set("Description", dataItem.Description);
+                        }
+                        else if (fieldName == 'Project') {
+                            parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);
+                            model.set("Project", dataItem.Project);
+                        }
+                        else if (fieldName == 'BaseElementObjectDetail') {
+                            parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
+                            model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
+                        }
                     }
 
                     function isBlank(str) {
