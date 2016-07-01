@@ -262,13 +262,13 @@
                                     }
                                 },
                                 select: function(e) {
-                                    autoCompleteOnSelect(parentContainer, options.field, model, e);
+                                    autoCompleteOnSelect(this, parentContainer, options.field, model, e);
                                 }
                             });
                     }
 
-                    function autoCompleteOnSelect(parentContainer, fieldName, model, e) {
-                        var dataItem = this.dataItem(e.item.index());
+                    function autoCompleteOnSelect(that, parentContainer, fieldName, model, e) {
+                        var dataItem = that.dataItem(e.item.index());
                         if (fieldName == 'Description') {
                             parentContainer.find('[data-bind="value:Fund"]').val(dataItem.Fund);
                             model.set("Fund", dataItem.Fund);
