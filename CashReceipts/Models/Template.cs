@@ -26,7 +26,7 @@ namespace CashReceipts.Models
         [StringLength(9, ErrorMessage = "Base/Element/Object/Detail cannot be longer than 9 characters.")]
         public string BaseElementObjectDetail { get; set; }
 
-        [StringLength(35, ErrorMessage = "Description cannot be longer than 35 characters.")]
+        [StringLength(200, ErrorMessage = "Description cannot be longer than 200 characters.")]
         [Required]
         public string Description { get; set; }
 

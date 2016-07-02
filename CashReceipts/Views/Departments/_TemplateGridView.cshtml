@@ -114,8 +114,8 @@
                                         Description: { type: "string", validation: {
                                             custom6: function (input) {
                                                 if (input.attr("data-bind") == "value:Description") {
-                                                    input.attr("data-custom6-msg", "Description must be less than or equal to 35");
-                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 35);
+                                                    input.attr("data-custom6-msg", "Description must be less than or equal to 200");
+                                                    return !isBlank(input.val()) && lessThanOrEqual(input.val(), 200);
                                                 } else {
                                                     return true;
                                                 }
@@ -165,41 +165,42 @@
                                 {
                                     field: "Fund",
                                     title: "Fund",
-                                    width: 50
+                                    width: 35
                                 },{
                                     field: "Dept",
                                     title: "Dept",
-                                    width: 50
+                                    width: 35
                                 },
                                 {
                                     field: "Program",
                                     title: "Prog",
-                                    width: 50
+                                    width: 35
                                 },
                                 {
                                     field: "Project",
                                     title: "Proj",
                                     editor: autocompleteEditor,
-                                    width: 50
+                                    width: 40
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
                                     editor: autocompleteEditor,
-                                    width: 90
+                                    width: 60
                                 },
                                 {
                                     field: "Description",
                                     title: "Description",
                                     editor: autocompleteEditor,
-                                    width: 130
+                                    width: 160
                                 },
                                 {
                                     field: "Order",
                                     title: "Order",
-                                    width: 50
+                                    filterable: false,
+                                    width: 35
                                 },
-                                { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "70px" }
                             ],
                             editable: "inline",
                             toolbar: ["create",
