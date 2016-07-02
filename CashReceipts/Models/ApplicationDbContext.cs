@@ -27,14 +27,14 @@ namespace CashReceipts.Models
                 .WillCascadeOnDelete(false);
 
             //modelBuilder.Entity<IdentityRole>().ToTable("Role");
-            modelBuilder.Entity<IdentityUserRole>().HasKey(x => new { x.RoleId, x.UserId}).ToTable("UserRole");
-            modelBuilder.Entity<IdentityUserLogin>().HasKey(x=>x.UserId).ToTable("UserLogin");
+            modelBuilder.Entity<IdentityUserRole>().HasKey(x => new { x.RoleId, x.UserId }).ToTable("UserRole");
+            modelBuilder.Entity<IdentityUserLogin>().HasKey(x => x.UserId).ToTable("UserLogin");
             //modelBuilder.Entity<IdentityUserClaim>().ToTable("UserClaim");
             //modelBuilder.Entity<IdentityUserClaim>().Property(u => u.ClaimType).HasMaxLength(150);
             //modelBuilder.Entity<IdentityUserClaim>().Property(u => u.ClaimValue).HasMaxLength(500);
 
             //modelBuilder.Configurations.Add(new ReceiptBodyMap());
-            
+
         }
 
         public static ApplicationDbContext Create()
@@ -52,14 +52,15 @@ namespace CashReceipts.Models
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
 
-        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows)
+        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0)
         {
-            var indexParam = new SqlParameter("@index", SqlDbType.Int) {Value = colIndex};
+            var indexParam = new SqlParameter("@index", SqlDbType.Int) { Value = colIndex };
             var resultsCountParam = new SqlParameter("@resultsCount", SqlDbType.Int) { Value = rowsNum };
-                var searchTermParam = new SqlParameter("@searchTerm", SqlDbType.NVarChar) { Value = searchTerm };
+            var skipRowsParam = new SqlParameter("@skipRows", SqlDbType.Int) { Value = skipRows };
+            var searchTermParam = new SqlParameter("@searchTerm", SqlDbType.NVarChar) { Value = searchTerm };
 
-            return this.Database.SqlQuery<Template>("SearchAccounts @index, @searchTerm, @resultsCount", indexParam,
-                searchTermParam, resultsCountParam).ToList();
+            return this.Database.SqlQuery<Template>("SearchAccounts @index, @searchTerm, @resultsCount, @skipRows", indexParam,
+                searchTermParam, resultsCountParam, skipRowsParam).ToList();
         }
     }
 }

@@ -1,0 +1,152 @@
+﻿@model dynamic
+<div id="templates" class="">
+    <div class="">
+        <div class="title-section">
+            <h4>Gl Accounts</h4>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div id="SystemRolesLst" class="k-content my-k-content">
+                <div id="templateGrid"></div>
+                <script>
+                    var selectedRows = undefined,
+                        currentGrid = null,
+                        accountsDs;
+                    $(document).ready(function () {
+                        accountsDs = new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: '@Url.Action("GlAccounts_Read", "Accounts")',
+                                    dataType: "json"
+                                },
+                                parameterMap: function (options) {
+                                    debugger;
+                                    return serialize(options); //contains take, skip, sort, and filters
+                                }
+                            },
+                            batch: true,
+                            serverPaging: true,
+                            serverFiltering: false,
+                            serverSorting: false,
+                            pageSize: 20,
+                            sort: [{ field: "Order", dir: "asc" }],
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                model: {
+                                    id: "TemplateID",
+                                    fields: {
+                                        TemplateID: { editable: false, nullable: false, defaultValue: 0 },
+                                        Fund: {
+                                            type: "string"
+                                        },
+                                        Dept: {
+                                            type: "string"
+                                        },
+                                        Program: { type: "string" },
+                                        Project: { type: "string" },
+                                        BaseElementObjectDetail: { type: "string" },
+                                        Description: { type: "string" },
+                                        DepartmentID: { type: "number", defaultvalue: 0 },
+                                        Order: { type: "number", defaultvalue: 0 },
+                                    }
+                                },
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                if (e.errors && e.errors["_addKey"]) {
+                                    notify.showError(e.errors["_addKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_deleteKey"]) {
+                                    notify.showError(e.errors["_deleteKey"].errors[0]);
+                                }
+                                else if (e.errors && e.errors["_updateKey"]) {
+                                    notify.showError(e.errors["_updateKey"].errors[0]);
+                                }
+                                else {
+                                    notify.showError('An error has been occurred, please contact system admin.');
+                                }
+                                this.cancelChanges();
+                            }
+                        });
+
+                        $("#templateGrid").kendoGrid({
+                            dataSource: accountsDs,
+                            //width: 600,
+                            selectable: "row",
+                            resizable: true,
+                            scrollable: true,
+                            sortable: true,
+                            filterable: true,
+                            groupable: true,
+                            reorderable: true,
+                            columnMenu: true,
+                            pageable: {
+                                refresh: true,
+                                input: true,
+                                numeric: false,
+                                pageSizes: [10, 20, 30, 50, 75, 100, 500, 1000]
+                            },
+                            columns: [
+                                {
+                                    field: "Fund",
+                                    title: "Fund",
+                                    width: 50
+                                }, {
+                                    field: "Dept",
+                                    title: "Dept",
+                                    width: 50
+                                },
+                                {
+                                    field: "Program",
+                                    title: "Prog",
+                                    width: 50
+                                },
+                                {
+                                    field: "Project",
+                                    title: "Proj",
+                                    width: 50
+                                },
+                                {
+                                    field: "BaseElementObjectDetail",
+                                    title: "Base/Elem/Obj/Dtl",
+                                    width: 90
+                                },
+                                {
+                                    field: "Description",
+                                    title: "Description",
+                                    width: 130
+                                }
+                            ],
+                            editable: "inline",
+                            toolbar: [],
+                            dataBound: function (e) {
+                                //enableDisableActions(false);
+                                if (!currentGrid)
+                                    currentGrid = $("#templateGrid").data("kendoGrid");
+                            },
+                            edit: function (e) {
+                            },
+                            change: function () {
+                                //selectedRows = this.select();
+                                //enableDisableActions(true);
+                            },
+                            save: function (e) {
+                            }
+                        });
+                    });
+
+                    serialize = function (obj) {
+                        var str = [];
+                        for (var p in obj)
+                            if (obj.hasOwnProperty(p)) {
+                                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                            }
+                        return str.join("&");
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Partial("_HighlightMenu", 3)

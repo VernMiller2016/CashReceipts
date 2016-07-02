@@ -331,11 +331,7 @@
     <None Include="Properties\PublishProfiles\CashReceipting - FTP %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\CashReceipts - FTP %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\CashReceipts - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\CashReceipts - Web Deploy %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\CashReceipts - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\Local.pubxml" />
     <None Include="Properties\PublishProfiles\Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap3.3.5.min.js" />
@@ -472,6 +468,7 @@
     <Content Include="Views\ReceiptHeaders\_ReceiptHeadersGrid.cshtml" />
     <Content Include="Views\Reports\SummaryReport.cshtml" />
     <Content Include="Views\Shared\_HighlightMenu.cshtml" />
+    <Content Include="Views\Accounts\GlAccounts.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
