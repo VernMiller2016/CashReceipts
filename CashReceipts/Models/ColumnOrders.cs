@@ -2,6 +2,7 @@
 {
     public enum ColumnOrders
     {
+        All = 0,
         Fund = 1,
         Dept,
         Program,

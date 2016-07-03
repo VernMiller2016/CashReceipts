@@ -151,13 +151,39 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult GlAccounts_Read([DataSourceRequest] DataSourceRequest request, int skip, int take)
+        public ActionResult GlAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
+            string value, string @operator, string field)
         {
             var isAzure = bool.Parse(ConfigurationManager.AppSettings["IsAzure"] ?? "false");
             var dbName = isAzure ? "" : "GC.";
             var rowsTotal = db.Database.SqlQuery<int>($"Select count(*) from {dbName}dbo.GL00100 where Active = 1");
+            var colIndex = ColumnOrders.All;
+            if (!string.IsNullOrEmpty(@operator) && !string.IsNullOrEmpty(value))
+            {
+                switch (field)
+                {
+                    case "Fund":
+                        colIndex = ColumnOrders.Fund;
+                        break;
+                    case "Dept":
+                        colIndex = ColumnOrders.Dept;
+                        break;
+                    case "Program":
+                        colIndex = ColumnOrders.Program;
+                        break;
+                    case "Project":
+                        colIndex = ColumnOrders.Project;
+                        break;
+                    case "BaseElementObjectDetail":
+                        colIndex = ColumnOrders.BaseElementObjectDetail;
+                        break;
+                    case "Description":
+                        colIndex = ColumnOrders.Description;
+                        break;
+                }
+            }
             var templates =
-           db.GetGCAccounts(0, string.Empty, take, skip)
+           db.GetGCAccounts(colIndex, value??string.Empty, take??20, skip??0)
            .ToList();
 
             return Json(new {Data= templates, Total=rowsTotal}, JsonRequestBehavior.AllowGet);

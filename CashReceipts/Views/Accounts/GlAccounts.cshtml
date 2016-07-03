@@ -26,7 +26,7 @@
                             },
                             batch: true,
                             serverPaging: true,
-                            serverFiltering: false,
+                            serverFiltering: true,
                             serverSorting: false,
                             pageSize: 20,
                             sort: [{ field: "Order", dir: "asc" }],
@@ -72,12 +72,22 @@
 
                         $("#templateGrid").kendoGrid({
                             dataSource: accountsDs,
+
                             //width: 600,
                             selectable: "row",
                             resizable: true,
                             scrollable: true,
                             sortable: true,
-                            filterable: true,
+                            filterable: {
+                                extra: false,
+                                operators: {
+                                    string: {
+                                        contains: "Contains",
+                                        startswith: "Starts With"
+                                    }
+                                },
+                                mode: "row"
+                            },
                             groupable: true,
                             reorderable: true,
                             columnMenu: true,
@@ -91,31 +101,61 @@
                                 {
                                     field: "Fund",
                                     title: "Fund",
-                                    width: 50
+                                    width: 50,
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                startswith: "Starts With"
+                                            }
+                                        }
+                                    }
                                 }, {
                                     field: "Dept",
                                     title: "Dept",
-                                    width: 50
+                                    width: 50,
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                startswith: "Starts With"
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     field: "Program",
                                     title: "Prog",
-                                    width: 50
+                                    width: 50,
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                startswith: "Starts"
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     field: "Project",
                                     title: "Proj",
-                                    width: 50
+                                    width: 50,
+                                    filterable: false
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
-                                    width: 90
+                                    width: 90,
+                                    filterable: false
                                 },
                                 {
                                     field: "Description",
                                     title: "Description",
-                                    width: 130
+                                    width: 130,
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                contains: "Contains"
+                                            }
+                                        }
+                                    }
                                 }
                             ],
                             editable: "inline",
@@ -140,9 +180,16 @@
                         var str = [];
                         for (var p in obj)
                             if (obj.hasOwnProperty(p)) {
-                                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                                str.push(serializeProperty(p, obj[p]));
                             }
                         return str.join("&");
+                    }
+
+                    serializeProperty = function (prop, value) {
+                        if (typeof value == "object")
+                            return serialize(value);
+                        else
+                            return encodeURIComponent(prop) + "=" + encodeURIComponent(value);
                     }
                 </script>
             </div>
