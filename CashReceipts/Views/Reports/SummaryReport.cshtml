@@ -148,7 +148,8 @@
                     { field: "Total", aggregate: "sum" }
                 ];
                 var columns = [
-                    { field: "DepartmentName", title: "Department Name", footerTemplate: "Total" },
+                    { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
+                    { field: "DepartmentName", title: "Department Name"},
                     {
                         field: "Total",
                         title: "Total",
@@ -189,6 +190,9 @@
                                     id: "DepartmentId",
                                     fields: {
                                         DepartmentId: {
+                                            type: "number"
+                                        },
+                                        ReceiptNumber: {
                                             type: "number"
                                         },
                                         DepartmentName: {

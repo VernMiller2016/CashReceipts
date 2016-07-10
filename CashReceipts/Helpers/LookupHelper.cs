@@ -1,6 +1,7 @@
 ﻿using CashReceipts.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 
@@ -30,5 +31,10 @@ namespace CashReceipts.Helpers
                     lastReceipt.Value = value.ToString();
             }
         }
+
+        public bool IsAzure => bool.Parse(ConfigurationManager.AppSettings["IsAzure"] ?? "false");
+
+        public string GcDbName => IsAzure ? "" : "GC.";
+
     }
 }

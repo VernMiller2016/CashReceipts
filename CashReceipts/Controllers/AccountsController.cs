@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using CashReceipts.Models;
 using System.Data.Entity;
 using CashReceipts.Filters;
+using CashReceipts.Helpers;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 
@@ -154,8 +155,7 @@ namespace CashReceipts.Controllers
         public ActionResult GlAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
             string value, string @operator, string field)
         {
-            var isAzure = bool.Parse(ConfigurationManager.AppSettings["IsAzure"] ?? "false");
-            var dbName = isAzure ? "" : "GC.";
+            var dbName = new LookupHelper(db).GcDbName;
             var rowsTotal = db.Database.SqlQuery<int>($"Select count(*) from {dbName}dbo.GL00100 where Active = 1");
             var colIndex = ColumnOrders.All;
             if (!string.IsNullOrEmpty(@operator) && !string.IsNullOrEmpty(value))
@@ -183,7 +183,7 @@ namespace CashReceipts.Controllers
                 }
             }
             var templates =
-           db.GetGCAccounts(colIndex, value??string.Empty, take??20, skip??0)
+           db.GetGCAccounts(colIndex, value??string.Empty, take??20, skip??0, false)
            .ToList();
 
             return Json(new {Data= templates, Total=rowsTotal}, JsonRequestBehavior.AllowGet);

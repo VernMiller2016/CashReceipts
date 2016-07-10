@@ -52,9 +52,9 @@ namespace CashReceipts.Models
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
 
-        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0)
+        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0, bool getDistinct = true)
         {
-            var indexParam = new SqlParameter("@index", SqlDbType.Int) { Value = colIndex };
+            var indexParam = new SqlParameter("@index", SqlDbType.Int) { Value = (getDistinct ? colIndex : 10 + colIndex) };
             var resultsCountParam = new SqlParameter("@resultsCount", SqlDbType.Int) { Value = rowsNum };
             var skipRowsParam = new SqlParameter("@skipRows", SqlDbType.Int) { Value = skipRows };
             var searchTermParam = new SqlParameter("@searchTerm", SqlDbType.NVarChar) { Value = searchTerm };

@@ -10,6 +10,7 @@
                 <div id="templateGrid"></div>
                 <script>
                     var selectedRows = undefined,
+                        templatesDataSources,
                         currentGrid = null;
                     $(document).ready(function () {
 
@@ -165,15 +166,18 @@
                                 {
                                     field: "Fund",
                                     title: "Fund",
+                                    editor: autocompleteEditor,
                                     width: 35
                                 },{
                                     field: "Dept",
                                     title: "Dept",
+                                    editor: autocompleteEditor,
                                     width: 35
                                 },
                                 {
                                     field: "Program",
                                     title: "Prog",
+                                    editor: autocompleteEditor,
                                     width: 35
                                 },
                                 {
@@ -246,7 +250,7 @@
                                 //suggest: true,
                                 dataTextField: options.field,
                                 filter: "contains",
-                                minLength: 3,
+                                minLength: 2,
                                 dataSource: {
                                     type: "json",
                                     serverFiltering: true,
@@ -344,7 +348,7 @@
                         }
 
                         var currOrder = templatesDataSources.getByUid(recordUid);
-                        if (currOrder != null && currOrder != undefined) {
+                        if (currOrder) {
                             var newOrder = getOrders(currOrder.Order, up);
                             if (currOrder.Order != newOrder.Order) {
                                 var newOrderElem = templatesDataSources.at(newOrder.Index);

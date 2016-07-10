@@ -9,7 +9,51 @@ AS
 			@query nvarchar(2048)
 	set @query = 'SELECT distinct '
 	select @condition = '1=1'
-
+	if(@index = 1)
+		Begin
+			set @condition = 'ACTNUMBR_1 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' 0 TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
+				,'''' Dept
+				,'''' Program
+				,'''' Project
+				,'''' BaseElementObjectDetail
+				,'''' Description'
+		End
+	else 
+	if(@index = 2)
+		Begin
+			set @condition = 'ACTNUMBR_2 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' 0 TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,'''' Fund
+				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
+				,'''' Program
+				,'''' Project
+				,'''' BaseElementObjectDetail
+				,'''' Description'
+		End
+	else 
+	if(@index = 3)
+		Begin
+			set @condition = 'ACTNUMBR_3 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' 0 TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,'''' Fund
+				,'''' Dept
+				,LTRIM(RTRIM([ACTNUMBR_3])) Program
+				,'''' Project
+				,'''' BaseElementObjectDetail
+				,'''' Description'
+		End
+	else 
 	if(@index = 4)
 		Begin
 			set @condition = 'ACTNUMBR_4 like '''+ @searchTerm+'%'''
@@ -52,6 +96,50 @@ AS
 				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
 				,LTRIM(RTRIM([ACTDESCR])) Description'
 		END
+	ELSE if(@index = 11)
+		Begin
+			set @condition = 'ACTNUMBR_1 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' [ACTINDX] TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
+				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
+				,LTRIM(RTRIM([ACTNUMBR_3])) Program
+				,LTRIM(RTRIM([ACTNUMBR_4])) Project
+				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
+				,LTRIM(RTRIM([ACTDESCR])) Description'
+		End
+	else 
+	if(@index = 12)
+		Begin
+			set @condition = 'ACTNUMBR_2 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' [ACTINDX] TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
+				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
+				,LTRIM(RTRIM([ACTNUMBR_3])) Program
+				,LTRIM(RTRIM([ACTNUMBR_4])) Project
+				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
+				,LTRIM(RTRIM([ACTDESCR])) Description'
+		End
+	else 
+	if(@index = 13)
+		Begin
+			set @condition = 'ACTNUMBR_3 like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' [ACTINDX] TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
+				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
+				,LTRIM(RTRIM([ACTNUMBR_3])) Program
+				,LTRIM(RTRIM([ACTNUMBR_4])) Project
+				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
+				,LTRIM(RTRIM([ACTDESCR])) Description'
+		End
 	else 
 		set @query = @query + 
 			' [ACTINDX] TemplateID

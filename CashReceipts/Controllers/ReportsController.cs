@@ -28,7 +28,7 @@ namespace CashReceipts.Controllers
             var summaryData = _db.ReceiptHeaders.Include(x => x.Department)
                 .Where(x=> SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
                 .GroupBy(x=>x.Department.DepartmentID)
-                .Select(x => new { DepartmentId = x.Key, DepartmentName = x.FirstOrDefault().Department.Name, Total = x.Sum(y => y.ReceiptTotal)}).ToList();
+                .Select(x => new { DepartmentId = x.Key, ReceiptNumber = x.FirstOrDefault().ReceiptNumber, DepartmentName = x.FirstOrDefault().Department.Name, Total = x.Sum(y => y.ReceiptTotal)}).ToList();
 
             return Json(summaryData.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }

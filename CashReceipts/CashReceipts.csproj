@@ -273,6 +273,10 @@
     <Compile Include="Migrations\201606022253285_adding_Payment_Methods_Enum.Designer.cs">
       <DependentUpon>201606022253285_adding_Payment_Methods_Enum.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607102109013_Templates_DescriptionLength.cs" />
+    <Compile Include="Migrations\201607102109013_Templates_DescriptionLength.Designer.cs">
+      <DependentUpon>201607102109013_Templates_DescriptionLength.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\Clerk.cs" />
@@ -332,7 +336,6 @@
     <None Include="Properties\PublishProfiles\CashReceipting - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\Local.pubxml" />
-    <None Include="Properties\PublishProfiles\Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap3.3.5.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -368,6 +371,12 @@
     <Content Include="Scripts\KendoUI2016.2.504\styles\Bootstrap\sprite_2x.png" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\Bootstrap\sprite_kpi.png" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\Bootstrap\sprite_kpi_2x.png" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\LICENSE.txt" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\glyphs\KendoUIGlyphs.svg" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\back.png" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.svg" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\wp8_icons.png" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\wp8_inverseicons.png" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\kendo.bootstrap.min.css" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\kendo.bootstrap.mobile.min.css" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\kendo.common.min.css" />
@@ -469,6 +478,24 @@
     <Content Include="Views\Reports\SummaryReport.cshtml" />
     <Content Include="Views\Shared\_HighlightMenu.cshtml" />
     <Content Include="Views\Accounts\GlAccounts.cshtml" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans-Bold.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans-ExtraLight.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans-Oblique.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSansMono-Bold.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSansMono-BoldOblique.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSansMono-Oblique.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSansMono.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSerif-Bold.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSerif-BoldItalic.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSerif.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\glyphs\KendoUIGlyphs.eot" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\glyphs\KendoUIGlyphs.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\glyphs\KendoUIGlyphs.woff" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.ttf" />
+    <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.woff" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -485,6 +512,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201606022253285_adding_Payment_Methods_Enum.resx">
       <DependentUpon>201606022253285_adding_Payment_Methods_Enum.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607102109013_Templates_DescriptionLength.resx">
+      <DependentUpon>201607102109013_Templates_DescriptionLength.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

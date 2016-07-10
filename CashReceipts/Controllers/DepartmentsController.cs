@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Filters;
+using CashReceipts.Helpers;
 using CashReceipts.Models;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
@@ -173,19 +174,26 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    template.DepartmentID = departmentId;
-                    db.Templates.Add(template);
-                    try
+                    if (!IsValidAccount(template))
                     {
-                        if (db.SaveChanges() <= 0)
+                        ModelState.AddModelError("_addKey", "Invalid account, Please check GC Accounts page for a valid data!");
+                    }
+                    else
+                    {
+                        template.DepartmentID = departmentId;
+                        db.Templates.Add(template);
+                        try
                         {
-                            //todo supports localization
+                            if (db.SaveChanges() <= 0)
+                            {
+                                //todo supports localization
+                                ModelState.AddModelError("_addKey", "Can't add this template to database");
+                            }
+                        }
+                        catch (Exception e)
+                        {
                             ModelState.AddModelError("_addKey", "Can't add this template to database");
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        ModelState.AddModelError("_addKey", "Can't add this template to database");
                     }
                 }
             }
@@ -202,17 +210,25 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    db.Entry(template).State = EntityState.Modified;
-                    try
+                    if (!IsValidAccount(template))
                     {
-                        if (db.SaveChanges() <= 0)
+                        ModelState.AddModelError("_addKey",
+                            "Invalid account, Please check GC Accounts page for a valid data!");
+                    }
+                    else
+                    {
+                        db.Entry(template).State = EntityState.Modified;
+                        try
+                        {
+                            if (db.SaveChanges() <= 0)
+                            {
+                                ModelState.AddModelError("_updateKey", "Can't update this template to database");
+                            }
+                        }
+                        catch (Exception)
                         {
                             ModelState.AddModelError("_updateKey", "Can't update this template to database");
                         }
-                    }
-                    catch (Exception)
-                    {
-                        ModelState.AddModelError("_updateKey", "Can't update this template to database");
                     }
                 }
             }
@@ -266,6 +282,15 @@ namespace CashReceipts.Controllers
         }
 
 
+        private bool IsValidAccount(Template template)
+        {
+            var dbName = new LookupHelper(db).GcDbName;
+            var sqlQuery = $"Select count(*) from {dbName}dbo.GL00100 where Active = 1 and [ACTNUMBR_1] = '{template.Fund}'"
+                + $" and [ACTNUMBR_2] = '{template.Dept}' and [ACTNUMBR_3] = '{template.Program}' and [ACTNUMBR_4] = '{template.Project}'"
+                + $" and [ACTNUMBR_5] = '{template.BaseElementObjectDetail}'";
+            return db.Database.SqlQuery<int>(sqlQuery).First() > 0;
+        }
+
         #endregion
 
         public ActionResult GetGcAccountDetails([DataSourceRequest] DataSourceRequest request, AutoCompleteViewModel model)
@@ -276,14 +301,23 @@ namespace CashReceipts.Controllers
             {
                 switch (model.field)
                 {
-                    case "Description":
-                        results = db.GetGCAccounts(ColumnOrders.Description, model.value, rowsNum, model.skip);
+                    case "Fund":
+                        results = db.GetGCAccounts(ColumnOrders.Fund, model.value, rowsNum, model.skip);
+                        break;
+                    case "Dept":
+                        results = db.GetGCAccounts(ColumnOrders.Dept, model.value, rowsNum, model.skip);
+                        break;
+                    case "Program":
+                        results = db.GetGCAccounts(ColumnOrders.Program, model.value, rowsNum, model.skip);
                         break;
                     case "Project":
                         results = db.GetGCAccounts(ColumnOrders.Project, model.value, rowsNum, model.skip);
                         break;
                     case "BaseElementObjectDetail":
                         results = db.GetGCAccounts(ColumnOrders.BaseElementObjectDetail, model.value, rowsNum, model.skip);
+                        break;
+                    case "Description":
+                        results = db.GetGCAccounts(ColumnOrders.Description, model.value, rowsNum, model.skip);
                         break;
                     default:
                         break;
