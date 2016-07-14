@@ -363,7 +363,7 @@
             }
         });
 
-        $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")', function (data) {
+        $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")?includeAccounts=false', function (data) {
             templatesList = data;
             initReceiptsBodyGrid(detailRow.find(".receiptsBodyGrid"), e);
         });
@@ -798,6 +798,7 @@
     }
 
     function templateDropDownEditor(container, options) {
+        var rowContainer = container;
         $('<input required data-text-field="text" data-value-field="value" data-bind="value:' + options.field + '"/>')
             .appendTo(container)
             .kendoDropDownList({
@@ -823,6 +824,10 @@
                             }
                         }
                     }
+                },
+                select: function (e) {
+                    var accountNumber = e.item.text().split("|")[1].trim();
+                    $(rowContainer).parents('tr:first').find('td:first').text(accountNumber);
                 }
             });
     }

@@ -299,29 +299,32 @@ namespace CashReceipts.Controllers
             var rowsNum = 100;
             if (!string.IsNullOrEmpty(model.value))
             {
+                ColumnOrders columnOrder;
                 switch (model.field)
                 {
                     case "Fund":
-                        results = db.GetGCAccounts(ColumnOrders.Fund, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.Fund;
                         break;
                     case "Dept":
-                        results = db.GetGCAccounts(ColumnOrders.Dept, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.Dept;
                         break;
                     case "Program":
-                        results = db.GetGCAccounts(ColumnOrders.Program, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.Program;
                         break;
                     case "Project":
-                        results = db.GetGCAccounts(ColumnOrders.Project, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.Project;
                         break;
                     case "BaseElementObjectDetail":
-                        results = db.GetGCAccounts(ColumnOrders.BaseElementObjectDetail, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.BaseElementObjectDetail;
                         break;
                     case "Description":
-                        results = db.GetGCAccounts(ColumnOrders.Description, model.value, rowsNum, model.skip);
+                        columnOrder = ColumnOrders.Description;
                         break;
                     default:
+                        columnOrder = ColumnOrders.Description;
                         break;
                 }
+                results = db.GetGCAccounts(columnOrder, model.value, rowsNum, model.skip);
             }
             return Json(results, JsonRequestBehavior.AllowGet);
         }

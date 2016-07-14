@@ -20,7 +20,6 @@
                                     dataType: "json"
                                 },
                                 parameterMap: function (options) {
-                                    debugger;
                                     return serialize(options); //contains take, skip, sort, and filters
                                 }
                             },
@@ -137,13 +136,25 @@
                                     field: "Project",
                                     title: "Proj",
                                     width: 50,
-                                    filterable: false
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                startswith: "Starts"
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     field: "BaseElementObjectDetail",
                                     title: "Base/Elem/Obj/Dtl",
                                     width: 90,
-                                    filterable: false
+                                    filterable: {
+                                        operators: {
+                                            string: {
+                                                startswith: "Starts"
+                                            }
+                                        }
+                                    }
                                 },
                                 {
                                     field: "Description",
@@ -186,6 +197,13 @@
                     }
 
                     serializeProperty = function (prop, value) {
+                        if (prop === "filters" && Object.prototype.toString.call(value) === '[object Array]') {
+                            var str = [];
+                            for (var i = 0; i < value.length; i++) {
+                                str.push(serializeProperty(value[i].field, value[i].value));
+                            }
+                            return str.join("&");
+                        }
                         if (typeof value == "object")
                             return serialize(value);
                         else

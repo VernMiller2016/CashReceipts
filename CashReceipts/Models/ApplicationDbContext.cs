@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -52,15 +53,58 @@ namespace CashReceipts.Models
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
 
-        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0, bool getDistinct = true)
+        public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0)
         {
-            var indexParam = new SqlParameter("@index", SqlDbType.Int) { Value = (getDistinct ? colIndex : 10 + colIndex) };
+            var indexParam = new SqlParameter("@index", SqlDbType.Int) { Value = colIndex };
             var resultsCountParam = new SqlParameter("@resultsCount", SqlDbType.Int) { Value = rowsNum };
             var skipRowsParam = new SqlParameter("@skipRows", SqlDbType.Int) { Value = skipRows };
             var searchTermParam = new SqlParameter("@searchTerm", SqlDbType.NVarChar) { Value = searchTerm };
 
             return this.Database.SqlQuery<Template>("SearchAccounts @index, @searchTerm, @resultsCount, @skipRows", indexParam,
                 searchTermParam, resultsCountParam, skipRowsParam).ToList();
+        }
+
+        public List<Template> FilterGlAccounts(int? skip, int? take, string fund, string dept, string program, string project,
+            string baseElementObjectDetail, string description, ref int accountsValidResultsCount)
+        {
+            List<Template> accounts = new List<Template>();
+            if (take.HasValue)
+            {
+                var command = Database.Connection.CreateCommand();
+                command.CommandText =
+                    "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @resultsCount, @skipRows";
+                command.Parameters.Add(new SqlParameter("@Fund", SqlDbType.NVarChar) { Value = GetDbValue(fund) });
+                command.Parameters.Add(new SqlParameter("@Dept", SqlDbType.NVarChar) { Value = GetDbValue(dept) });
+                command.Parameters.Add(new SqlParameter("@Program", SqlDbType.NVarChar) { Value = GetDbValue(program) });
+                command.Parameters.Add(new SqlParameter("@Project", SqlDbType.NVarChar) { Value = GetDbValue(project) });
+                command.Parameters.Add(new SqlParameter("@BaseElementObjectDetail", SqlDbType.NVarChar)
+                {
+                    Value = GetDbValue(baseElementObjectDetail)
+                });
+                command.Parameters.Add(new SqlParameter("@Description", SqlDbType.NVarChar) { Value = GetDbValue(description) });
+                command.Parameters.Add(new SqlParameter("@skipRows", SqlDbType.Int) { Value = skip });
+                command.Parameters.Add(new SqlParameter("@resultsCount", SqlDbType.Int) { Value = take });
+
+                try
+                {
+                    Database.Connection.Open();
+                    var reader = command.ExecuteReader();
+                    var objectContext = ((IObjectContextAdapter)this).ObjectContext;
+                    accounts = objectContext.Translate<Template>(reader).ToList();
+                    reader.NextResult();
+                    accountsValidResultsCount = objectContext.Translate<int>(reader).First();
+                }
+                finally
+                {
+                    Database.Connection.Close();
+                }
+            }
+            return accounts;
+        }
+
+        private object GetDbValue(string colValue)
+        {
+            return string.IsNullOrEmpty(colValue) ? DBNull.Value : (object)colValue;
         }
     }
 }

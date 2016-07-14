@@ -1,8 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
+using System.Data.SqlClient;
 using CashReceipts.Filters;
 using CashReceipts.Helpers;
 using Kendo.Mvc.Extensions;
@@ -153,41 +159,11 @@ namespace CashReceipts.Controllers
 
         [NoCache]
         public ActionResult GlAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
-            string value, string @operator, string field)
+            string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
-            var dbName = new LookupHelper(db).GcDbName;
-            var rowsTotal = db.Database.SqlQuery<int>($"Select count(*) from {dbName}dbo.GL00100 where Active = 1");
-            var colIndex = ColumnOrders.All;
-            if (!string.IsNullOrEmpty(@operator) && !string.IsNullOrEmpty(value))
-            {
-                switch (field)
-                {
-                    case "Fund":
-                        colIndex = ColumnOrders.Fund;
-                        break;
-                    case "Dept":
-                        colIndex = ColumnOrders.Dept;
-                        break;
-                    case "Program":
-                        colIndex = ColumnOrders.Program;
-                        break;
-                    case "Project":
-                        colIndex = ColumnOrders.Project;
-                        break;
-                    case "BaseElementObjectDetail":
-                        colIndex = ColumnOrders.BaseElementObjectDetail;
-                        break;
-                    case "Description":
-                        colIndex = ColumnOrders.Description;
-                        break;
-                }
-            }
-            var templates =
-           db.GetGCAccounts(colIndex, value??string.Empty, take??20, skip??0, false)
-           .ToList();
-
-            return Json(new {Data= templates, Total=rowsTotal}, JsonRequestBehavior.AllowGet);
+            int accountsValidResultsCount = 0;
+            var accounts = db.FilterGlAccounts(skip, take, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
+            return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
-        
     }
 }

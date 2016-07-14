@@ -285,7 +285,10 @@
                             model.set("Project", dataItem.Project);
                             parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
                             model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
-                            //model.set("Description", dataItem.Description);
+                            var description = dataItem.Description.split(']')[1].trim();
+                            parentContainer.find('[data-bind="value:Description"]').val(description);
+                            model.set("Description", description);
+                            e.preventDefault();
                         }
                         else if (fieldName == 'Project') {
                             parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);

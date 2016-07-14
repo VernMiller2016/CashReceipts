@@ -94,52 +94,8 @@ AS
 				,LTRIM(RTRIM([ACTNUMBR_3])) Program
 				,LTRIM(RTRIM([ACTNUMBR_4])) Project
 				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
-				,LTRIM(RTRIM([ACTDESCR])) Description'
+				,''['' + LTRIM(RTRIM([ACTNUMBR_4]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_5]))+ ''] '' +LTRIM(RTRIM([ACTDESCR])) Description'
 		END
-	ELSE if(@index = 11)
-		Begin
-			set @condition = 'ACTNUMBR_1 like '''+ @searchTerm+'%'''
-			set @query = @query + 
-			' [ACTINDX] TemplateID
-				,0 DepartmentID
-				,0 [Order]
-				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
-				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
-				,LTRIM(RTRIM([ACTNUMBR_3])) Program
-				,LTRIM(RTRIM([ACTNUMBR_4])) Project
-				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
-				,LTRIM(RTRIM([ACTDESCR])) Description'
-		End
-	else 
-	if(@index = 12)
-		Begin
-			set @condition = 'ACTNUMBR_2 like '''+ @searchTerm+'%'''
-			set @query = @query + 
-			' [ACTINDX] TemplateID
-				,0 DepartmentID
-				,0 [Order]
-				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
-				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
-				,LTRIM(RTRIM([ACTNUMBR_3])) Program
-				,LTRIM(RTRIM([ACTNUMBR_4])) Project
-				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
-				,LTRIM(RTRIM([ACTDESCR])) Description'
-		End
-	else 
-	if(@index = 13)
-		Begin
-			set @condition = 'ACTNUMBR_3 like '''+ @searchTerm+'%'''
-			set @query = @query + 
-			' [ACTINDX] TemplateID
-				,0 DepartmentID
-				,0 [Order]
-				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
-				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
-				,LTRIM(RTRIM([ACTNUMBR_3])) Program
-				,LTRIM(RTRIM([ACTNUMBR_4])) Project
-				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
-				,LTRIM(RTRIM([ACTDESCR])) Description'
-		End
 	else 
 		set @query = @query + 
 			' [ACTINDX] TemplateID
@@ -156,7 +112,7 @@ AS
 	WHERE Active = 1 and '+@condition +
 	' ORDER BY TemplateID OFFSET '+CAST(@skipRows AS NVARCHAR(10))+' ROWS FETCH NEXT '+CAST(@resultsCount AS NVARCHAR(10))+' ROWS ONLY'
 	--EXECUTE(@query)
-	print @query
+	--print @query
 	EXECUTE sp_executesql @query
 GO 
 

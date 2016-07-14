@@ -331,13 +331,13 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult GetTemplatesList()
+        public ActionResult GetTemplatesList(bool? includeAccounts = true)
         {
             var templatesList = db.Templates.Include(x => x.Department).ToList()
                 .Select(x => new
                 {
                     value = x.TemplateID,
-                    text = x.Description,
+                    text = includeAccounts.HasValue && includeAccounts.Value? GetTemplateText(x) : x.Description,
                     DepartmentId = x.DepartmentID,
                     DepartmentName = x.Department.Name
                 }).ToList();
