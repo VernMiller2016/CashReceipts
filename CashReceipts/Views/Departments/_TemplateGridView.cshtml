@@ -274,29 +274,45 @@
 
                     function autoCompleteOnSelect(that, parentContainer, fieldName, model, e) {
                         var dataItem = that.dataItem(e.item.index());
+                        var fundElem = parentContainer.find('[data-bind="value:Fund"]'),
+                            deptElem = parentContainer.find('[data-bind="value:Dept"]'),
+                            progElem = parentContainer.find('[data-bind="value:Program"]'),
+                            projElem = parentContainer.find('[data-bind="value:Project"]'),
+                            baseElem = parentContainer.find('[data-bind="value:BaseElementObjectDetail"]'),
+                            descElem = parentContainer.find('[data-bind="value:Description"]');
+
                         if (fieldName == 'Description') {
-                            parentContainer.find('[data-bind="value:Fund"]').val(dataItem.Fund);
+                            fundElem.val(dataItem.Fund);
                             model.set("Fund", dataItem.Fund);
-                            parentContainer.find('[data-bind="value:Dept"]').val(dataItem.Dept);
+                            deptElem.val(dataItem.Dept);
                             model.set("Dept", dataItem.Dept);
-                            parentContainer.find('[data-bind="value:Program"]').val(dataItem.Program);
+                            progElem.val(dataItem.Program);
                             model.set("Program", dataItem.Program);
-                            parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);
+                            projElem.val(dataItem.Project);
                             model.set("Project", dataItem.Project);
-                            parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
+                            baseElem.val(dataItem.BaseElementObjectDetail);
                             model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
                             var description = dataItem.Description.split(']')[1].trim();
-                            parentContainer.find('[data-bind="value:Description"]').val(description);
+                            descElem.val(description);
                             model.set("Description", description);
                             e.preventDefault();
-                        }
-                        else if (fieldName == 'Project') {
-                            parentContainer.find('[data-bind="value:Project"]').val(dataItem.Project);
-                            model.set("Project", dataItem.Project);
-                        }
-                        else if (fieldName == 'BaseElementObjectDetail') {
-                            parentContainer.find('[data-bind="value:BaseElementObjectDetail"]').val(dataItem.BaseElementObjectDetail);
-                            model.set("BaseElementObjectDetail", dataItem.BaseElementObjectDetail);
+                        } else if (fundElem.val() && deptElem.val() && progElem.val() && projElem.val() && baseElem.val()) {
+
+                            $.post('@Url.Action("GetGcAccountDescription")',
+                                {
+                                    Fund: fundElem.val(),
+                                    Dept: deptElem.val(),
+                                    Program: progElem.val(),
+                                    Project: projElem.val(),
+                                    BaseElementObjectDetail: baseElem.val()
+                                })
+                                .done(function(data) {
+                                    if (data && data.length) {
+                                        var description = data[0].Description.trim();
+                                        parentContainer.find('[data-bind="value:Description"]').val(description);
+                                        model.set("Description", description);
+                                    }
+                                });
                         }
                     }
 

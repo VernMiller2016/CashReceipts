@@ -666,7 +666,8 @@
 
         receiptBodyDiv.kendoGrid({
             dataSource: receiptsBodyDataSource,
-            selectable: "row",
+            navigatable: true,
+            selectable: "cell",
             resizable: true,
             scrollable: true,
             sortable: true,
@@ -692,7 +693,7 @@
                     editor: oldNumericBoxEditor,
                     format: "{0:n2}",
                     headerAttributes: { style: "text-align:right" },
-                    attributes: { class: "text-right" },
+                    attributes: { class: "text-right editable-cell" },
                     footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                     width: 40
                 },
@@ -720,42 +721,13 @@
             editable: true,
             toolbar: ["create", "save", "cancel"],
             dataBound: function () {
-                //$(".k-grid-my-create").on("click", function (e) {
-                //    debugger;
-                //    var grid = $(receiptBodyDiv).data("kendoGrid");
-                //    //grid.dataSource.filter({});
-                //    //grid.dataSource.sort({});
-                //    //add record using Grid API
-                //    grid.addRow();
-                //});
+               
             },
             change: function () {
                 //selectedRows = this.select();
             },
             edit: function (e) {
-                //if (e.model.isNew() && !e.model.dirty) {
-                //    debugger;
-                //    //e.container
-                //    //  .find("input[name=ProductName]") // get the input element for the field
-                //    //  .val("MyCustomValue") // set the value
-                //    //  .change(); // trigger change in order to notify the model binding
-                //}
-                /*var popupWindow = $(e.container.data('kendoWindow'));
-                e.container.data('kendoWindow').bind('activate', function (e) {
-                    $(popupWindow).attr('element').find('input:first').focus();
-                });
-
-                $(e.container)
-                    .find("input[name='DepartmentID']")
-                    .data("kendoDropDownList")
-                    .bind("select",
-                        function (e) {
-                            console.log("drop down changed");
-                            var departmentId = this.dataItem(e.item).DepartmentID;
-                            templatesDataSource.options.transport.read
-                                .url = templatesReadUrl + departmentId;
-                            templatesDataSource.read();
-                        });*/
+               
             },
             save: function (e) {
                 if (!e.values.LineTotal)
@@ -786,8 +758,47 @@
                         });
                 }
             }
-        });
+        })
+            .find("table").on("keydown", onBodyGridKeydown);
     }
+
+    //var ignoreKey = false;
+    //var handler = function (e) {
+    //    if (ignoreKey) {
+    //        e.preventDefault();
+    //        return;
+    //    }
+    //    if (e.keyCode == 38 || e.keyCode == 40) {
+    //        var pos = this.selectionStart;
+    //        this.value = (e.keyCode == 38 ? 1 : -1) + parseInt(this.value, 10);
+    //        this.selectionStart = pos; this.selectionEnd = pos;
+
+    //        ignoreKey = true; setTimeout(function () { ignoreKey = false }, 1);
+    //        e.preventDefault();
+    //    }
+    //};
+    //input.addEventListener('keydown', handler, false);
+    //input.addEventListener('keypress', handler, false);
+
+
+    function onBodyGridKeydown(e) {
+        if (e.keyCode === kendo.keys.TAB) {
+            var grid = $(this).closest("[data-role=grid]").data("kendoGrid");
+            var current = grid.current();
+            if (!current.hasClass("editable-cell")) {
+                //search the next row
+                var row = current.parent();
+                var cell;
+
+                if (!e.shiftKey)
+                    cell = row.next().children(".editable-cell:first");
+                else 
+                    cell = row.prev().children(".editable-cell:first");
+                grid.current(cell);
+                grid.editCell(cell[0]);
+            }
+        }
+    };
 
     function oldNumericBoxEditor(container, options) {
         $('<input data-bind="value:' + options.field + '"/>')

@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using CashReceipts.Filters;
 using CashReceipts.Helpers;
 using CashReceipts.Models;
+using CashReceipts.ViewModels;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 
@@ -328,15 +329,13 @@ namespace CashReceipts.Controllers
             }
             return Json(results, JsonRequestBehavior.AllowGet);
         }
-    }
 
-    public class AutoCompleteViewModel
-    {
-        public string value { get; set; }
-        public string field { get; set; }
-        public string @operator { get; set; }
-        public bool ignoreCase { get; set; }
-        public int skip { get; set; }
-        public int page { get; set; }
+        public ActionResult GetGcAccountDescription(Template template)
+        {
+            int resultsCount = 0;
+            var result = db.FilterGlAccounts(0, 1, template.Fund, template.Dept, template.Program, template.Project,
+                template.BaseElementObjectDetail, "", ref resultsCount);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
     }
 }
