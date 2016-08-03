@@ -9,7 +9,6 @@ namespace CashReceipts.Models
         public int TenderID { get; set; }
 
         [StringLength(30, ErrorMessage = "Description  name cannot be longer than 30 characters.")]
-        [Required]
         public string Description { get; set; }
 
         [Display(Name = "Amount")]

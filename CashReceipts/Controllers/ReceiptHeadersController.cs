@@ -32,7 +32,7 @@ namespace CashReceipts.Controllers
         // GET: ReceiptHeaders
         public ActionResult Index()
         {
-            return View();
+            return View(_lookupHelper.LastReceiptId);
         }
 
         // GET: ReceiptHeaders/Details/5
@@ -205,7 +205,8 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptHeaders = db.ReceiptHeaders
-                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = DbFunctions.TruncateTime(x.ReceiptDate), x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList();
+                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = DbFunctions.TruncateTime(x.ReceiptDate),
+                    x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID, x.Comments }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -255,7 +256,16 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptHeadersList.Select(
-                    x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = x.ReceiptDate.Date, x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID }).ToList().ToDataSourceResult(request, ModelState));
+                x => new
+                {
+                    x.ReceiptHeaderID,
+                    x.ClerkID,
+                    ReceiptDate = x.ReceiptDate.Date,
+                    x.ReceiptTotal,
+                    x.ReceiptNumber,
+                    x.DepartmentID,
+                    x.Comments
+                }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -339,21 +349,28 @@ namespace CashReceipts.Controllers
                     value = x.TemplateID,
                     text = includeAccounts.HasValue && includeAccounts.Value? GetTemplateText(x) : x.Description,
                     DepartmentId = x.DepartmentID,
-                    DepartmentName = x.Department.Name
+                    DepartmentName = x.Department.Name,
+                    AccountNumber = GetAccountNumber(x)
                 }).ToList();
             return Json(templatesList, JsonRequestBehavior.AllowGet);
         }
 
         private string GetTemplateText(Template template)
         {
-            return string.Format("{0} | {1}.{2}.{3}.{4}.{5}", template.Description, template.Fund,
-                template.Dept, template.Program, template.Project, template.BaseElementObjectDetail);
+            return
+                $"{template.Fund}.{template.Dept}.{template.Program}.{template.Project}.{template.BaseElementObjectDetail} | {template.Description}";
+        }
+
+        private string GetAccountNumber(Template template)
+        {
+            return
+                $"{template.Fund}.{template.Dept}.{template.Program}.{template.Project}.{template.BaseElementObjectDetail}";
         }
 
         private int GetTemplateOrder(int templateID)
         {
             var template = db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
-            return template != null ? template.Order : 0;
+            return template?.Order ?? 0;
         }
         private string GetTemplateAccountNumber(int templateID)
         {
@@ -384,7 +401,7 @@ namespace CashReceipts.Controllers
                     x.LineTotal,
                     x.TemplateID,
                     x.Template.DepartmentID,
-                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    AccountNumber = x.TemplateID,
                     TemplateOrder = x.Template.Order
                 }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
@@ -422,7 +439,7 @@ namespace CashReceipts.Controllers
                         x.ReceiptBodyID,
                         x.LineTotal,
                         x.TemplateID,
-                        AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        AccountNumber = x.TemplateID,
                         TemplateOrder = GetTemplateOrder(x.TemplateID)
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
@@ -454,7 +471,7 @@ namespace CashReceipts.Controllers
                         x.ReceiptBodyID,
                         x.LineTotal,
                         x.TemplateID,
-                        AccountNumber = GetTemplateAccountNumber(x.TemplateID),
+                        AccountNumber = x.TemplateID,
                         TemplateOrder = GetTemplateOrder(x.TemplateID)
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
@@ -685,7 +702,7 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
 
-            cell = new PdfPCell(new Phrase(receipt.Department.Name, font))
+            cell = new PdfPCell(new Phrase(receipt.Comments, font))
             {
                 Colspan = 4,
                 Rowspan = 4,

@@ -40,5 +40,8 @@ namespace CashReceipts.Models
         public int DepartmentID { get; set; }
 
         public virtual Department Department { get; set; }
+
+        [MaxLength(250)]
+        public string Comments { get; set; }
     }
 }

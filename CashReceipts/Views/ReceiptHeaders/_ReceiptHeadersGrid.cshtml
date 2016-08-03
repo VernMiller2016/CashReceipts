@@ -1,4 +1,6 @@
-﻿<style type="text/css">
+﻿@model int
+
+<style type="text/css">
     .k-widget.k-window .k-edit-form-container input.k-textbox {
         width: 407px !important;
     }
@@ -80,7 +82,6 @@
     </div>
 </div>
 
-
 <script type="text/x-kendo-template" id="template">
     <div class="tabstrip">
         <ul>
@@ -134,7 +135,9 @@
         receiptsBodyDataSource,
         receiptsTendersDataSource,
         headersDataSources,
+        receiptBodyDiv,
         templatesList,
+        accountsList,
         paymentMethods,
         templatesDataSource,
         departmentDataSource,
@@ -187,7 +190,7 @@
             batch: true,
             pageSize: 10,
             serverPaging: false,
-            sort: [{ field: "ReceiptHeaderID", dir: "desc" }],
+            sort: [{ field: "ReceiptNumber", dir: "desc" }],
             schema: {
                 data: "Data",
                 total: "Total",
@@ -224,6 +227,9 @@
                                 required: true
                             },
                             type: "number"
+                        },
+                        Comments: {
+                            type: "string"
                         }
                     }
                 },
@@ -295,6 +301,11 @@
                     values: clerksList,
                     width: 100
                 },
+                {
+                    field: "Comments",
+                    title: "Comments",
+                    width: 100
+                },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
             ],
             editable: "inline",
@@ -304,9 +315,11 @@
                             template: "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
                         }],
             dataBound: function (e) {
-                if (!currentGrid)
+                debugger;
+                if (!currentGrid) {
                     currentGrid = $("#headersGrid").data("kendoGrid");
-                this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    this.expandRow(this.tbody.find("tr.k-master-row").first());
+                }
                 enableDisableReceiptHeadersButtons(false);
             },
             edit: function (e) {
@@ -314,8 +327,10 @@
                 var editRow = e.container;
                 if (e.model.isNew()) {
                     var receipts = this.dataSource.data();
-                    var lastReceiptId = Math.max.apply(Math, receipts.map(function (r) { return r.ReceiptNumber; }));
-                    e.model.set("ReceiptNumber", (lastReceiptId + 1))
+                    var lastReceiptId = Math.max.apply(Math, $(receipts).map(function (i, r) { return r.ReceiptNumber; }));
+                    e.model.set("ReceiptNumber", (lastReceiptId + 1));
+                    //var ds = e.sender.dataSource;
+                    //ds.sort(ds.sort());
                 }
                 editRow.find('td:eq(1) span.k-numeric-wrap span:first').remove();
                 editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
@@ -365,7 +380,11 @@
 
         $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")?includeAccounts=false', function (data) {
             templatesList = data;
-            initReceiptsBodyGrid(detailRow.find(".receiptsBodyGrid"), e);
+            accountsList = $(data).map(function (i, item) {
+                return { value: item.value, text: item.AccountNumber };
+            });
+            receiptBodyDiv = detailRow.find(".receiptsBodyGrid");
+            initReceiptsBodyGrid(receiptBodyDiv, e);
         });
 
         $.getJSON('@Url.Action("GetPaymentMethods", "ReceiptHeaders")', function (data) {
@@ -426,9 +445,9 @@
                     fields: {
                         TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
-                        Description: { validation: { required: true }, type: "string" },
+                        Description: { validation: { required: false }, type: "string" },
                         Amount: { validation: { required: true }, type: "number" },
-                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false }
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 3 /*Cash*/ }
                     }
                 },
                 errors: "Errors"
@@ -468,14 +487,14 @@
             },
             columns: [
                 {
-                    field: "Description",
-                    title: "Description",
-                    width: 140
-                },
-                {
                     field: "PaymentMethodId",
                     title: "Payment Method",
                     values: paymentMethods,
+                    width: 140
+                },
+                {
+                    field: "Description",
+                    title: "Description",
                     width: 140
                 },
                 {
@@ -638,7 +657,7 @@
                     fields: {
                         ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
-                        AccountNumber: { type: "string", editable: false, defaultValue: "Auto retrieved" },
+                        AccountNumber: { type: "number" },
                         LineTotal: { validation: { required: true }, type: "number", spinners: false },
                         TemplateID: { validation: { required: true }, type: "number" },
                         TemplateOrder: { validation: { required: false }, type: "number" }
@@ -648,7 +667,6 @@
             },
             sort: { field: "TemplateOrder", dir: "asc" },
             change: function (e) {
-
             },
             error: function (e) {
                 if (e && e.errors) {
@@ -685,6 +703,8 @@
                 {
                     field: "AccountNumber",
                     title: "Account Number",
+                    values: accountsList,
+                    editor: templateDropDownEditor,
                     width: 100
                 },
                 {
@@ -721,13 +741,13 @@
             editable: true,
             toolbar: ["create", "save", "cancel"],
             dataBound: function () {
-               
+
             },
             change: function () {
                 //selectedRows = this.select();
             },
             edit: function (e) {
-               
+
             },
             save: function (e) {
                 if (!e.values.LineTotal)
@@ -792,7 +812,7 @@
 
                 if (!e.shiftKey)
                     cell = row.next().children(".editable-cell:first");
-                else 
+                else
                     cell = row.prev().children(".editable-cell:first");
                 grid.current(cell);
                 grid.editCell(cell[0]);
@@ -809,8 +829,8 @@
     }
 
     function templateDropDownEditor(container, options) {
-        var rowContainer = container;
-        $('<input required data-text-field="text" data-value-field="value" data-bind="value:' + options.field + '"/>')
+        var rowContainer = container, fieldName = options.field;
+        $('<input required data-text-field="text" data-value-field="value" data-bind="value:' + fieldName + '"/>')
             .appendTo(container)
             .kendoDropDownList({
                 dataTextField: "text",
@@ -837,8 +857,15 @@
                     }
                 },
                 select: function (e) {
-                    var accountNumber = e.item.text().split("|")[1].trim();
-                    $(rowContainer).parents('tr:first').find('td:first').text(accountNumber);
+                    debugger;
+                    if (fieldName == 'TemplateID') {
+                        var accountNumber = e.item.text().split("|")[1].trim();
+                        $(rowContainer).parents('tr:first').find('td:first').text(accountNumber);
+                    } else {
+                        var grid = receiptBodyDiv.data("kendoGrid");
+                        var model = grid.dataItem($(rowContainer).parents('tr:first'));
+                        model.set("TemplateID", e.sender.dataItem(e.item).value);
+                    }
                 }
             });
     }

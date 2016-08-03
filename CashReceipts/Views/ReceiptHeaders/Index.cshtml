@@ -1,7 +1,7 @@
-﻿@model IEnumerable<CashReceipts.Models.ReceiptHeader>
+﻿@model int
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Receipts";
 }
-@Html.Partial("_ReceiptHeadersGrid")
+@Html.Partial("_ReceiptHeadersGrid", Model)
 @Html.Partial("_HighlightMenu", 4)
