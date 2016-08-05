@@ -647,7 +647,7 @@ namespace CashReceipts.Controllers
             dataTable.SpacingBefore = 10f;
             var cell = new PdfPCell(new Phrase(receipt.Department.Name, font))
             {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 HorizontalAlignment = 1,
                 VerticalAlignment = 1,
                 //BackgroundColor = new BaseColor(24, 145, 238),
@@ -661,7 +661,7 @@ namespace CashReceipts.Controllers
 
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -670,7 +670,7 @@ namespace CashReceipts.Controllers
             });
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -681,7 +681,7 @@ namespace CashReceipts.Controllers
 
             cell = new PdfPCell(new Phrase("Received From", font))
             {
-                Colspan = 4,
+                Colspan = 3,
                 HorizontalAlignment = 1,
                 VerticalAlignment = 1,
                 //BackgroundColor = BaseColor.LIGHT_GRAY,
@@ -694,7 +694,7 @@ namespace CashReceipts.Controllers
             dataTable.AddCell(cell);
             dataTable.AddCell(new PdfPCell(new Phrase("", font))
             {
-                Colspan = 3,
+                Colspan = 4,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -726,6 +726,7 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
             dataTable.AddCell(new Paragraph(" ", font));
+
             dataTable.AddCell(new PdfPCell(new Phrase("Receipt Number", font))
             {
                 Colspan = 2,
@@ -759,7 +760,7 @@ namespace CashReceipts.Controllers
 
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -776,18 +777,20 @@ namespace CashReceipts.Controllers
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
-            dataTable.AddCell(new PdfPCell(new Phrase("Description", boldFont))
+            
+            dataTable.AddCell(new PdfPCell(new Phrase("Revenue", boldFont))
             {
-                Colspan = 2,
+                Colspan = 1,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
-            dataTable.AddCell(new PdfPCell(new Phrase("Revenue", boldFont))
+
+            dataTable.AddCell(new PdfPCell(new Phrase("Description", boldFont))
             {
-                Colspan = 2,
+                Colspan = 3,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -797,7 +800,7 @@ namespace CashReceipts.Controllers
 
             dataTable.AddCell(new PdfPCell(new Phrase("Paid", boldFont))
             {
-                Colspan = 2,
+                Colspan = 1,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -811,35 +814,38 @@ namespace CashReceipts.Controllers
                 dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateFundDept(receiptBody.Template), font))
                 {
                     Colspan = 2,
-                    Border = 0,
-                    PaddingTop = paddingTop,
-                    PaddingBottom = paddingBottom,
-                    PaddingLeft = paddingLeft,
-                    PaddingRight = paddingRight
-                });
-                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.Description, font))
-                {
-                    Colspan = 2,
-                    Border = 0,
-                    PaddingTop = paddingTop,
-                    PaddingBottom = paddingBottom,
-                    PaddingLeft = paddingLeft,
-                    PaddingRight = paddingRight
-                });
-                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.BaseElementObjectDetail, font))
-                {
-                    Colspan = 2,
-                    Border = 0,
+                    Border = 1,
                     PaddingTop = paddingTop,
                     PaddingBottom = paddingBottom,
                     PaddingLeft = paddingLeft,
                     PaddingRight = paddingRight
                 });
 
+                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.BaseElementObjectDetail, font))
+                {
+                    Colspan = 1,
+                    Border = 1,
+                    PaddingTop = paddingTop,
+                    PaddingBottom = paddingBottom,
+                    PaddingLeft = paddingLeft,
+                    PaddingRight = paddingRight
+                });
+
+                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.Description, font))
+                {
+                    Colspan = 3,
+                    Border = 1,
+                    PaddingTop = paddingTop,
+                    PaddingBottom = paddingBottom,
+                    PaddingLeft = paddingLeft,
+                    PaddingRight = paddingRight
+                });
+
+
                 dataTable.AddCell(new PdfPCell(new Phrase($"{receiptBody.LineTotal:0.00}", font))
                 {
-                    Colspan = 2,
-                    Border = 0,
+                    Colspan = 1,
+                    Border = 1,
                     PaddingTop = paddingTop,
                     PaddingBottom = paddingBottom,
                     PaddingLeft = paddingLeft,
@@ -847,11 +853,19 @@ namespace CashReceipts.Controllers
                     HorizontalAlignment = Element.ALIGN_RIGHT
                 });
             }
-            dataTable.AddCell(new Paragraph(" ", font));
+
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
+            {
+                Border = 1,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            });
             dataTable.AddCell(new PdfPCell(new Phrase("Total", font))
             {
                 Colspan = 5,
-                Border = 0,
+                Border = 1,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
                 PaddingLeft = paddingLeft,
@@ -859,16 +873,17 @@ namespace CashReceipts.Controllers
             });
             dataTable.AddCell(new PdfPCell(new Phrase($"{receipt.ReceiptBodyRecords.Sum(x => x.LineTotal):0.00}", font))
             {
-                Border = 0,
+                Border = 1,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight,
                 HorizontalAlignment = Element.ALIGN_RIGHT
             });
+
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -919,25 +934,7 @@ namespace CashReceipts.Controllers
 
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
-                Colspan = 7,
-                Border = 0,
-                PaddingTop = paddingTop,
-                PaddingBottom = paddingBottom,
-                PaddingLeft = paddingLeft,
-                PaddingRight = paddingRight
-            });
-            dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
-            {
-                Colspan = 7,
-                Border = 0,
-                PaddingTop = paddingTop,
-                PaddingBottom = paddingBottom,
-                PaddingLeft = paddingLeft,
-                PaddingRight = paddingRight
-            });
-            dataTable.AddCell(new PdfPCell(new Phrase("© 2016 - Cash Receipting", font))
-            {
-                Colspan = 7,
+                Colspan = numOfColumns,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -945,6 +942,35 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
 
+            dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
+            {
+                Colspan = numOfColumns,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            });
+
+            dataTable.AddCell(new PdfPCell(new Phrase("© 2016 - Cash Receipting", font))
+            {
+                Colspan = 5,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            });
+
+            dataTable.AddCell(new PdfPCell(new Phrase("Print Date: " + DateTime.Now.ToString("MM/dd/yyyy"), font))
+            {
+                Colspan = 2,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            });
             //Image bottom = Image.GetInstance(imagepath + "/PASbottom.jpg");
             //bottom.ScalePercent(75f);
             //bottom.Alignment = 1;

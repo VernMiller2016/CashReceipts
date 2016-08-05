@@ -21,7 +21,7 @@ namespace CashReceipts.Controllers
         // GET: Dpartments
         public ActionResult Index()
         {
-            return View(db.Departments.ToList());
+            return View(db.Departments.OrderBy(x=>x.Name).ToList());
         }
 
         // GET: Dpartments/Details/5
