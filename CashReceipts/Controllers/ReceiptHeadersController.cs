@@ -328,7 +328,7 @@ namespace CashReceipts.Controllers
         public ActionResult Departments_Read([DataSourceRequest] DataSourceRequest request)
         {
             var departmentsList = db.Departments.ToList()
-                .Select(x => new { x.DepartmentID, Description = x.Name }).ToList();
+                .Select(x => new { value = x.DepartmentID, text = x.Name }).ToList();
             return Json(departmentsList.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -954,7 +954,7 @@ namespace CashReceipts.Controllers
 
             dataTable.AddCell(new PdfPCell(new Phrase("© 2016 - Cash Receipting", font))
             {
-                Colspan = 5,
+                Colspan = 4,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -962,9 +962,9 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
 
-            dataTable.AddCell(new PdfPCell(new Phrase("Print Date: " + DateTime.Now.ToString("MM/dd/yyyy"), font))
+            dataTable.AddCell(new PdfPCell(new Phrase("Print Date: " + DateTime.Now.ToString("MM/dd/yyyy H:mm:ss"), font))
             {
-                Colspan = 2,
+                Colspan = 3,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -995,6 +995,20 @@ namespace CashReceipts.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        [HttpPost]
+        public ActionResult CheckReciptHeaderTotals(int receiptHeaderId)
+        {
+            bool result = false;
+            string msg = "";
+            var receipt = db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+            if (receipt != null)
+            {
+                result = receipt.ReceiptBodyRecords.Sum(x => x.LineTotal) == receipt.Tenders.Sum(x => x.Amount);
+                msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
+            }
+            return Json(new {Result = result, Message = msg});
         }
     }
 }

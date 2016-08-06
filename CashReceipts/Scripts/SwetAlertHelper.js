@@ -19,8 +19,13 @@
             });
     };
 
+    var showSuccess = function(msg) {
+        swal({ title: "Success!", text: msg, type: "success", confirmButtonText: "Ok" });
+    }
+
     window.notify = {
         showError: showError,
+        showSuccess: showSuccess,
         confirm: confirm
     };
 })(window);

@@ -156,6 +156,34 @@
     });
 
     var receiptsHeaderGridInit = function () {
+
+        departmentDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("Departments_Read", "ReceiptHeaders")',
+                    dataType: "json"
+                }
+            },
+            serverPaging: false,
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "value",
+                    fields: {
+                        text: { type: "string" },
+                        value: { type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+            },
+            error: function (e) {
+                this.cancelChanges();
+            }
+        });
+
         headersDataSources = new kendo.data.DataSource({
             transport: {
                 read: {
@@ -292,6 +320,7 @@
                 {
                     field: "DepartmentID",
                     title: "Department",
+                    editor: departmentsDropDownEditor,
                     values: departmentsList,
                     width: 100
                 },
@@ -313,6 +342,10 @@
                         {
                             text: "",
                             template: "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
+                        },
+                        {
+                            text: "",
+                            template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
                         }],
             dataBound: function (e) {
                 debugger;
@@ -354,16 +387,50 @@
         });
     }
 
+    function departmentsDropDownEditor(container, options) {
+        $('<input required data-text-field="text" data-value-field="value" data-bind="value:' + options.field + '"/>')
+            .appendTo(container)
+            .kendoDropDownList({
+                //autoBind: false,
+                //optionLabel: "Select Department",
+                dataTextField: "text",
+                dataValueField: "value",
+                filter: "contains",
+                dataSource: departmentDataSource
+            });
+    }
+
     function enableDisableReceiptHeadersButtons(isEnable) {
         if (!isEnable) {
             $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
+            $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
         } else {
             $(".k-grid-PrintReceipt").removeClass("k-state-disabled").unbind("click").bind("click", function () {
-                var questionUid = currentGrid.tbody.find(".k-state-selected").data('uid');
-                var receipt = headersDataSources.getByUid(questionUid);
+                var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                var receipt = headersDataSources.getByUid(recordUid);
                 if (receipt) {
                     $("#receiptHeaderId").val(receipt.ReceiptHeaderID);
                     $("#exportReceiptPDF").submit();
+                }
+            });
+
+            $(".k-grid-PostCheck").removeClass("k-state-disabled").unbind("click").bind("click", function () {
+                var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                var receipt = headersDataSources.getByUid(recordUid);
+                if (receipt) {
+                    $.post('@Url.Action("CheckReciptHeaderTotals")/receiptHeaderId' + receipt.ReceiptHeaderID,
+                        {
+                            ReceiptHeaderID: receipt.ReceiptHeaderID,
+                        })
+                        .done(function(data) {
+                            if (data) {
+                                if (data.Result) {
+                                    notify.showSuccess(data.Message);
+                                } else {
+                                    notify.showError(data.Message);
+                                }
+                            }
+                        });
                 }
             });
         }
@@ -391,7 +458,6 @@
             paymentMethods = data;
             initTendersGrid(detailRow.find(".tendersGrid"), e);
         });
-
     }
 
     function initTendersGrid(receiptTendersDiv, headersGridRef) {
@@ -552,32 +618,6 @@
     }
 
     function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
-        departmentDataSource = new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: '@Url.Action("Departments_Read", "ReceiptHeaders")',
-                    dataType: "json"
-                }
-            },
-            serverPaging: false,
-            schema: {
-                data: "Data",
-                total: "Total",
-                model: {
-                    id: "DepartmentID",
-                    fields: {
-                        Description: { type: "string" },
-                        DepartmentID: { type: "number" }
-                    }
-                },
-                errors: "Errors"
-            },
-            change: function (e) {
-            },
-            error: function (e) {
-                this.cancelChanges();
-            }
-        });
 
         templatesDataSource = new kendo.data.DataSource({
             transport: {
