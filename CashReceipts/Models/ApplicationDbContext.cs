@@ -52,6 +52,7 @@ namespace CashReceipts.Models
         public DbSet<ReceiptBody> ReceiptBodies { get; set; }
         public DbSet<GlobalSetting> GlobalSettings { get; set; }
         public DbSet<PaymentMethod> TenderPaymentMethods { get; set; }
+        public DbSet<Audit> Audits { get; set; }
 
         public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0)
         {

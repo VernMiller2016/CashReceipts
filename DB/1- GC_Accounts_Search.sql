@@ -94,7 +94,9 @@ AS
 				,LTRIM(RTRIM([ACTNUMBR_3])) Program
 				,LTRIM(RTRIM([ACTNUMBR_4])) Project
 				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
-				,''['' + LTRIM(RTRIM([ACTNUMBR_4]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_5]))+ ''] '' +LTRIM(RTRIM([ACTDESCR])) Description'
+				,''['' + LTRIM(RTRIM([ACTNUMBR_1]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_3]))+ ''.'' + 
+				LTRIM(RTRIM([ACTNUMBR_4]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_5]))+ ''] '' 
+				+LTRIM(RTRIM([ACTDESCR])) Description'
 		END
 	else 
 		set @query = @query + 

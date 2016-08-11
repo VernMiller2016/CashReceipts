@@ -13,7 +13,7 @@ using System.Data.Entity.SqlServer;
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class ReportsController : Controller
+    public class SysReportsController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
 

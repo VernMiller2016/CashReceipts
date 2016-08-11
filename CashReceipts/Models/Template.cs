@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Data.Entity.Core.Metadata.Edm;
 
 namespace CashReceipts.Models
 {
@@ -36,5 +37,6 @@ namespace CashReceipts.Models
 
         public int Order { get; set; }
 
+        public AccountDataSource DataSource { get; set; }
     }
 }

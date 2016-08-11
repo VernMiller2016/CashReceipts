@@ -252,10 +252,16 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AuditsController.cs" />
+    <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.Designer.cs">
       <DependentUpon>201608030114105_Tenders_DescriptionIsNull.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AccountDataSource.cs" />
+    <Compile Include="Models\Audit.cs" />
+    <Compile Include="Models\OperationType.cs" />
+    <Compile Include="Models\SysEntityType.cs" />
     <Compile Include="ViewModels\AutoCompleteViewModel.cs" />
     <Compile Include="Controllers\ClerksController.cs" />
     <Compile Include="Controllers\DepartmentsController.cs" />
@@ -265,7 +271,7 @@
     <Compile Include="Controllers\ReceiptBodiesController.cs" />
     <Compile Include="Controllers\ReceiptHeadersController.cs" />
     <Compile Include="Controllers\AccountsController.cs" />
-    <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\SysReportsController.cs" />
     <Compile Include="Controllers\TendersController.cs" />
     <Compile Include="Filters\NoCacheAttribute.cs" />
     <Compile Include="GlimpseSecurityPolicy.cs" />
@@ -484,7 +490,7 @@
     <Content Include="Scripts\KendoUI2016.2.504\styles\kendo.common.min.css.map" />
     <Content Include="Views\ReceiptHeaders\_HeaderBodiesGridView.cshtml" />
     <Content Include="Views\ReceiptHeaders\_ReceiptHeadersGrid.cshtml" />
-    <Content Include="Views\Reports\SummaryReport.cshtml" />
+    <Content Include="Views\SysReports\SummaryReport.cshtml" />
     <Content Include="Views\Shared\_HighlightMenu.cshtml" />
     <Content Include="Views\Accounts\GlAccounts.cshtml" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\DejaVu\DejaVuSans-Bold.ttf" />
@@ -505,6 +511,7 @@
     <Content Include="Scripts\KendoUI2016.2.504\styles\fonts\glyphs\KendoUIGlyphs.woff" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.ttf" />
     <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.woff" />
+    <Content Include="Views\Audits\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

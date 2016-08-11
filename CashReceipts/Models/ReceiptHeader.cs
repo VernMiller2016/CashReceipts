@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CashReceipts.Models
 {
-    public class ReceiptHeader
+    public sealed class ReceiptHeader
     {
-
         public ReceiptHeader()
         {
             ReceiptBodyRecords = new List<ReceiptBody>();
@@ -29,19 +28,21 @@ namespace CashReceipts.Models
 
         public int ReceiptNumber { get; set; }
 
-        public virtual IList<ReceiptBody> ReceiptBodyRecords { get; set; }
+        public IList<ReceiptBody> ReceiptBodyRecords { get; set; }
 
-        public virtual IList<Tender> Tenders { get; set; }
+        public IList<Tender> Tenders { get; set; }
 
         public int ClerkID { get; set; }
 
-        public virtual Clerk Clerk { get; set; }
+        public Clerk Clerk { get; set; }
 
         public int DepartmentID { get; set; }
 
-        public virtual Department Department { get; set; }
+        public Department Department { get; set; }
 
         [MaxLength(250)]
         public string Comments { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }
