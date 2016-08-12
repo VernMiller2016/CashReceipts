@@ -2,7 +2,7 @@
 <div id="templates" class="">
     <div class="">
         <div class="title-section">
-            <h4>Gl Accounts</h4>
+            <h4>Districts Accounts</h4>
             <hr />
         </div>
         <div class="MainDivToScroll MainDiv">
@@ -16,7 +16,7 @@
                         accountsDs = new kendo.data.DataSource({
                             transport: {
                                 read: {
-                                    url: '@Url.Action("GlAccounts_Read", "Accounts")',
+                                    url: '@Url.Action("DistAccounts_Read", "Accounts")',
                                     dataType: "json"
                                 },
                                 parameterMap: function (options) {

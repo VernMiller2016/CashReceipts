@@ -35,6 +35,7 @@ namespace CashReceipts.Helpers
         public bool IsAzure => bool.Parse(ConfigurationManager.AppSettings["IsAzure"] ?? "false");
 
         public string GcDbName => IsAzure ? "" : "GC.";
+        public string DistDbName => IsAzure ? "" : "dist.";
 
     }
 }

@@ -65,7 +65,7 @@ namespace CashReceipts.Models
                 searchTermParam, resultsCountParam, skipRowsParam).ToList();
         }
 
-        public List<Template> FilterGlAccounts(int? skip, int? take, string fund, string dept, string program, string project,
+        public List<Template> FilterGlAccounts(int? skip, int? take, SearchAccountDataSource entityType, string fund, string dept, string program, string project,
             string baseElementObjectDetail, string description, ref int accountsValidResultsCount)
         {
             List<Template> accounts = new List<Template>();
@@ -73,7 +73,7 @@ namespace CashReceipts.Models
             {
                 var command = Database.Connection.CreateCommand();
                 command.CommandText =
-                    "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @resultsCount, @skipRows";
+                    "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @resultsCount, @skipRows, @entityType";
                 command.Parameters.Add(new SqlParameter("@Fund", SqlDbType.NVarChar) { Value = GetDbValue(fund) });
                 command.Parameters.Add(new SqlParameter("@Dept", SqlDbType.NVarChar) { Value = GetDbValue(dept) });
                 command.Parameters.Add(new SqlParameter("@Program", SqlDbType.NVarChar) { Value = GetDbValue(program) });
@@ -84,6 +84,7 @@ namespace CashReceipts.Models
                 });
                 command.Parameters.Add(new SqlParameter("@Description", SqlDbType.NVarChar) { Value = GetDbValue(description) });
                 command.Parameters.Add(new SqlParameter("@skipRows", SqlDbType.Int) { Value = skip });
+                command.Parameters.Add(new SqlParameter("@entityType", SqlDbType.Int) { Value = (int)entityType });
                 command.Parameters.Add(new SqlParameter("@resultsCount", SqlDbType.Int) { Value = take });
 
                 try

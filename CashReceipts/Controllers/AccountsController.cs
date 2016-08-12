@@ -152,18 +152,33 @@ namespace CashReceipts.Controllers
         }
 
 
-        public ActionResult GlAccounts()
+        public ActionResult GcAccounts()
         {
             return View();
         }
 
         [NoCache]
-        public ActionResult GlAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
+        public ActionResult GcAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
             string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
             int accountsValidResultsCount = 0;
-            var accounts = db.FilterGlAccounts(skip, take, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
+            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.GrantCounty, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult DistAccounts()
+        {
+            return View();
+        }
+
+        [NoCache]
+        public ActionResult DistAccounts_Read([DataSourceRequest] DataSourceRequest request, int? skip, int? take,
+            string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
+        {
+            int accountsValidResultsCount = 0;
+            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.District, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
+            return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
+        }
+        
     }
 }

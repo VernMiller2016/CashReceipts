@@ -1,8 +1,8 @@
 ﻿@model int
 <style type="text/css">
-    .k-list-container.k-popup.k-group.k-reset {
-        width: 500px !important;
-    }
+    /*.k-list-container.k-popup.k-group.k-reset {
+        max-width: 500px !important;
+    }*/
 </style>
 <div id="templates" class="">
     <div class="">
@@ -300,6 +300,7 @@
                             var description = dataItem.Description.split(']')[1].trim();
                             descElem.val(description);
                             model.set("Description", description);
+                            model.set("DataSource", dataItem.DataSource);
                             e.preventDefault();
                         } else if (fundElem.val() && deptElem.val() && progElem.val() && projElem.val() && baseElem.val()) {
 
@@ -316,6 +317,7 @@
                                         var description = data[0].Description.trim();
                                         parentContainer.find('[data-bind="value:Description"]').val(description);
                                         model.set("Description", description);
+                                        model.set("DataSource", data[0].DataSource);
                                     }
                                 });
                         }
