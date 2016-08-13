@@ -175,8 +175,8 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    if ((template.DataSource==AccountDataSource.GrantCounty && !IsValidGCAccount(template))
-                        || (template.DataSource == AccountDataSource.District && !IsValidDistAccount(template)))
+                    if ((template.DataSource==AccountDataSource.GrantCounty && !db.IsValidGCAccount(template))
+                        || (template.DataSource == AccountDataSource.District && !db.IsValidDistAccount(template)))
                     {
                         ModelState.AddModelError("_addKey", "Invalid account, Please check GC Accounts page for a valid data!");
                     }
@@ -212,8 +212,8 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    if ((template.DataSource == AccountDataSource.GrantCounty && !IsValidGCAccount(template))
-                        || (template.DataSource == AccountDataSource.District && !IsValidDistAccount(template)))
+                    if ((template.DataSource == AccountDataSource.GrantCounty && !db.IsValidGCAccount(template))
+                        || (template.DataSource == AccountDataSource.District && !db.IsValidDistAccount(template)))
                     {
                         ModelState.AddModelError("_addKey",
                             "Invalid account, Please check GC Accounts page for a valid data!");
@@ -284,26 +284,6 @@ namespace CashReceipts.Controllers
             return Json(new { Result = result });
         }
 
-
-        private bool IsValidGCAccount(Template template)
-        {
-            var dbName = new LookupHelper(db).GcDbName;
-            var sqlQuery = $"Select count(*) from {dbName}dbo.GL00100 where Active = 1 and [ACTNUMBR_1] = '{template.Fund}'"
-                + $" and [ACTNUMBR_2] = '{template.Dept}' and [ACTNUMBR_3] = '{template.Program}' and [ACTNUMBR_4] = '{template.Project}'"
-                + $" and [ACTNUMBR_5] = '{template.BaseElementObjectDetail}'";
-            return db.Database.SqlQuery<int>(sqlQuery).First() > 0;
-        }
-
-        private bool IsValidDistAccount(Template template)
-        {
-            var dbName = new LookupHelper(db).DistDbName;
-            var sqlQuery = $"Select count(*) from {dbName}dbo.GL00100 where Active = 1 "
-                + $"and [ACTNUMBR_1] = '{template.Fund}{template.Dept}{template.Program}'"
-                + $" and [ACTNUMBR_2] = '{template.Project}'"
-                + $" and [ACTNUMBR_3] = '{template.BaseElementObjectDetail}'";
-            return db.Database.SqlQuery<int>(sqlQuery).First() > 0;
-        }
-
         #endregion
 
         public ActionResult GetGcAccountDetails([DataSourceRequest] DataSourceRequest request, AutoCompleteViewModel model)
@@ -346,7 +326,7 @@ namespace CashReceipts.Controllers
         {
             int resultsCount = 0;
             var result = db.FilterGlAccounts(0, 1, SearchAccountDataSource.Both, template.Fund, template.Dept, template.Program, template.Project,
-                template.BaseElementObjectDetail, "", ref resultsCount);
+                template.BaseElementObjectDetail, "", null, ref resultsCount);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

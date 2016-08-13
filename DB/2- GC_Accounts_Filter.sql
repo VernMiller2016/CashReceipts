@@ -5,6 +5,7 @@ Alter PROCEDURE SearchGLAccounts
 	@Project nvarchar(150) = NULL,
 	@BaseElementObjectDetail nvarchar(150) = NULL,
 	@Description nvarchar(150) = NULL,
+	@ACTINDX int = NULL,
 	@resultsCount int = 100,
 	@skipRows int = 0,
 	@entityType int=0/*0: both, 1:GC, 2:Dist*/
@@ -29,6 +30,7 @@ AS
 				AND (@Project is null or [ACTNUMBR_4] like ''+ @Project +'%')
 				AND (@BaseElementObjectDetail is null or [ACTNUMBR_5] like ''+ @BaseElementObjectDetail +'%')
 				AND (@Description is null or ACTDESCR like '%'+ @Description +'%')
+				AND (@ACTINDX is null or ACTINDX = @ACTINDX)
 				AND (@entityType = 0 or @entityType = 1)
 			UNION
 			SELECT [ACTINDX] TemplateID
@@ -49,6 +51,7 @@ AS
 				AND (@Project is null or [ACTNUMBR_2] like ''+ @Project +'%')
 				AND (@BaseElementObjectDetail is null or [ACTNUMBR_3] like ''+ @BaseElementObjectDetail +'%')
 				AND (@Description is null or ACTDESCR like '%'+ @Description +'%')
+				AND (@ACTINDX is null or ACTINDX = @ACTINDX)
 				AND (@entityType = 0 or @entityType = 2)
 			) l ORDER BY l.TemplateID OFFSET @skipRows ROWS FETCH NEXT @resultsCount ROWS ONLY
 

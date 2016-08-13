@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
+using CashReceipts.Helpers;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace CashReceipts.Models
@@ -66,14 +67,14 @@ namespace CashReceipts.Models
         }
 
         public List<Template> FilterGlAccounts(int? skip, int? take, SearchAccountDataSource entityType, string fund, string dept, string program, string project,
-            string baseElementObjectDetail, string description, ref int accountsValidResultsCount)
+            string baseElementObjectDetail, string description, int? acctIndex, ref int accountsValidResultsCount)
         {
             List<Template> accounts = new List<Template>();
             if (take.HasValue)
             {
                 var command = Database.Connection.CreateCommand();
                 command.CommandText =
-                    "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @resultsCount, @skipRows, @entityType";
+                    "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @ACTINDX, @resultsCount, @skipRows, @entityType";
                 command.Parameters.Add(new SqlParameter("@Fund", SqlDbType.NVarChar) { Value = GetDbValue(fund) });
                 command.Parameters.Add(new SqlParameter("@Dept", SqlDbType.NVarChar) { Value = GetDbValue(dept) });
                 command.Parameters.Add(new SqlParameter("@Program", SqlDbType.NVarChar) { Value = GetDbValue(program) });
@@ -83,6 +84,7 @@ namespace CashReceipts.Models
                     Value = GetDbValue(baseElementObjectDetail)
                 });
                 command.Parameters.Add(new SqlParameter("@Description", SqlDbType.NVarChar) { Value = GetDbValue(description) });
+                command.Parameters.Add(new SqlParameter("@ACTINDX", SqlDbType.Int) { Value = acctIndex });
                 command.Parameters.Add(new SqlParameter("@skipRows", SqlDbType.Int) { Value = skip });
                 command.Parameters.Add(new SqlParameter("@entityType", SqlDbType.Int) { Value = (int)entityType });
                 command.Parameters.Add(new SqlParameter("@resultsCount", SqlDbType.Int) { Value = take });
@@ -107,6 +109,35 @@ namespace CashReceipts.Models
         private object GetDbValue(string colValue)
         {
             return string.IsNullOrEmpty(colValue) ? DBNull.Value : (object)colValue;
+        }
+
+        public bool IsValidGCAccount(Template template)
+        {
+            var dbName = new LookupHelper(this).GcDbName;
+            var sqlQuery = $"Select count(*) from {dbName}dbo.GL00100 where Active = 1 and [ACTNUMBR_1] = '{template.Fund}'"
+                + $" and [ACTNUMBR_2] = '{template.Dept}' and [ACTNUMBR_3] = '{template.Program}' and [ACTNUMBR_4] = '{template.Project}'"
+                + $" and [ACTNUMBR_5] = '{template.BaseElementObjectDetail}'";
+            return this.Database.SqlQuery<int>(sqlQuery).First() > 0;
+        }
+
+        public bool IsValidDistAccount(Template template)
+        {
+            var dbName = new LookupHelper(this).DistDbName;
+            var sqlQuery = $"Select count(*) from {dbName}dbo.GL00100 where Active = 1 "
+                + $"and [ACTNUMBR_1] = '{template.Fund}{template.Dept}{template.Program}'"
+                + $" and [ACTNUMBR_2] = '{template.Project}'"
+                + $" and [ACTNUMBR_3] = '{template.BaseElementObjectDetail}'";
+            return this.Database.SqlQuery<int>(sqlQuery).First() > 0;
+        }
+
+        public Template GetRemoteAccount(int accountIndex, AccountDataSource accountDataSource)
+        {
+            var acctDs = accountDataSource == AccountDataSource.GrantCounty
+                ? SearchAccountDataSource.GrantCounty
+                : SearchAccountDataSource.District;
+            int resultsCount = 0;
+            var result = FilterGlAccounts(0, 1, acctDs, "", "", "", "", "", "", accountIndex, ref resultsCount);
+            return result.FirstOrDefault();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CashReceipts.Models
 {
@@ -20,6 +21,9 @@ namespace CashReceipts.Models
         public int TemplateID { get; set; }
 
         public virtual Template Template { get; set; }
+
+        [NotMapped]
+        public AccountDataSource AccountDataSource { get; set; }
 
     }
 }

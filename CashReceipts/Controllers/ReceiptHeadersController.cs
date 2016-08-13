@@ -216,9 +216,17 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
         {
             var receiptHeaders = _db.ReceiptHeaders
-                .Where(x=>!x.IsDeleted)
-                .Select(x => new { x.ReceiptHeaderID, x.ClerkID, ReceiptDate = DbFunctions.TruncateTime(x.ReceiptDate),
-                    x.ReceiptTotal, x.ReceiptNumber, x.DepartmentID, x.Comments }).ToList();
+                .Where(x => !x.IsDeleted)
+                .Select(x => new
+                {
+                    x.ReceiptHeaderID,
+                    x.ClerkID,
+                    ReceiptDate = DbFunctions.TruncateTime(x.ReceiptDate),
+                    x.ReceiptTotal,
+                    x.ReceiptNumber,
+                    x.DepartmentID,
+                    x.Comments
+                }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -368,7 +376,7 @@ namespace CashReceipts.Controllers
                 .Select(x => new
                 {
                     value = x.TemplateID,
-                    text = includeAccounts.HasValue && includeAccounts.Value? GetTemplateText(x) : x.Description,
+                    text = includeAccounts.HasValue && includeAccounts.Value ? GetTemplateText(x) : x.Description,
                     DepartmentId = x.DepartmentID,
                     DepartmentName = x.Department.Name,
                     AccountNumber = GetAccountNumber(x)
@@ -421,9 +429,11 @@ namespace CashReceipts.Controllers
                     x.ReceiptBodyID,
                     x.LineTotal,
                     x.TemplateID,
+                    AccountDescription = x.Template.Description,
+                    AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
-                    AccountNumber = x.TemplateID,
-                    TemplateOrder = x.Template.Order
+                    TemplateOrder = x.Template.Order,
+                    AccountDataSource = AccountDataSource.Local
                 }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -434,21 +444,53 @@ namespace CashReceipts.Controllers
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
             {
+                var receipt = _db.ReceiptHeaders.Include(x => x.Department).Single(x => x.ReceiptHeaderID == receiptHeaderId);
                 foreach (var receiptBody in receiptBodiesList)
                 {
                     receiptBody.ReceiptHeaderID = receiptHeaderId;
-                    _db.ReceiptBodies.Add(receiptBody);
-                    try
+                    var template = _db.GetRemoteAccount(receiptBody.TemplateID, receiptBody.AccountDataSource);
+                    if (template != null)
                     {
-                        if (_db.SaveChanges() <= 0)
+                        var localTemplate = receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
+                                                                               x.BaseElementObjectDetail ==
+                                                                               template.BaseElementObjectDetail &&
+                                                                               x.Dept == template.Dept
+                                                                               && x.Program == template.Program &&
+                                                                               x.Project == template.Project);
+                        if (localTemplate != null)
                         {
-                            //todo supports localization
+                            receiptBody.TemplateID = localTemplate.TemplateID;
+                        }
+                        else
+                        {
+                            var newTemplate = new Template
+                            {
+                                BaseElementObjectDetail = template.BaseElementObjectDetail,
+                                Dept = template.Dept,
+                                Description = template.Description,
+                                Fund = template.Fund,
+                                Program = template.Program,
+                                Project = template.Project,
+                                Order = 0,
+                                DataSource = template.DataSource
+                            };
+                            receipt.Department.Templates.Add(newTemplate);
+                            receiptBody.TemplateID = newTemplate.TemplateID;
+                            receiptBody.Template = newTemplate;
+                        }
+                        _db.ReceiptBodies.Add(receiptBody);
+                        try
+                        {
+                            if (_db.SaveChanges() <= 0)
+                            {
+                                //todo supports localization
+                                ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
+                            }
+                        }
+                        catch (Exception e)
+                        {
                             ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        ModelState.AddModelError("_addKey", "Can't add this receipt body to database");
                     }
                 }
             }
@@ -460,41 +502,86 @@ namespace CashReceipts.Controllers
                         x.ReceiptBodyID,
                         x.LineTotal,
                         x.TemplateID,
-                        AccountNumber = x.TemplateID,
-                        TemplateOrder = GetTemplateOrder(x.TemplateID)
+                        TemplateOrder = GetTemplateOrder(x.TemplateID),
+                        AccountDescription = x.Template.Description,
+                        AccountNumber = GetTemplateAccountNumber(x.Template),
+                        x.Template.DepartmentID,
+                        AccountDataSource = AccountDataSource.Local
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
-        public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies)
+        public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request,
+            IEnumerable<ReceiptBody> receiptBodies)
         {
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
             {
                 foreach (var receiptBody in receiptBodiesList)
                 {
-                    _db.Entry(receiptBody).State = EntityState.Modified;
-                    try
+                    var receipt =
+                        _db.ReceiptHeaders.Include(x => x.Department)
+                            .Single(x => x.ReceiptHeaderID == receiptBody.ReceiptHeaderID);
+                    var template = _db.GetRemoteAccount(receiptBody.TemplateID, receiptBody.AccountDataSource);
+                    if (template != null)
                     {
-                        if (_db.SaveChanges() <= 0)
+                        var localTemplate = receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
+                                                                                             x.BaseElementObjectDetail ==
+                                                                                             template
+                                                                                                 .BaseElementObjectDetail &&
+                                                                                             x.Dept == template.Dept
+                                                                                             &&
+                                                                                             x.Program ==
+                                                                                             template.Program &&
+                                                                                             x.Project ==
+                                                                                             template.Project);
+                        if (localTemplate != null)
+                        {
+                            receiptBody.TemplateID = localTemplate.TemplateID;
+                        }
+                        else
+                        {
+                            var newTemplate = new Template
+                            {
+                                BaseElementObjectDetail = template.BaseElementObjectDetail,
+                                Dept = template.Dept,
+                                Description = template.Description,
+                                Fund = template.Fund,
+                                Program = template.Program,
+                                Project = template.Project,
+                                Order = 0,
+                                DataSource = template.DataSource
+                            };
+                            receipt.Department.Templates.Add(newTemplate);
+                            receiptBody.TemplateID = newTemplate.TemplateID;
+                            receiptBody.Template = newTemplate;
+                        }
+                        _db.Entry(receiptBody).State = EntityState.Modified;
+                        try
+                        {
+                            if (_db.SaveChanges() <= 0)
+                                ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
+                        }
+                        catch (Exception)
+                        {
                             ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
-                    }
-                    catch (Exception)
-                    {
-                        ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
+                        }
                     }
                 }
             }
             return Json(receiptBodiesList.Select(
-                    x => new
-                    {
-                        x.ReceiptHeaderID,
-                        x.ReceiptBodyID,
-                        x.LineTotal,
-                        x.TemplateID,
-                        AccountNumber = x.TemplateID,
-                        TemplateOrder = GetTemplateOrder(x.TemplateID)
-                    }).ToList().ToDataSourceResult(request, ModelState));
+                x => new
+                {
+                    x.ReceiptHeaderID,
+                    x.ReceiptBodyID,
+                    x.LineTotal,
+                    x.TemplateID,
+                    TemplateOrder = GetTemplateOrder(x.TemplateID),
+                    AccountDescription = x.Template.Description,
+                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    x.Template.DepartmentID,
+                    AccountDataSource = AccountDataSource.Local
+                }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -798,7 +885,7 @@ namespace CashReceipts.Controllers
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
-            
+
             dataTable.AddCell(new PdfPCell(new Phrase("Revenue", boldFont))
             {
                 Colspan = 1,
@@ -1029,7 +1116,7 @@ namespace CashReceipts.Controllers
                 result = receipt.ReceiptBodyRecords.Sum(x => x.LineTotal) == receipt.Tenders.Sum(x => x.Amount);
                 msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
             }
-            return Json(new {Result = result, Message = msg});
+            return Json(new { Result = result, Message = msg });
         }
     }
 }

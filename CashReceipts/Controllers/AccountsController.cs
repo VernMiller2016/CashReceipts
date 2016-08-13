@@ -162,7 +162,7 @@ namespace CashReceipts.Controllers
             string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
             int accountsValidResultsCount = 0;
-            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.GrantCounty, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
+            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.GrantCounty, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
 
@@ -176,7 +176,7 @@ namespace CashReceipts.Controllers
             string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
             int accountsValidResultsCount = 0;
-            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.District, fund, dept, program, project, baseElementObjectDetail, description, ref accountsValidResultsCount);
+            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.District, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
         

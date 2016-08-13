@@ -422,7 +422,7 @@
                         {
                             ReceiptHeaderID: receipt.ReceiptHeaderID,
                         })
-                        .done(function(data) {
+                        .done(function (data) {
                             if (data) {
                                 if (data.Result) {
                                     notify.showSuccess(data.Message);
@@ -697,9 +697,9 @@
                     fields: {
                         ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
-                        AccountNumber: { type: "number" },
+                        AccountNumber: { type: "string" },
                         LineTotal: { validation: { required: true }, type: "number", spinners: false },
-                        TemplateID: { validation: { required: true }, type: "number" },
+                        AccountDescription: { validation: { required: true }, type: "string" },
                         TemplateOrder: { validation: { required: false }, type: "number" }
                     }
                 },
@@ -743,8 +743,7 @@
                 {
                     field: "AccountNumber",
                     title: "Account Number",
-                    values: accountsList,
-                    editor: templateDropDownEditor,
+                    editor: templateAutocompleteEditor,
                     width: 100
                 },
                 {
@@ -758,10 +757,9 @@
                     width: 40
                 },
                 {
-                    field: "TemplateID",
+                    field: "AccountDescription",
                     title: "Template",
-                    values: templatesList,
-                    editor: templateDropDownEditor,
+                    editor: templateAutocompleteEditor,
                     width: 100
                 },
                 {
@@ -821,6 +819,64 @@
         })
             .find("table").on("keydown", onBodyGridKeydown);
     }
+
+    function templateAutocompleteEditor(container, options) {
+        var model = options.model;
+        var parentContainer = container.parent();
+        $('<input data-bind="value:' + options.field + '"/>')
+            .appendTo(container)
+            .kendoAutoComplete({
+                placeholder: "Enter value ...",
+                //suggest: true,
+                dataTextField: 'Description',
+                filter: "contains",
+                minLength: 2,
+                dataSource: {
+                    type: "json",
+                    serverFiltering: true,
+                    serverPaging: true,
+                    transport: {
+                        read: {
+                            url: '@Url.Action("GetGCAccountDetails", "Departments")',
+                            //type: "POST",
+                            dataType: "json",
+                            data: function (param) {
+                                return param.filter.filters[0];
+                            }
+                        }
+                    }
+                },
+                select: function (e) {
+                    autoCompleteOnSelect(this, parentContainer, options.field, model, e);
+                }
+            });
+    }
+
+    function autoCompleteOnSelect(that, parentContainer, fieldName, model, e) {
+        var dataItem = that.dataItem(e.item.index());
+        var accountNumberElem = parentContainer.find('[data-bind="value:AccountNumber"]'),
+            descElem = parentContainer.find('[data-bind="value:AccountDescription"]');
+
+        var acctNumber = dataItem.Fund +
+                '.' +
+                dataItem.Dept +
+                '.' +
+                dataItem.Program +
+                '.' +
+                dataItem.Project +
+                '.' +
+                dataItem.BaseElementObjectDetail;
+        var description = dataItem.Description.split(']')[1].trim();
+
+        accountNumberElem.val(acctNumber);
+        model.set("AccountNumber", acctNumber);
+        descElem.val(description);
+        model.set("AccountDescription", description);
+        model.set("TemplateID", dataItem.TemplateID);
+        model.set("AccountDataSource", dataItem.DataSource);
+        e.preventDefault();
+    }
+
 
     //var ignoreKey = false;
     //var handler = function (e) {

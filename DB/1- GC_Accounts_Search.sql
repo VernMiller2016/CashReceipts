@@ -178,7 +178,7 @@ AS
 				+LTRIM(RTRIM([ACTDESCR])) Description'
 
 			set @secQuery = @secQuery + 
-			' 0 TemplateID
+			' [ACTINDX] TemplateID
 				,0 DepartmentID
 				,0 [Order]
 				,0 [DataSource]
