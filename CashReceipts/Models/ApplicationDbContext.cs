@@ -73,6 +73,7 @@ namespace CashReceipts.Models
             if (take.HasValue)
             {
                 var command = Database.Connection.CreateCommand();
+                command.CommandTimeout = 0;
                 command.CommandText =
                     "SearchGLAccounts @Fund, @Dept, @Program, @Project, @BaseElementObjectDetail, @Description, @ACTINDX, @resultsCount, @skipRows, @entityType";
                 command.Parameters.Add(new SqlParameter("@Fund", SqlDbType.NVarChar) { Value = GetDbValue(fund) });
@@ -84,7 +85,7 @@ namespace CashReceipts.Models
                     Value = GetDbValue(baseElementObjectDetail)
                 });
                 command.Parameters.Add(new SqlParameter("@Description", SqlDbType.NVarChar) { Value = GetDbValue(description) });
-                command.Parameters.Add(new SqlParameter("@ACTINDX", SqlDbType.Int) { Value = acctIndex });
+                command.Parameters.Add(new SqlParameter("@ACTINDX", SqlDbType.Int) { Value = acctIndex.HasValue ? acctIndex : (object)DBNull.Value });
                 command.Parameters.Add(new SqlParameter("@skipRows", SqlDbType.Int) { Value = skip });
                 command.Parameters.Add(new SqlParameter("@entityType", SqlDbType.Int) { Value = (int)entityType });
                 command.Parameters.Add(new SqlParameter("@resultsCount", SqlDbType.Int) { Value = take });
