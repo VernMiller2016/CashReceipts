@@ -714,7 +714,10 @@ namespace CashReceipts.Controllers
         [HttpPost]
         public ActionResult DownloadReceipt(int receiptHeaderId)
         {
-            var receipt = _db.ReceiptHeaders.Include(x => x.ReceiptBodyRecords)
+            var receipt = _db.ReceiptHeaders
+                .Include(x=>x.Clerk)
+                .Include(x=>x.Department)
+                .Include(x => x.ReceiptBodyRecords)
                 .Include(x => x.ReceiptBodyRecords.Select(y => y.Template))
                 .Include(x => x.Tenders).Include(x => x.Tenders.Select(y => y.PaymentMethod))
                 .SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);

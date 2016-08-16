@@ -181,14 +181,14 @@ AS
 			' [ACTINDX] TemplateID
 				,0 DepartmentID
 				,0 [Order]
-				,0 [DataSource]
+				,1 [DataSource]
 				,SUBSTRING(ACTNUMBR_1, 1, 3) Fund
 				,SUBSTRING(ACTNUMBR_1, 4, 3) Dept
 				,SUBSTRING(ACTNUMBR_1, 7, 2) Program
 				,LTRIM(RTRIM([ACTNUMBR_2])) Project
 				,LTRIM(RTRIM([ACTNUMBR_3])) BaseElementObjectDetail
-				,''['' + LTRIM(RTRIM([ACTNUMBR_1]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_3]))+ ''.'' + 
-				LTRIM(RTRIM([ACTNUMBR_4]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_5]))+ ''] '' 
+				,''['' + SUBSTRING(ACTNUMBR_1, 1, 3)+ ''.'' + SUBSTRING(ACTNUMBR_1, 4, 3) + ''.'' + SUBSTRING(ACTNUMBR_1, 7, 2)+ ''.'' + 
+				LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_3]))+ ''] '' 
 				+LTRIM(RTRIM([ACTDESCR])) Description'
 		END
 	else 
