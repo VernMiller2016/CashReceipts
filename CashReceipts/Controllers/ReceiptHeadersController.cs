@@ -506,7 +506,8 @@ namespace CashReceipts.Controllers
                         AccountDescription = x.Template.Description,
                         AccountNumber = GetTemplateAccountNumber(x.Template),
                         x.Template.DepartmentID,
-                        AccountDataSource = AccountDataSource.Local
+                        AccountDataSource = AccountDataSource.Local,
+                        IsRemote = false
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -519,53 +520,57 @@ namespace CashReceipts.Controllers
             {
                 foreach (var receiptBody in receiptBodiesList)
                 {
-                    var receipt =
+                    if (receiptBody.IsRemote)
+                    {
+                        var receipt =
                         _db.ReceiptHeaders.Include(x => x.Department)
                             .Single(x => x.ReceiptHeaderID == receiptBody.ReceiptHeaderID);
-                    var template = _db.GetRemoteAccount(receiptBody.TemplateID, receiptBody.AccountDataSource);
-                    if (template != null)
-                    {
-                        var localTemplate = receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
-                                                                                             x.BaseElementObjectDetail ==
-                                                                                             template
-                                                                                                 .BaseElementObjectDetail &&
-                                                                                             x.Dept == template.Dept
-                                                                                             &&
-                                                                                             x.Program ==
-                                                                                             template.Program &&
-                                                                                             x.Project ==
-                                                                                             template.Project);
-                        if (localTemplate != null)
+                        var template = _db.GetRemoteAccount(receiptBody.TemplateID, receiptBody.AccountDataSource);
+                        if (template != null)
                         {
-                            receiptBody.TemplateID = localTemplate.TemplateID;
-                        }
-                        else
-                        {
-                            var newTemplate = new Template
+                            var localTemplate = receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
+                                                                                                 x.BaseElementObjectDetail ==
+                                                                                                 template
+                                                                                                     .BaseElementObjectDetail &&
+                                                                                                 x.Dept == template.Dept
+                                                                                                 &&
+                                                                                                 x.Program ==
+                                                                                                 template.Program &&
+                                                                                                 x.Project ==
+                                                                                                 template.Project);
+                            if (localTemplate != null)
                             {
-                                BaseElementObjectDetail = template.BaseElementObjectDetail,
-                                Dept = template.Dept,
-                                Description = template.Description,
-                                Fund = template.Fund,
-                                Program = template.Program,
-                                Project = template.Project,
-                                Order = 0,
-                                DataSource = template.DataSource
-                            };
-                            receipt.Department.Templates.Add(newTemplate);
-                            receiptBody.TemplateID = newTemplate.TemplateID;
-                            receiptBody.Template = newTemplate;
+                                receiptBody.TemplateID = localTemplate.TemplateID;
+                            }
+                            else
+                            {
+                                var newTemplate = new Template
+                                {
+                                    BaseElementObjectDetail = template.BaseElementObjectDetail,
+                                    Dept = template.Dept,
+                                    Description = template.Description,
+                                    Fund = template.Fund,
+                                    Program = template.Program,
+                                    Project = template.Project,
+                                    Order = 0,
+                                    DataSource = template.DataSource
+                                };
+                                receipt.Department.Templates.Add(newTemplate);
+                                receiptBody.TemplateID = newTemplate.TemplateID;
+                                receiptBody.Template = newTemplate;
+                            }
+
                         }
-                        _db.Entry(receiptBody).State = EntityState.Modified;
-                        try
-                        {
-                            if (_db.SaveChanges() <= 0)
-                                ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
-                        }
-                        catch (Exception)
-                        {
+                    }
+                    _db.Entry(receiptBody).State = EntityState.Modified;
+                    try
+                    {
+                        if (_db.SaveChanges() <= 0)
                             ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError("_updateKey", "Can't update this receipt body to database");
                     }
                 }
             }
@@ -580,7 +585,8 @@ namespace CashReceipts.Controllers
                     AccountDescription = x.Template.Description,
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
-                    AccountDataSource = AccountDataSource.Local
+                    AccountDataSource = AccountDataSource.Local,
+                    IsRemote = false
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -715,8 +721,8 @@ namespace CashReceipts.Controllers
         public ActionResult DownloadReceipt(int receiptHeaderId)
         {
             var receipt = _db.ReceiptHeaders
-                .Include(x=>x.Clerk)
-                .Include(x=>x.Department)
+                .Include(x => x.Clerk)
+                .Include(x => x.Department)
                 .Include(x => x.ReceiptBodyRecords)
                 .Include(x => x.ReceiptBodyRecords.Select(y => y.Template))
                 .Include(x => x.Tenders).Include(x => x.Tenders.Select(y => y.PaymentMethod))

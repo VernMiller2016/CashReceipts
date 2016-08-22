@@ -25,5 +25,8 @@ namespace CashReceipts.Models
         [NotMapped]
         public AccountDataSource AccountDataSource { get; set; }
 
+        [NotMapped]
+        public bool IsRemote { get; set; }
+
     }
 }
