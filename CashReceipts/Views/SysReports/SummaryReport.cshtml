@@ -52,8 +52,6 @@
             <div class="pdf-footer">
                 <p>
                     Cash Receipting System<br />
-                    Company Street Name<br />
-                    Company City & Country
                 </p>
             </div>
             <div class="for">
@@ -64,20 +62,12 @@
             </div>
 
             <div class="from" style="display: none">
-                <h3>From</h3>
-                <p style="padding-bottom: 20px; border-bottom: 1px solid #e5e5e5;">
-                    Hanna Moos <br />
-                    Lützowplatz 456<br />
-                    Berlin, Germany, 10785
-                </p>
-                <p style="padding-top: 20px;">
-                    Invoice ID: 23543<br />
-                    Invoice Date: 12.03.2014<br />
-                    Due Date: 27.03.2014
-                </p>
             </div>
             <div class="pdf-body">
                 <div id="grid"></div>
+                <br/>
+                <h4>Tenders</h4>
+                <div id="tendersGrid"></div>
                 <p class="signature">
                     Signature: ________________ <br /><br />
                     Generation Date: <span class="todayDate"></span>
@@ -114,7 +104,7 @@
     <!-- Load Pako ZLIB library to enable PDF compression -->
     <script src="~/Scripts/KendoUI2016.2.504/js/pako.min.js"></script>
     <script>
-        var summaryGrid;
+        var summaryGrid, tendersGrid;
 
         function getPDF(selector) {
             kendo.drawing.drawDOM($(selector))
@@ -141,6 +131,10 @@
                             var grid = summaryGrid.data("kendoGrid");
                             grid.dataSource.read();
                             grid.refresh();
+
+                            var tendersDataGrid = tendersGrid.data("kendoGrid");
+                            tendersDataGrid.dataSource.read();
+                            tendersDataGrid.refresh();
                         }
                     });
 
@@ -222,6 +216,74 @@
                         columns: columns,
                         dataBound: function (e) {
                             $('.selectedDate').text(getSelectedDate());
+                        }
+                    });
+
+                var tendersColumns = [
+                    { field: "PaymentMethod", title: "Payment Method", width: 150 },
+                    {
+                        field: "TotalAmount",
+                        title: "Total",
+                        width: 150,
+                        aggregates: ["sum"],
+                        footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                        format: "{0:n2}",
+                        headerAttributes: { style: "text-align:right" },
+                        attributes: { class: "text-right" }
+                    }
+                ];
+                tendersGrid = $("#tendersGrid")
+                    .kendoGrid({
+                        editable: false,
+                        sortable: true,
+                        resizable: true,
+                        reorderable: true,
+                        dataSource: new kendo.data.DataSource({
+                            transport: {
+                                read: {
+                                    url: '@Url.Action("TendersSummary_Read", "SysReports")',
+                                    dataType: "json",
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation === "read") {
+                                        return { date: getSelectedDate() };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            pageSize: 10,
+                            serverPaging: false,
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                model: {
+                                    id: "PaymentMethodId",
+                                    fields: {
+                                        PaymentMethodId: {
+                                            type: "number"
+                                        },
+                                        PaymentMethod:{type: "string"},
+                                        TotalAmount: { type: "number" }
+                                    }
+                                },
+                                errors: "Errors"
+                            },
+                            aggregate: [{ field: "TotalAmount", aggregate: "sum" }],
+                            error: function (ee) {
+                                if (ee.errors && ee.errors["_readKey"]) {
+                                    notify.showError(ee.errors["_readKey"].errors[0]);
+                                } else {
+                                    notify.showError('An error has been occurred, please contact system admin.');
+                                }
+                                this.cancelChanges();
+                            },
+                            requestStart: function (e) {
+                            },
+                            requestEnd: function (e) {
+                            }
+                        }),
+                        columns: tendersColumns,
+                        dataBound: function (e) {
                         }
                     });
 

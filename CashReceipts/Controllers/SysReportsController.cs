@@ -33,5 +33,18 @@ namespace CashReceipts.Controllers
             return Json(summaryData.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
+        [NoCache]
+        public ActionResult TendersSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date)
+        {
+            var summaryData = _db.ReceiptHeaders
+                .Include(x => x.Tenders)
+                .Include(x => x.Tenders.Select(y=>y.PaymentMethod))
+                .Where(x => SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
+                .SelectMany(x => x.Tenders).ToList();
+
+            return Json(summaryData.GroupBy(x=>x.PaymentMethodId).Select(x=>new {PaymentMethodId = x.Key,
+                PaymentMethod = x.First().PaymentMethod.Name, TotalAmount = x.Sum(y=>y.Amount)}).ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
+
+        }
     }
 }

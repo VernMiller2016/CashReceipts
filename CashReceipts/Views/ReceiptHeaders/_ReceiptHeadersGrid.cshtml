@@ -513,7 +513,7 @@
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
                         Description: { validation: { required: false }, type: "string" },
                         Amount: { validation: { required: true }, type: "number" },
-                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 3 /*Cash*/ }
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 2 /*Check*/ }
                     }
                 },
                 errors: "Errors"
