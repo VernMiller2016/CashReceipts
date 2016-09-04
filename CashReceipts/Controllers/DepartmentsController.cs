@@ -313,6 +313,9 @@ namespace CashReceipts.Controllers
                     case "Description":
                         columnOrder = ColumnOrders.Description;
                         break;
+                    case "Account":
+                        columnOrder = ColumnOrders.Account;
+                        break;
                     default:
                         columnOrder = ColumnOrders.Description;
                         break;

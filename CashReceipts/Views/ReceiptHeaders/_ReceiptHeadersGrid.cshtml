@@ -418,7 +418,7 @@
                 var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                 var receipt = headersDataSources.getByUid(recordUid);
                 if (receipt) {
-                    $.post('@Url.Action("CheckReciptHeaderTotals")/receiptHeaderId' + receipt.ReceiptHeaderID,
+                    $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
                         {
                             ReceiptHeaderID: receipt.ReceiptHeaderID,
                         })
@@ -841,7 +841,10 @@
                             //type: "POST",
                             dataType: "json",
                             data: function (param) {
-                                return param.filter.filters[0];
+                                var searchParam = param.filter.filters[0];
+                                var field = options.field === "AccountNumber" ? "Account" : "Description";
+                                //return searchParam;
+                                return { value: searchParam.value, operator: "contains", field: field, ignoreCase: true };
                             }
                         }
                     }

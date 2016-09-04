@@ -191,6 +191,41 @@ AS
 				LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_3]))+ ''] '' 
 				+LTRIM(RTRIM([ACTDESCR])) Description'
 		END
+	else if(@index = 7)
+		BEGIN
+			select	@condition = 'LTRIM(RTRIM([ACTNUMBR_1])) + LTRIM(RTRIM([ACTNUMBR_2]))
+		+ LTRIM(RTRIM([ACTNUMBR_3])) + LTRIM(RTRIM([ACTNUMBR_4]))
+		+ LTRIM(RTRIM([ACTNUMBR_5])) like '''+ @searchTerm+'%''',
+					@secCondition = 'LTRIM(RTRIM([ACTNUMBR_1])) + LTRIM(RTRIM([ACTNUMBR_2]))
+		+ LTRIM(RTRIM([ACTNUMBR_3])) like '''+ @searchTerm+'%'''
+			set @query = @query + 
+			' [ACTINDX] TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,0 [DataSource]
+				,LTRIM(RTRIM([ACTNUMBR_1])) Fund
+				,LTRIM(RTRIM([ACTNUMBR_2])) Dept
+				,LTRIM(RTRIM([ACTNUMBR_3])) Program
+				,LTRIM(RTRIM([ACTNUMBR_4])) Project
+				,LTRIM(RTRIM([ACTNUMBR_5])) BaseElementObjectDetail
+				,''['' + LTRIM(RTRIM([ACTNUMBR_1]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' + LTRIM(RTRIM([ACTNUMBR_3]))+ ''.'' + 
+				LTRIM(RTRIM([ACTNUMBR_4]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_5]))+ ''] '' 
+				+LTRIM(RTRIM([ACTDESCR])) Description'
+
+			set @secQuery = @secQuery + 
+			' [ACTINDX] TemplateID
+				,0 DepartmentID
+				,0 [Order]
+				,1 [DataSource]
+				,SUBSTRING(ACTNUMBR_1, 1, 3) Fund
+				,SUBSTRING(ACTNUMBR_1, 4, 3) Dept
+				,SUBSTRING(ACTNUMBR_1, 7, 2) Program
+				,LTRIM(RTRIM([ACTNUMBR_2])) Project
+				,LTRIM(RTRIM([ACTNUMBR_3])) BaseElementObjectDetail
+				,''['' + SUBSTRING(ACTNUMBR_1, 1, 3)+ ''.'' + SUBSTRING(ACTNUMBR_1, 4, 3) + ''.'' + SUBSTRING(ACTNUMBR_1, 7, 2)+ ''.'' + 
+				LTRIM(RTRIM([ACTNUMBR_2]))+ ''.'' +LTRIM(RTRIM([ACTNUMBR_3]))+ ''] '' 
+				+LTRIM(RTRIM([ACTDESCR])) Description'
+		END
 	else 
 	begin
 		set @query = @query + 

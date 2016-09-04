@@ -1029,7 +1029,7 @@ namespace CashReceipts.Controllers
 
             foreach (var tender in receipt.Tenders.ToList())
             {
-                dataTable.AddCell(new PdfPCell(new Phrase($"{tender.Description}({tender.PaymentMethod.Name})", font))
+                dataTable.AddCell(new PdfPCell(new Phrase($"{tender.PaymentMethod.Name} - {tender.Description}", font))
                 {
                     Colspan = 2,
                     Border = 0,
@@ -1119,10 +1119,13 @@ namespace CashReceipts.Controllers
         {
             bool result = false;
             string msg = "";
-            var receipt = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+            var receipt = _db.ReceiptHeaders
+                .Include(x=>x.Tenders)
+                .Include(x=>x.ReceiptBodyRecords).SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
             if (receipt != null)
             {
-                result = receipt.ReceiptBodyRecords.Sum(x => x.LineTotal) == receipt.Tenders.Sum(x => x.Amount);
+                var bodyTotal = receipt.ReceiptBodyRecords.Sum(x => x.LineTotal);
+                result = bodyTotal == receipt.Tenders.Sum(x => x.Amount) && bodyTotal == receipt.ReceiptTotal;
                 msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
             }
             return Json(new { Result = result, Message = msg });

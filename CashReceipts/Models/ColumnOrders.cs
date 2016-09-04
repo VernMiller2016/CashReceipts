@@ -8,6 +8,7 @@
         Program,
         Project,
         BaseElementObjectDetail,
-        Description
+        Description,
+        Account
     }
 }

@@ -17,10 +17,6 @@
         <div class="box-col">
         </div>
         <div class="box-col">
-        </div>
-        <div class="box-col">
-        </div>
-        <div class="box-col">
             <h4>Select Page size</h4>
             <select id="paper" style="width: 100px;">
                 <option value="size-a4" selected>A4</option>
@@ -38,6 +34,10 @@
         <div class="box-col">
             <h4>Get PDF</h4>
             <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
+        </div>
+        <div class="box-col">
+            <h4>Print Report</h4>
+            <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
         </div>
     </div>
 
@@ -105,6 +105,23 @@
     <script src="~/Scripts/KendoUI2016.2.504/js/pako.min.js"></script>
     <script>
         var summaryGrid, tendersGrid;
+
+        function printReport() {
+            //check this link
+            //http://docs.telerik.com/kendo-ui/controls/data-management/grid/print-export
+
+            //var win = window.open('', '', 'width=800, height=500'),
+            //doc = win.document.open();
+            //doc.write($('.pdf-page').html());
+            //doc.close();
+            //win.print();
+            var printContents = $('.pdf-page').html();
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            //document.body.innerHTML = originalContents;
+            location.reload();
+        }
 
         function getPDF(selector) {
             kendo.drawing.drawDOM($(selector))
