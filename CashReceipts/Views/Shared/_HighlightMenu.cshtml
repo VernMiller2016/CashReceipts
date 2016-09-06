@@ -2,6 +2,6 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('.navbar .navbar-collapse .navbar-nav:first li:eq('+@Model+')').parent().find('li').removeClass('active').end().end().addClass('active');
+        $('.navbar .navbar-collapse .navbar-nav:first>li:eq('+@Model+')').parent().find('li').removeClass('active').end().end().addClass('active');
     });
 </script>

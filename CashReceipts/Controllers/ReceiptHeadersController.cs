@@ -12,6 +12,7 @@ using Kendo.Mvc.UI;
 using Kendo.Mvc.Extensions;
 using CashReceipts.Helpers;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.SqlServer;
 using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -1129,6 +1130,40 @@ namespace CashReceipts.Controllers
                 msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
             }
             return Json(new { Result = result, Message = msg });
+        }
+
+        public ActionResult Search()
+        {
+            return View();
+        }
+
+        [NoCache]
+        public ActionResult LineItems_Read([DataSourceRequest] DataSourceRequest request, DateTime? fromDate=null, DateTime? toDate=null, string acctNum="")
+        {
+            var receiptBodies = _db.ReceiptBodies
+                .Include(x => x.ReceiptHeader)
+                .Include(x => x.ReceiptHeader.Department)
+                .Include(x => x.Template)
+                .Where(x=> !fromDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, fromDate) <= 0)
+                .Where(x=> !toDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, toDate) >= 0)
+                .Where(x=> string.IsNullOrEmpty(acctNum) || 
+                (x.Template.Fund + x.Template.Dept + x.Template.Program + x.Template.Project + x.Template.BaseElementObjectDetail)
+                .StartsWith(acctNum)).ToList()
+                .Select(x => new
+                {
+                    x.ReceiptHeaderID,
+                    ReceiptHeaderNumber = x.ReceiptHeader.ReceiptNumber,
+                    ReceiptDepartment = x.ReceiptHeader.Department.Name,
+                    x.ReceiptBodyID,
+                    x.LineTotal,
+                    x.TemplateID,
+                    AccountDescription = x.Template.Description,
+                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    x.Template.DepartmentID,
+                    TemplateOrder = x.Template.Order,
+                    AccountDataSource = AccountDataSource.Local
+                }).ToList();
+            return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
     }
 }

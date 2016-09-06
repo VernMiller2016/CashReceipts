@@ -1,9 +1,10 @@
 ﻿
+
 <div id="templates" class="">
     <div class="">
         <div class="title-section">
             <h4>Audits Info</h4>
-            <hr />
+            <hr/>
         </div>
         <div class="MainDivToScroll MainDiv">
             <div id="SystemRolesLst" class="k-content my-k-content">
@@ -13,8 +14,8 @@
                         templatesDataSources,
                         currentGrid = null;
                     var entityTypesList = [{ text: 'Receipt', value: 0 }],
-                           operationTypesList = [{ text: 'Delete', value: 0 }],
-                           usersList = [];
+                        operationTypesList = [{ text: 'Delete', value: 0 }],
+                        usersList = [];
 
                     function initAuditInfoGrid() {
 
@@ -49,95 +50,96 @@
                                 },
                                 errors: "Errors"
                             },
-                            error: function (e) {
+                            error: function(e) {
                                 if (e.errors && e.errors["_addKey"]) {
                                     notify.showError(e.errors["_addKey"].errors[0]);
-                                }
-                                else if (e.errors && e.errors["_deleteKey"]) {
+                                } else if (e.errors && e.errors["_deleteKey"]) {
                                     notify.showError(e.errors["_deleteKey"].errors[0]);
-                                }
-                                else if (e.errors && e.errors["_updateKey"]) {
+                                } else if (e.errors && e.errors["_updateKey"]) {
                                     notify.showError(e.errors["_updateKey"].errors[0]);
-                                }
-                                else {
+                                } else {
                                     notify.showError('An error has been occurred, please contact system admin.');
                                 }
                                 this.cancelChanges();
                             }
                         });
 
-                        $("#templateGrid").kendoGrid({
-                            dataSource: templatesDataSources,
-                            //width: 600,
-                            selectable: "row",
-                            resizable: true,
-                            scrollable: true,
-                            sortable: true,
-                            filterable: true,
-                            groupable: true,
-                            reorderable: true,
-                            columnMenu: true,
-                            pageable: {
-                                refresh: true,
-                                input: true,
-                                numeric: false,
-                                pageSizes: [10, 20, 30, 50, 75, 100]
-                            },
-                            columns: [
-                                {
-                                    field: "ActionDate",
-                                    title: "Action Date",
-                                    format: "{0:MM/dd/yyyy HH:MM}",
-                                    width: 65
+                        $("#templateGrid")
+                            .kendoGrid({
+                                dataSource: templatesDataSources,
+                                //width: 600,
+                                selectable: "row",
+                                resizable: true,
+                                scrollable: true,
+                                sortable: true,
+                                filterable: true,
+                                groupable: true,
+                                reorderable: true,
+                                columnMenu: true,
+                                pageable: {
+                                    refresh: true,
+                                    input: true,
+                                    numeric: false,
+                                    pageSizes: [10, 20, 30, 50, 75, 100]
                                 },
-                                {
-                                    field: "UserId",
-                                    title: "User Name",
-                                    values: usersList,
-                                    width: 100
+                                columns: [
+                                    {
+                                        field: "ActionDate",
+                                        title: "Action Date",
+                                        format: "{0:MM/dd/yyyy HH:MM}",
+                                        width: 65
+                                    },
+                                    {
+                                        field: "UserId",
+                                        title: "User Name",
+                                        values: usersList,
+                                        width: 100
+                                    },
+                                    {
+                                        field: "EntityType",
+                                        title: "Entity Type",
+                                        values: entityTypesList,
+                                        width: 45
+                                    },
+                                    {
+                                        field: "OperationType",
+                                        title: "Operation Type",
+                                        values: operationTypesList,
+                                        width: 45
+                                    },
+                                    {
+                                        field: "ReceiptNumber",
+                                        title: "Receipt Number",
+                                        width: 50
+                                    }
+                                ],
+                                editable: false,
+                                toolbar: [],
+                                dataBound: function(e) {
+                                    if (!currentGrid)
+                                        currentGrid = $("#templateGrid").data("kendoGrid");
                                 },
-                                {
-                                    field: "EntityType",
-                                    title: "Entity Type",
-                                    values: entityTypesList,
-                                    width: 45
+                                edit: function(e) {
                                 },
-                                {
-                                    field: "OperationType",
-                                    title: "Operation Type",
-                                    values: operationTypesList,
-                                    width: 45
+                                change: function() {
                                 },
-                                {
-                                    field: "ReceiptNumber",
-                                    title: "Receipt Number",
-                                    width: 50
+                                save: function(e) {
                                 }
-                            ],
-                            editable: false,
-                            toolbar: [],
-                            dataBound: function (e) {
-                                if (!currentGrid)
-                                    currentGrid = $("#templateGrid").data("kendoGrid");
-                            },
-                            edit: function (e) {
-                            },
-                            change: function () {
-                            },
-                            save: function (e) {
-                            }
-                        });
+                            });
                     }
 
-                    $(document).ready(function () {
-                        $.getJSON('@Url.Action("GetSysUsersList")', function (data) {
-                            usersList = data;
-                            initAuditInfoGrid();
+                    $(document)
+                        .ready(function() {
+                            $.getJSON('@Url.Action("GetSysUsersList")',
+                                function(data) {
+                                    usersList = data;
+                                    initAuditInfoGrid();
+                                });
                         });
-                    });
 
                 </script>
             </div>
         </div>
     </div>
 </div>
+@Html.Partial("_HighlightMenu", 7)

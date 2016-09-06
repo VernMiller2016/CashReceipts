@@ -1,0 +1,228 @@
+﻿@model dynamic
+<style type="text/css">
+    /*.k-filter-row th>span:first-child>span:first-child {
+        width: 85% !important;
+    }*/
+    .box {
+        margin: 10px 0px 2px 0px;
+    }
+
+    .form-control {
+        width: 100% !important;
+        height: 30px !important;
+    }
+</style>
+@section styles{
+    <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
+    <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
+}
+<div id="templates" class="">
+    <div class="">
+        <div class="title-section">
+            <h4>Line Items</h4>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div id="SystemRolesLst" class="k-content my-k-content">
+                <div class="box wide hidden-on-narrow">
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>Account Number</h4>
+                        <input id="acctNum" type="text" style="width: 100%" class="form-control" />
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>From Date</h4>
+                        <input id="fromDate" style="width: 100%" />
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>To Date</h4>
+                        <input id="toDate" style="width: 100%" />
+                    </div>
+                    <div class="box-col">
+                        <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+                    </div>
+                    <div class="box-col">
+                        <h4>&nbsp;</h4>
+                        <button class="k-button" onclick="search()">Search</button>
+                    </div>
+                </div>
+                <div id="templateGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var selectedRows = undefined,
+        currentGrid = null,
+        accountsDs,
+        apiUrl = '@Url.Action("LineItems_Read", "ReceiptHeaders")';
+
+    function search() {
+        var fromDateVal = $("#fromDate").data("kendoDatePicker").value();
+        var toDateVal = $("#toDate").data("kendoDatePicker").value();
+        var acctNumVal = $('#acctNum').val();
+        accountsDs.transport.options.read.url = apiUrl + "?fromDate=" + kendo.toString(fromDateVal, "d") + "&toDate=" + kendo.toString(toDateVal, "d") + "&acctNum=" + acctNumVal;
+        accountsDs.read();
+    }
+
+    $(document).ready(function () {
+        // create DatePicker from input HTML element
+        $("#fromDate").kendoDatePicker();
+        $("#toDate").kendoDatePicker();
+
+        accountsDs = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: apiUrl,
+                    dataType: "json"
+                },
+                parameterMap: function (options) {
+                    return serialize(options); //contains take, skip, sort, and filters
+                }
+            },
+            batch: true,
+            serverPaging: false,
+            serverFiltering: false,
+            serverSorting: false,
+            pageSize: 20,
+            sort: [{ field: "ReceiptHeaderID", dir: "asc" }],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "ReceiptBodyID",
+                    fields: {
+                        ReceiptBodyID: {
+                            type: "number",
+                            editable: false,
+                            nullable: false,
+                            defaultValue: 0
+                        },
+                        ReceiptHeaderID: {
+                            type: "number",
+                            editable: false,
+                            nullable: false,
+                            defaultValue: 0
+                        },
+                        AccountNumber: { type: "string" },
+                        AccountDescription: { validation: { required: true }, type: "string" },
+                        LineTotal: {
+                            validation: { required: true },
+                            type: "number",
+                            spinners: false
+                        },
+                        TemplateOrder: { validation: { required: false }, type: "number" },
+                        ReceiptHeaderNumber: { validation: { required: false }, type: "number" },
+                        ReceiptDepartment: { validation: { required: false }, type: "string" },
+                    }
+                },
+                errors: "Errors"
+            },
+            error: function (e) {
+            }
+        });
+
+        $("#templateGrid")
+            .kendoGrid({
+                dataSource: accountsDs,
+                //width: 600,
+                selectable: "row",
+                resizable: true,
+                scrollable: true,
+                sortable: true,
+                filterable: {
+                    extra: false,
+                    operators: {
+                        string: {
+                            contains: "Contains",
+                            startswith: "Starts With"
+                        }
+                    },
+                    mode: "row"
+                },
+                groupable: true,
+                reorderable: true,
+                columnMenu: true,
+                pageable: {
+                    refresh: true,
+                    input: true,
+                    numeric: false,
+                    pageSizes: [10, 20, 30, 50, 75, 100, 500, 1000]
+                },
+                columns: [
+                    {
+                        field: "AccountNumber",
+                        title: "Account Number",
+                        width: 100
+                    },
+                    {
+                        field: "AccountDescription",
+                        title: "Template",
+                        width: 100
+                    },
+                    {
+                        field: "LineTotal",
+                        title: "Line Total",
+                        format: "{0:n2}",
+                        headerAttributes: { style: "text-align:right" },
+                        attributes: { class: "text-right editable-cell" },
+                        width: 70
+                    },
+                    {
+                        field: "ReceiptHeaderNumber",
+                        title: "Receipt Number",
+                        width: 70
+                    },
+                    {
+                        field: "ReceiptDepartment",
+                        title: "Department",
+                        width: 100
+                    }
+                ],
+                editable: "inline",
+                toolbar: [],
+                dataBound: function (e) {
+                    //enableDisableActions(false);
+                    if (!currentGrid)
+                        currentGrid = $("#templateGrid").data("kendoGrid");
+                },
+                edit: function (e) {
+                },
+                change: function () {
+                    //selectedRows = this.select();
+                    //enableDisableActions(true);
+                },
+                save: function (e) {
+                }
+            });
+    });
+
+    serialize = function (obj) {
+        var str = [];
+        for (var p in obj)
+            if (obj.hasOwnProperty(p)) {
+                str.push(serializeProperty(p, obj[p]));
+            }
+        return str.join("&");
+    }
+
+    serializeProperty = function (prop, value) {
+        if (prop === "filters" && Object.prototype.toString.call(value) === '[object Array]') {
+            var str = [];
+            for (var i = 0; i < value.length; i++) {
+                str.push(serializeProperty(value[i].field, value[i].value));
+            }
+            return str.join("&");
+        }
+        if (typeof value == "object")
+            return serialize(value);
+        else
+            return encodeURIComponent(prop) + "=" + encodeURIComponent(value);
+    }
+</script>
+@Html.Partial("_HighlightMenu", 5)

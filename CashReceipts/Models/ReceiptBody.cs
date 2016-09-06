@@ -16,7 +16,7 @@ namespace CashReceipts.Models
 
         public int ReceiptHeaderID { get; set; }
 
-        public virtual ReceiptHeader ReceiptHeaders { get; set; }
+        public virtual ReceiptHeader ReceiptHeader { get; set; }
 
         public int TemplateID { get; set; }
 

@@ -514,6 +514,7 @@
     <Content Include="Scripts\KendoUI2016.2.504\styles\images\kendoui.woff" />
     <Content Include="Views\Audits\Index.cshtml" />
     <Content Include="Views\Accounts\DistAccounts.cshtml" />
+    <Content Include="Views\ReceiptHeaders\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
