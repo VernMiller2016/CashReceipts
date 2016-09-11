@@ -185,7 +185,18 @@
                     }
                 ],
                 editable: "inline",
-                toolbar: [],
+                toolbar: ["pdf", "excel"],
+                pdf: {
+                    allPages: true,
+                    paperSize: "A4",
+                    landscape: true,
+                    //scale: 0.75,
+                    fileName: "line_Items.pdf"
+                },
+                excel: {
+                    fileName: "Line_Items.xlsx",
+                    filterable: true
+                },
                 dataBound: function (e) {
                     //enableDisableActions(false);
                     if (!currentGrid)

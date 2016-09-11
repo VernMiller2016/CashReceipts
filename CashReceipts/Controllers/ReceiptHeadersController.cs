@@ -461,6 +461,7 @@ namespace CashReceipts.Controllers
                         if (localTemplate != null)
                         {
                             receiptBody.TemplateID = localTemplate.TemplateID;
+                            localTemplate.Description = receiptBody.AccountDescription;
                         }
                         else
                         {
@@ -468,7 +469,7 @@ namespace CashReceipts.Controllers
                             {
                                 BaseElementObjectDetail = template.BaseElementObjectDetail,
                                 Dept = template.Dept,
-                                Description = template.Description,
+                                Description = receiptBody.AccountDescription,
                                 Fund = template.Fund,
                                 Program = template.Program,
                                 Project = template.Project,
@@ -521,27 +522,30 @@ namespace CashReceipts.Controllers
             {
                 foreach (var receiptBody in receiptBodiesList)
                 {
-                    if (receiptBody.IsRemote)
-                    {
-                        var receipt =
+                    var receipt =
                         _db.ReceiptHeaders.Include(x => x.Department)
                             .Single(x => x.ReceiptHeaderID == receiptBody.ReceiptHeaderID);
+
+                    if (receiptBody.IsRemote)
+                    {
                         var template = _db.GetRemoteAccount(receiptBody.TemplateID, receiptBody.AccountDataSource);
                         if (template != null)
                         {
-                            var localTemplate = receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
-                                                                                                 x.BaseElementObjectDetail ==
-                                                                                                 template
-                                                                                                     .BaseElementObjectDetail &&
-                                                                                                 x.Dept == template.Dept
-                                                                                                 &&
-                                                                                                 x.Program ==
-                                                                                                 template.Program &&
-                                                                                                 x.Project ==
-                                                                                                 template.Project);
+                            var localTemplate =
+                                receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
+                                                                                 x.BaseElementObjectDetail ==
+                                                                                 template
+                                                                                     .BaseElementObjectDetail &&
+                                                                                 x.Dept == template.Dept
+                                                                                 &&
+                                                                                 x.Program ==
+                                                                                 template.Program &&
+                                                                                 x.Project ==
+                                                                                 template.Project);
                             if (localTemplate != null)
                             {
                                 receiptBody.TemplateID = localTemplate.TemplateID;
+                                localTemplate.Description = receiptBody.AccountDescription;
                             }
                             else
                             {
@@ -549,7 +553,7 @@ namespace CashReceipts.Controllers
                                 {
                                     BaseElementObjectDetail = template.BaseElementObjectDetail,
                                     Dept = template.Dept,
-                                    Description = template.Description,
+                                    Description = receiptBody.AccountDescription,
                                     Fund = template.Fund,
                                     Program = template.Program,
                                     Project = template.Project,
@@ -561,6 +565,14 @@ namespace CashReceipts.Controllers
                                 receiptBody.Template = newTemplate;
                             }
 
+                        }
+                    }
+                    else
+                    {
+                        var localTemplate = _db.Templates.Find(receiptBody.TemplateID);
+                        if (localTemplate != null)
+                        {
+                            localTemplate.Description = receiptBody.AccountDescription;
                         }
                     }
                     _db.Entry(receiptBody).State = EntityState.Modified;
@@ -1008,10 +1020,11 @@ namespace CashReceipts.Controllers
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
+
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
                 Colspan = 3,
-                Rowspan = receipt.Tenders.Count,
+                Rowspan = receipt.Tenders.Count + 1,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -1020,7 +1033,7 @@ namespace CashReceipts.Controllers
             });
             dataTable.AddCell(new PdfPCell(new Phrase("Tender:", font))
             {
-                Rowspan = receipt.Tenders.Count,
+                Rowspan = receipt.Tenders.Count + 1,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
@@ -1030,7 +1043,11 @@ namespace CashReceipts.Controllers
 
             foreach (var tender in receipt.Tenders.ToList())
             {
-                dataTable.AddCell(new PdfPCell(new Phrase($"{tender.PaymentMethod.Name} - {tender.Description}", font))
+                var phrase = !string.IsNullOrEmpty(tender.Description)
+                    ? $"{tender.PaymentMethod.Name} - {tender.Description}"
+                    : tender.PaymentMethod.Name;
+
+                dataTable.AddCell(new PdfPCell(new Phrase(phrase, font))
                 {
                     Colspan = 2,
                     Border = 0,
@@ -1049,6 +1066,28 @@ namespace CashReceipts.Controllers
                     HorizontalAlignment = Element.ALIGN_RIGHT
                 });
             }
+
+
+            dataTable.AddCell(new PdfPCell(new Phrase("Total", font))
+            {
+                Colspan = 2,
+                Border = 1,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            });
+
+            var totalTendersAmount = receipt.Tenders.Sum(x => x.Amount);
+            dataTable.AddCell(new PdfPCell(new Phrase($"{totalTendersAmount:0.00}", font))
+            {
+                Border = 1,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight,
+                HorizontalAlignment = Element.ALIGN_RIGHT
+            });
 
             dataTable.AddCell(new PdfPCell(new Phrase(" ", font))
             {
@@ -1144,6 +1183,7 @@ namespace CashReceipts.Controllers
                 .Include(x => x.ReceiptHeader)
                 .Include(x => x.ReceiptHeader.Department)
                 .Include(x => x.Template)
+                .Where(x=>x.LineTotal != 0)
                 .Where(x=> !fromDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, fromDate) <= 0)
                 .Where(x=> !toDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, toDate) >= 0)
                 .Where(x=> string.IsNullOrEmpty(acctNum) || 

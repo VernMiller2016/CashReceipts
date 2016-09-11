@@ -236,7 +236,8 @@
                             validation: {
                                 required: true
                             },
-                            type: "number"//, editable: false
+                            type: "number",
+                            defaultValue: getNextReceiptNumber()
                         },
                         ReceiptDate: {
                             validation: {
@@ -348,7 +349,7 @@
                             template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
                         }],
             dataBound: function (e) {
-                debugger;
+                //debugger;
                 if (!currentGrid) {
                     currentGrid = $("#headersGrid").data("kendoGrid");
                     this.expandRow(this.tbody.find("tr.k-master-row").first());
@@ -356,12 +357,13 @@
                 enableDisableReceiptHeadersButtons(false);
             },
             edit: function (e) {
-                debugger;
+                //debugger;
                 var editRow = e.container;
                 if (e.model.isNew()) {
                     var receipts = this.dataSource.data();
-                    var lastReceiptId = Math.max.apply(Math, $(receipts).map(function (i, r) { return r.ReceiptNumber; }));
+                    var lastReceiptId = Math.max.apply(Math, $(receipts).map(function (i, r) { if (r.ReceiptNumber !== getNextReceiptNumber()) return r.ReceiptNumber; }));
                     e.model.set("ReceiptNumber", (lastReceiptId + 1));
+                    e.model.ReceiptNumber = (lastReceiptId + 1);
                     //var ds = e.sender.dataSource;
                     //ds.sort(ds.sort());
                 }
@@ -369,7 +371,8 @@
                 editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
                 editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
             },
-            change: function () {
+            change: function (e) {
+                debugger;
                 //selectedRows = this.select();
                 enableDisableReceiptHeadersButtons(true);
             },
@@ -385,6 +388,10 @@
                 enableDisableReceiptHeadersButtons(false);
             }
         });
+    }
+
+    function getNextReceiptNumber() {
+        return Number.MAX_SAFE_INTEGER;
     }
 
     function departmentsDropDownEditor(container, options) {
@@ -545,6 +552,7 @@
             groupable: true,
             reorderable: true,
             columnMenu: true,
+            navigatable: true,
             pageable: {
                 refresh: true,
                 input: true,
@@ -752,7 +760,7 @@
                     editor: oldNumericBoxEditor,
                     format: "{0:n2}",
                     headerAttributes: { style: "text-align:right" },
-                    attributes: { class: "text-right editable-cell" },
+                    attributes: { class: "text-right editable-cell highlight-cell-text" },
                     footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                     width: 40
                 },
@@ -779,7 +787,11 @@
             editable: true,
             toolbar: ["create", "save", "cancel"],
             dataBound: function () {
-
+                //highlight total cell if selected, so client would be able to overwrite values
+                $(this.tbody.find(".highlight-cell-text")).on('focus', '.k-input', function () {
+                    var input = $(this);
+                    setTimeout(function () { input.select(); });
+                });
             },
             change: function () {
                 //selectedRows = this.select();
@@ -916,6 +928,7 @@
                     cell = row.prev().children(".editable-cell:first");
                 grid.current(cell);
                 grid.editCell(cell[0]);
+                setTimeout(function () { $(cell[0]).find(':input.k-input:first').select(); }, 100);
             }
         }
     };
