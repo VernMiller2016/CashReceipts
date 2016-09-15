@@ -16,6 +16,26 @@
     <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
     <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
 }
+
+<script type="text/x-kendo-template" id="template">
+    <div class="tabstrip">
+        <ul>
+            <li class="k-state-active">
+                Receipt Body
+            </li>
+            <li>
+                Tenders
+            </li>
+        </ul>
+        <div>
+            <div class="receiptsBodyGrid"></div>
+        </div>
+        <div>
+            <div class="tendersGrid"></div>
+        </div>
+    </div>
+</script>
+
 <div id="templates" class="">
     <div class="">
         <div class="title-section">
@@ -56,164 +76,219 @@
         </div>
     </div>
 </div>
+
+<div id="receiptWndDiv" style="height: 600px">
+    <div id="receiptWndGrid" style="height: 580px">
+    </div>
+</div>
+
 <script>
     var selectedRows = undefined,
         currentGrid = null,
         accountsDs,
+        receiptWnd,
+        paymentMethods,
+        receiptBodyDiv,
+        receiptsTendersDataSource,
+        headersDataSources,
+        receiptsBodyDataSource,
+        clerksList,
+        departmentsList,
         apiUrl = '@Url.Action("LineItems_Read", "ReceiptHeaders")';
+
+    $(document).ready(function () {
+        $.when(
+                $.getJSON('@Url.Action("GetClerksList", "ReceiptHeaders")'),
+                $.getJSON('@Url.Action("GetDepartmentsList", "ReceiptHeaders")')
+            )
+            .done(function (result1, result2) {
+                if (result1[1] == "success") clerksList = result1[0];
+                if (result2[1] == "success") departmentsList = result2[0];
+            });
+    });
 
     function search() {
         var fromDateVal = $("#fromDate").data("kendoDatePicker").value();
         var toDateVal = $("#toDate").data("kendoDatePicker").value();
         var acctNumVal = $('#acctNum').val();
-        accountsDs.transport.options.read.url = apiUrl + "?fromDate=" + kendo.toString(fromDateVal, "d") + "&toDate=" + kendo.toString(toDateVal, "d") + "&acctNum=" + acctNumVal;
+        accountsDs.transport.options.read.url = apiUrl +
+            "?fromDate=" +
+            kendo.toString(fromDateVal, "d") +
+            "&toDate=" +
+            kendo.toString(toDateVal, "d") +
+            "&acctNum=" +
+            acctNumVal;
         accountsDs.read();
     }
 
-    $(document).ready(function () {
-        // create DatePicker from input HTML element
-        $("#fromDate").kendoDatePicker();
-        $("#toDate").kendoDatePicker();
+    $(document)
+        .ready(function() {
+            // create DatePicker from input HTML element
+            $("#fromDate").kendoDatePicker();
+            $("#toDate").kendoDatePicker();
 
-        accountsDs = new kendo.data.DataSource({
-            transport: {
-                read: {
-                    url: apiUrl,
-                    dataType: "json"
-                },
-                parameterMap: function (options) {
-                    return serialize(options); //contains take, skip, sort, and filters
-                }
-            },
-            batch: true,
-            serverPaging: false,
-            serverFiltering: false,
-            serverSorting: false,
-            pageSize: 20,
-            sort: [{ field: "ReceiptHeaderID", dir: "asc" }],
-            schema: {
-                data: "Data",
-                total: "Total",
-                model: {
-                    id: "ReceiptBodyID",
-                    fields: {
-                        ReceiptBodyID: {
-                            type: "number",
-                            editable: false,
-                            nullable: false,
-                            defaultValue: 0
-                        },
-                        ReceiptHeaderID: {
-                            type: "number",
-                            editable: false,
-                            nullable: false,
-                            defaultValue: 0
-                        },
-                        AccountNumber: { type: "string" },
-                        AccountDescription: { validation: { required: true }, type: "string" },
-                        LineTotal: {
-                            validation: { required: true },
-                            type: "number",
-                            spinners: false
-                        },
-                        TemplateOrder: { validation: { required: false }, type: "number" },
-                        ReceiptHeaderNumber: { validation: { required: false }, type: "number" },
-                        ReceiptDepartment: { validation: { required: false }, type: "string" },
+            accountsDs = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: apiUrl,
+                        dataType: "json"
+                    },
+                    parameterMap: function(options) {
+                        return serialize(options); //contains take, skip, sort, and filters
                     }
                 },
-                errors: "Errors"
-            },
-            error: function (e) {
-            }
-        });
-
-        $("#templateGrid")
-            .kendoGrid({
-                dataSource: accountsDs,
-                //width: 600,
-                selectable: "row",
-                resizable: true,
-                scrollable: true,
-                sortable: true,
-                filterable: {
-                    extra: false,
-                    operators: {
-                        string: {
-                            contains: "Contains",
-                            startswith: "Starts With"
+                batch: true,
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false,
+                pageSize: 20,
+                sort: [{ field: "ReceiptHeaderID", dir: "asc" }],
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    model: {
+                        id: "ReceiptBodyID",
+                        fields: {
+                            ReceiptBodyID: {
+                                type: "number",
+                                editable: false,
+                                nullable: false,
+                                defaultValue: 0
+                            },
+                            ReceiptHeaderID: {
+                                type: "number",
+                                editable: false,
+                                nullable: false,
+                                defaultValue: 0
+                            },
+                            AccountNumber: { type: "string" },
+                            AccountDescription: { validation: { required: true }, type: "string" },
+                            LineTotal: {
+                                validation: { required: true },
+                                type: "number",
+                                spinners: false
+                            },
+                            TemplateOrder: { validation: { required: false }, type: "number" },
+                            ReceiptHeaderNumber: { validation: { required: false }, type: "number" },
+                            ReceiptDepartment: { validation: { required: false }, type: "string" },
                         }
                     },
-                    mode: "row"
+                    errors: "Errors"
                 },
-                groupable: true,
-                reorderable: true,
-                columnMenu: true,
-                pageable: {
-                    refresh: true,
-                    input: true,
-                    numeric: false,
-                    pageSizes: [10, 20, 30, 50, 75, 100, 500, 1000]
-                },
-                columns: [
-                    {
-                        field: "AccountNumber",
-                        title: "Account Number",
-                        width: 100
-                    },
-                    {
-                        field: "AccountDescription",
-                        title: "Template",
-                        width: 100
-                    },
-                    {
-                        field: "LineTotal",
-                        title: "Line Total",
-                        format: "{0:n2}",
-                        headerAttributes: { style: "text-align:right" },
-                        attributes: { class: "text-right editable-cell" },
-                        width: 70
-                    },
-                    {
-                        field: "ReceiptHeaderNumber",
-                        title: "Receipt Number",
-                        width: 70
-                    },
-                    {
-                        field: "ReceiptDepartment",
-                        title: "Department",
-                        width: 100
-                    }
-                ],
-                editable: "inline",
-                toolbar: ["pdf", "excel"],
-                pdf: {
-                    allPages: true,
-                    paperSize: "A4",
-                    landscape: true,
-                    //scale: 0.75,
-                    fileName: "line_Items.pdf"
-                },
-                excel: {
-                    fileName: "Line_Items.xlsx",
-                    filterable: true
-                },
-                dataBound: function (e) {
-                    //enableDisableActions(false);
-                    if (!currentGrid)
-                        currentGrid = $("#templateGrid").data("kendoGrid");
-                },
-                edit: function (e) {
-                },
-                change: function () {
-                    //selectedRows = this.select();
-                    //enableDisableActions(true);
-                },
-                save: function (e) {
+                error: function(e) {
                 }
             });
-    });
 
-    serialize = function (obj) {
+            $("#templateGrid")
+                .kendoGrid({
+                    dataSource: accountsDs,
+                    //width: 600,
+                    selectable: "row",
+                    resizable: true,
+                    scrollable: true,
+                    sortable: true,
+                    filterable: {
+                        extra: false,
+                        operators: {
+                            string: {
+                                contains: "Contains",
+                                startswith: "Starts With"
+                            }
+                        },
+                        mode: "row"
+                    },
+                    groupable: true,
+                    reorderable: true,
+                    columnMenu: true,
+                    pageable: {
+                        refresh: true,
+                        input: true,
+                        numeric: false,
+                        pageSizes: [10, 20, 30, 50, 75, 100, 500, 1000]
+                    },
+                    columns: [
+                        {
+                            field: "AccountNumber",
+                            title: "Account Number",
+                            width: 100
+                        },
+                        {
+                            field: "AccountDescription",
+                            title: "Template",
+                            width: 100
+                        },
+                        {
+                            field: "LineTotal",
+                            title: "Line Total",
+                            format: "{0:n2}",
+                            headerAttributes: { style: "text-align:right" },
+                            attributes: { class: "text-right editable-cell" },
+                            width: 70
+                        },
+                        {
+                            field: "ReceiptHeaderNumber",
+                            title: "Receipt Number",
+                            width: 70
+                        },
+                        {
+                            field: "ReceiptDepartment",
+                            title: "Department",
+                            width: 100
+                        }
+                    ],
+                    editable: "inline",
+                    toolbar: [
+                        "pdf", "excel",
+                        {
+                            text: "",
+                            template:
+                                "<a class='k-button k-grid-ShowReceipt'>Show Receipt</a>"
+                        }
+                    ],
+                    pdf: {
+                        allPages: true,
+                        paperSize: "A4",
+                        landscape: true,
+                        //scale: 0.75,
+                        fileName: "line_Items.pdf"
+                    },
+                    excel: {
+                        fileName: "Line_Items.xlsx",
+                        filterable: true
+                    },
+                    dataBound: function(e) {
+                        //enableDisableActions(false);
+                        if (!currentGrid)
+                            currentGrid = $("#templateGrid").data("kendoGrid");
+                        enableDisableToolbarButtons(false);
+                    },
+                    edit: function(e) {
+                    },
+                    change: function() {
+                        //selectedRows = this.select();
+                        enableDisableToolbarButtons(true);
+                    },
+                    save: function(e) {
+                    },
+                    destroy: function() {
+                        enableDisableToolbarButtons(false);
+                    }
+                });
+        });
+
+    receiptWnd = $("#receiptWndDiv")
+        .kendoWindow({
+            title: "Receipt Details",
+            modal: true,
+            visible: false,
+            resizable: true,
+            width: 1200,
+            //height:600
+        })
+        .data("kendoWindow");
+
+
+    serialize = function(obj) {
         var str = [];
         for (var p in obj)
             if (obj.hasOwnProperty(p)) {
@@ -222,7 +297,7 @@
         return str.join("&");
     }
 
-    serializeProperty = function (prop, value) {
+    serializeProperty = function(prop, value) {
         if (prop === "filters" && Object.prototype.toString.call(value) === '[object Array]') {
             var str = [];
             for (var i = 0; i < value.length; i++) {
@@ -235,5 +310,405 @@
         else
             return encodeURIComponent(prop) + "=" + encodeURIComponent(value);
     }
+
+    function enableDisableToolbarButtons(isEnable) {
+        if (!isEnable) {
+            $('.k-grid-ShowReceipt').addClass("k-state-disabled").unbind("click");
+        } else {
+            $(".k-grid-ShowReceipt")
+                .removeClass("k-state-disabled")
+                .unbind("click")
+                .bind("click",
+                    function() {
+                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                        var receiptBody = accountsDs.getByUid(recordUid);
+                        if (receiptBody) {
+                            var firstCall = initReceiptDataSources(receiptBody.ReceiptHeaderID);
+                            if (!firstCall) {
+                                refreshDataSources(receiptBody.ReceiptHeaderID);
+                            }
+                            receiptWnd.center().open();
+
+                            @*$.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
+                        {
+                            ReceiptHeaderID: receipt.ReceiptHeaderID,
+                        })
+                        .done(function (data) {
+                            if (data) {
+                                if (data.Result) {
+                                    notify.showSuccess(data.Message);
+                                } else {
+                                    notify.showError(data.Message);
+                                }
+                            }
+                        });*@
+                        }
+                    });
+        }
+    }
+
+    function refreshDataSources(receiptHeaderId) {
+        //receiptHeaderId
+        headersDataSources.transport.options.read.url = '@Url.Action("ReceiptHeaders_Read", "ReceiptHeaders")?receiptHeaderId=' + receiptHeaderId
+        headersDataSources.read();
+
+        receiptsTendersDataSource.transport.options.read.url = '@Url.Action("ReceiptsTenders_Read", "ReceiptHeaders")?receiptHeaderId=' + receiptHeaderId
+        receiptsTendersDataSource.read();
+
+        receiptsBodyDataSource.transport.options.read.url = '@Url.Action("ReceiptsBody_Read", "ReceiptHeaders")?receiptHeaderId=' + receiptHeaderId
+        receiptsBodyDataSource.read();
+    }
+
+    function initReceiptDataSources(receiptHeaderId) {
+        var firstCall = false;
+        if (headersDataSources == undefined) {
+            firstCall = true;
+            headersDataSources = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: '@Url.Action("ReceiptHeaders_Read", "ReceiptHeaders")?receiptHeaderId=' + receiptHeaderId,
+                        dataType: "json"
+                    }
+                },
+                batch: true,
+                pageSize: 10,
+                serverPaging: false,
+                sort: [{ field: "ReceiptNumber", dir: "desc" }],
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    model: {
+                        id: "ReceiptHeaderID",
+                        fields: {
+                            ReceiptHeaderID: { editable: false, nullable: false, defaultValue: 0 },
+                            DepartmentID: {
+                                validation: {
+                                    required: true
+                                },
+                                type: "number"
+                            },
+                            ReceiptNumber: {
+                                validation: {
+                                    required: true
+                                },
+                                type: "number"
+                            },
+                            ReceiptDate: {
+                                validation: {
+                                    required: true
+                                },
+                                type: "date"
+                            },
+                            ReceiptTotal: {
+                                validation: {
+                                    required: true
+                                },
+                                type: "number"
+                            },
+                            ClerkID: {
+                                validation: {
+                                    required: true
+                                },
+                                type: "number"
+                            },
+                            Comments: {
+                                type: "string"
+                            }
+                        }
+                    },
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    if (e.errors && e.errors["_addKey"]) {
+                        notify.showError(e.errors["_addKey"].errors[0]);
+                    } else if (e.errors && e.errors["_deleteKey"]) {
+                        notify.showError(e.errors["_deleteKey"].errors[0]);
+                    } else if (e.errors && e.errors["_updateKey"]) {
+                        notify.showError(e.errors["_updateKey"].errors[0]);
+                    } else {
+                        notify.showError('An error has been occurred, please contact system admin.');
+                    }
+                    this.cancelChanges();
+                }
+            });
+
+            $("#receiptWndGrid")
+                .kendoGrid({
+                    dataSource: headersDataSources,
+                    //width: 600,
+                    selectable: "row",
+                    resizable: true,
+                    scrollable: true,
+                    sortable: true,
+                    filterable: true,
+                    groupable: true,
+                    reorderable: true,
+                    columnMenu: true,
+                    pageable: {
+                        refresh: true,
+                        input: true,
+                        numeric: false,
+                        pageSizes: [10, 20, 30, 50, 75, 100]
+                    },
+                    detailTemplate: kendo.template($("#template").html()),
+                    detailInit: receiptHeaderDetailInit,
+                    columns: [
+                        {
+                            field: "ReceiptNumber",
+                            title: "Receipt Number",
+                            format: "{0}",
+                            width: 100
+                        }, {
+                            field: "ReceiptDate",
+                            title: "Receipt Date",
+                            format: "{0:MM/dd/yyyy}",
+                            width: 90
+                        }, {
+                            field: "ReceiptTotal",
+                            title: "Receipt Total",
+                            format: "{0:n2}",
+                            width: 90
+                        },
+                        {
+                            field: "DepartmentID",
+                            title: "Department",
+                            values: departmentsList,
+                            width: 100
+                        },
+                        {
+                            field: "ClerkID",
+                            title: "Clerk",
+                            values: clerksList,
+                            width: 100
+                        },
+                        {
+                            field: "Comments",
+                            title: "Comments",
+                            width: 100
+                        }
+                    ],
+                    editable: false,
+                    toolbar: [],
+                    dataBound: function(e) {
+                        this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    }
+                });
+        }
+        return firstCall;
+    }
+
+    function receiptHeaderDetailInit(e) {
+        var detailRow = e.detailRow;
+
+        detailRow.find(".tabstrip")
+            .kendoTabStrip({
+                animation: {
+                    open: { effects: "fadeIn" }
+                }
+            });
+
+        receiptBodyDiv = detailRow.find(".receiptsBodyGrid");
+        initReceiptsBodyGrid(receiptBodyDiv, e);
+
+        $.getJSON('@Url.Action("GetPaymentMethods", "ReceiptHeaders")', function (data) {
+            paymentMethods = data;
+            initTendersGrid(detailRow.find(".tendersGrid"), e);
+        });
+    }
+
+    function initTendersGrid(receiptTendersDiv, headersGridRef) {
+        receiptsTendersDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("ReceiptsTenders_Read", "ReceiptHeaders")?receiptHeaderId=' + headersGridRef.data.ReceiptHeaderID,
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }
+            },
+            batch: true,
+            pageSize: 10,
+            filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
+            dataBound: function () {
+            },
+            serverPaging: false,
+            aggregate: [
+                { field: "Amount", aggregate: "sum" },
+            ],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "TenderID",
+                    fields: {
+                        TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
+                        Description: { validation: { required: false }, type: "string" },
+                        Amount: { validation: { required: true }, type: "number" },
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 2 /*Check*/ }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+            },
+            error: function (e) {
+                if (e && e.errors) {
+                    if (e.errors["_deleteKey"]) {
+                        notify.showError(e.errors["_deleteKey"].errors[0]);
+                    } else if (e.errors["_updateKey"]) {
+                        notify.showError(e.errors["_updateKey"].errors[0]);
+                    } else {
+                        notify.showError('An error has been occurred, please contact system admin.');
+                    }
+                }
+                this.cancelChanges();
+            }
+        });
+
+        receiptTendersDiv.kendoGrid({
+            dataSource: receiptsTendersDataSource,
+            selectable: "row",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            groupable: true,
+            reorderable: true,
+            columnMenu: true,
+            navigatable: true,
+            pageable: {
+                refresh: true,
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            columns: [
+                {
+                    field: "PaymentMethodId",
+                    title: "Payment Method",
+                    values: paymentMethods,
+                    width: 140
+                },
+                {
+                    field: "Description",
+                    title: "Description",
+                    width: 140
+                },
+                {
+                    field: "Amount",
+                    title: "Amount",
+                    format: "{0:n2}",
+                    footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                    width: 69
+                }
+            ],
+            editable: false,
+            toolbar: [],
+            change: function () {
+                //selectedRows = this.select();
+            },
+            edit: function (e) {
+            }
+        });
+    }
+
+    function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
+
+        receiptsBodyDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("ReceiptsBody_Read", "ReceiptHeaders")?receiptHeaderId=' + headersGridRef.data.ReceiptHeaderID,
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                }
+            },
+            sort: [{ field: "AccountNumber", dir: "asc" }],
+            batch: true,
+            pageSize: 20,
+            filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
+            dataBound: function () {
+            },
+            serverPaging: false,
+            aggregate: [
+                { field: "LineTotal", aggregate: "sum" },
+            ],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "ReceiptBodyID",
+                    fields: {
+                        ReceiptBodyID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
+                        AccountNumber: { type: "string" },
+                        LineTotal: { validation: { required: true }, type: "number", spinners: false },
+                        AccountDescription: { validation: { required: true }, type: "string" },
+                        TemplateOrder: { validation: { required: false }, type: "number" }
+                    }
+                },
+                errors: "Errors"
+            },
+            change: function (e) {
+            },
+            error: function (e) {
+                if (e && e.errors) {
+                    if (e.errors["_deleteKey"]) {
+                        notify.showError(e.errors["_deleteKey"].errors[0]);
+                    } else if (e.errors["_updateKey"]) {
+                        notify.showError(e.errors["_updateKey"].errors[0]);
+                    } else {
+                        notify.showError('An error has been occurred, please contact system admin.');
+                    }
+                }
+                this.cancelChanges();
+            }
+        });
+
+        receiptBodyDiv.kendoGrid({
+            dataSource: receiptsBodyDataSource,
+            navigatable: true,
+            selectable: "cell",
+            resizable: true,
+            scrollable: true,
+            sortable: true,
+            filterable: true,
+            groupable: true,
+            reorderable: true,
+            columnMenu: true,
+            pageable: {
+                refresh: true,
+                input: true,
+                numeric: false,
+                pageSizes: [10, 20, 30, 50, 75, 100]
+            },
+            columns: [
+                {
+                    field: "AccountNumber",
+                    title: "Account Number",
+                    width: 100
+                },
+                {
+                    field: "LineTotal",
+                    title: "Line Total",
+                    format: "{0:n2}",
+                    headerAttributes: { style: "text-align:right" },
+                    attributes: { class: "text-right editable-cell highlight-cell-text" },
+                    footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                    width: 40
+                },
+                {
+                    field: "AccountDescription",
+                    title: "Template",
+                    width: 100
+                }
+            ],
+            editable: false,
+            toolbar: [],
+            dataBound: function () {
+            }
+        });
+    }
+
+
 </script>
 @Html.Partial("_HighlightMenu", 5)

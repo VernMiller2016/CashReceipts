@@ -391,7 +391,7 @@
     }
 
     function getNextReceiptNumber() {
-        return Number.MAX_SAFE_INTEGER;
+        return Number.MAX_SAFE_INTEGER || 9007199254740991;
     }
 
     function departmentsDropDownEditor(container, options) {
@@ -688,6 +688,7 @@
                     }
                 }
             },
+            sort: [{ field: "AccountNumber", dir: "asc" }],
             batch: true,
             pageSize: 20,
             filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
@@ -713,7 +714,6 @@
                 },
                 errors: "Errors"
             },
-            sort: { field: "TemplateOrder", dir: "asc" },
             change: function (e) {
             },
             error: function (e) {

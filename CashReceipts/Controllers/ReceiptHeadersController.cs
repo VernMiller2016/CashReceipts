@@ -214,10 +214,10 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request)
+        public ActionResult ReceiptHeaders_Read([DataSourceRequest] DataSourceRequest request, int? receiptHeaderId=null)
         {
             var receiptHeaders = _db.ReceiptHeaders
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && (!receiptHeaderId.HasValue || x.ReceiptHeaderID == receiptHeaderId.Value))
                 .Select(x => new
                 {
                     x.ReceiptHeaderID,
@@ -421,9 +421,11 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request)
+        public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request, int? receiptHeaderId=null)
         {
-            var receiptBodies = _db.ReceiptBodies.Include(x => x.Template).ToList()
+            var receiptBodies = _db.ReceiptBodies.Include(x => x.Template)
+                .Where(x=> !receiptHeaderId.HasValue || x.ReceiptHeaderID == receiptHeaderId.Value)
+                .ToList()
                 .Select(x => new
                 {
                     x.ReceiptHeaderID,
@@ -642,9 +644,10 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult ReceiptsTenders_Read([DataSourceRequest] DataSourceRequest request)
+        public ActionResult ReceiptsTenders_Read([DataSourceRequest] DataSourceRequest request, int? receiptHeaderId = null)
         {
             var receiptTenders = _db.Tenders
+                .Where(x => !receiptHeaderId.HasValue || x.ReceiptHeaderID == receiptHeaderId.Value)
                 .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId }).ToList();
             return Json(receiptTenders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
