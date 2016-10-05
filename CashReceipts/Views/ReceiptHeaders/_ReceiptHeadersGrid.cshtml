@@ -688,7 +688,7 @@
                     }
                 }
             },
-            sort: [{ field: "AccountNumber", dir: "asc" }],
+            sort: [{ field: "TemplateOrder", dir: "asc" }, { field: "AccountNumber", dir: "asc" }],
             batch: true,
             pageSize: 20,
             filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
