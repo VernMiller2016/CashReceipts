@@ -26,9 +26,11 @@ namespace CashReceipts.Controllers
         public ActionResult DepartmentsSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date)
         {
             var summaryData = _db.ReceiptHeaders.Include(x => x.Department)
+                .Where(x=>!x.IsDeleted)
                 .Where(x=> SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
+                .ToList()
                 .GroupBy(x=>x.Department.DepartmentID)
-                .Select(x => new { DepartmentId = x.Key, ReceiptNumber = x.FirstOrDefault().ReceiptNumber, DepartmentName = x.FirstOrDefault().Department.Name, Total = x.Sum(y => y.ReceiptTotal)}).ToList();
+                .Select(x => new { DepartmentId = x.Key, ReceiptNumber = string.Join(", ", x.Select(y=>y.ReceiptNumber.ToString())), DepartmentName = x.FirstOrDefault()?.Department.Name, Total = x.Sum(y => y.ReceiptTotal)}).ToList();
 
             return Json(summaryData.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -39,6 +41,7 @@ namespace CashReceipts.Controllers
             var summaryData = _db.ReceiptHeaders
                 .Include(x => x.Tenders)
                 .Include(x => x.Tenders.Select(y=>y.PaymentMethod))
+                .Where(x=>!x.IsDeleted)
                 .Where(x => SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
                 .SelectMany(x => x.Tenders).ToList();
 
