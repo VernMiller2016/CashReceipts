@@ -31,7 +31,7 @@ namespace CashReceipts.Models
         [Required]
         public string Description { get; set; }
 
-        public int DepartmentID { get; set; }
+        public int? DepartmentID { get; set; }
 
         public virtual Department Department { get; set; }
 

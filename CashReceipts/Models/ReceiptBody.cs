@@ -20,6 +20,8 @@ namespace CashReceipts.Models
 
         public int TemplateID { get; set; }
 
+        public string AccountDescription { get; set; }
+
         public virtual Template Template { get; set; }
 
         [NotMapped]
@@ -28,7 +30,5 @@ namespace CashReceipts.Models
         [NotMapped]
         public bool IsRemote { get; set; }
 
-        [NotMapped]
-        public string AccountDescription { get; set; }
     }
 }

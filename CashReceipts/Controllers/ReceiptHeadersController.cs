@@ -253,7 +253,8 @@ namespace CashReceipts.Controllers
                         receiptHeader.ReceiptBodyRecords.Add(new ReceiptBody
                         {
                             LineTotal = 0,
-                            TemplateID = template.TemplateID
+                            TemplateID = template.TemplateID,
+                            AccountDescription = template.Description
                         });
                     }
                     _db.ReceiptHeaders.Add(receiptHeader);
@@ -432,7 +433,7 @@ namespace CashReceipts.Controllers
                     x.ReceiptBodyID,
                     x.LineTotal,
                     x.TemplateID,
-                    AccountDescription = x.Template.Description,
+                    AccountDescription = x.AccountDescription,
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
@@ -463,7 +464,7 @@ namespace CashReceipts.Controllers
                         if (localTemplate != null)
                         {
                             receiptBody.TemplateID = localTemplate.TemplateID;
-                            localTemplate.Description = receiptBody.AccountDescription;
+                            //localTemplate.Description = receiptBody.AccountDescription;
                         }
                         else
                         {
@@ -478,7 +479,7 @@ namespace CashReceipts.Controllers
                                 Order = 0,
                                 DataSource = template.DataSource
                             };
-                            receipt.Department.Templates.Add(newTemplate);
+                            //receipt.Department.Templates.Add(newTemplate);
                             receiptBody.TemplateID = newTemplate.TemplateID;
                             receiptBody.Template = newTemplate;
                         }
@@ -507,7 +508,7 @@ namespace CashReceipts.Controllers
                         x.LineTotal,
                         x.TemplateID,
                         TemplateOrder = GetTemplateOrder(x.TemplateID),
-                        AccountDescription = x.Template.Description,
+                        AccountDescription = x.AccountDescription,
                         AccountNumber = GetTemplateAccountNumber(x.Template),
                         x.Template.DepartmentID,
                         AccountDataSource = AccountDataSource.Local,
@@ -547,7 +548,7 @@ namespace CashReceipts.Controllers
                             if (localTemplate != null)
                             {
                                 receiptBody.TemplateID = localTemplate.TemplateID;
-                                localTemplate.Description = receiptBody.AccountDescription;
+                                //localTemplate.Description = receiptBody.AccountDescription;
                             }
                             else
                             {
@@ -562,21 +563,20 @@ namespace CashReceipts.Controllers
                                     Order = 0,
                                     DataSource = template.DataSource
                                 };
-                                receipt.Department.Templates.Add(newTemplate);
+                                //receipt.Department.Templates.Add(newTemplate);
                                 receiptBody.TemplateID = newTemplate.TemplateID;
                                 receiptBody.Template = newTemplate;
                             }
-
                         }
                     }
-                    else
-                    {
-                        var localTemplate = _db.Templates.Find(receiptBody.TemplateID);
-                        if (localTemplate != null)
-                        {
-                            localTemplate.Description = receiptBody.AccountDescription;
-                        }
-                    }
+                    //else
+                    //{
+                    //    var localTemplate = _db.Templates.Find(receiptBody.TemplateID);
+                    //    if (localTemplate != null)
+                    //    {
+                    //        localTemplate.Description = receiptBody.AccountDescription;
+                    //    }
+                    //}
                     _db.Entry(receiptBody).State = EntityState.Modified;
                     try
                     {
@@ -597,7 +597,7 @@ namespace CashReceipts.Controllers
                     x.LineTotal,
                     x.TemplateID,
                     TemplateOrder = GetTemplateOrder(x.TemplateID),
-                    AccountDescription = x.Template.Description,
+                    AccountDescription = x.AccountDescription,
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
                     AccountDataSource = AccountDataSource.Local,

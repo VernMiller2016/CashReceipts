@@ -13,7 +13,5 @@ namespace CashReceipts.Models
 
         public virtual ICollection<Template> Templates { get; set; }
 
-        //public virtual ICollection<ReceiptHeader> ReceiptHeaders { get; set; }
-
     }
 }
