@@ -380,7 +380,7 @@ namespace CashReceipts.Controllers
                     value = x.TemplateID,
                     text = includeAccounts.HasValue && includeAccounts.Value ? GetTemplateText(x) : x.Description,
                     DepartmentId = x.DepartmentID,
-                    DepartmentName = x.Department.Name,
+                    DepartmentName = x.Department?.Name,
                     AccountNumber = GetAccountNumber(x)
                 }).ToList();
             return Json(templatesList, JsonRequestBehavior.AllowGet);

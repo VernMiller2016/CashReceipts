@@ -15,7 +15,7 @@
             Department
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Department.Name)
+            @(Model.Department != null ? Model.Department.Name : "")
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Fund)
