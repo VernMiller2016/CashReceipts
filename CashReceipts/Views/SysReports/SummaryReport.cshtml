@@ -44,11 +44,11 @@
     <div class="page-container hidden-on-narrow">
         <div class="pdf-page size-a4">
             @*<div class="pdf-header">
-                <span class="company-logo">
-                    <img src="~/Images/company_logo.jpg" /> Cash Receipting System
-                </span>
-                <span class="invoice-number"></span>
-            </div>*@
+                    <span class="company-logo">
+                        <img src="~/Images/company_logo.jpg" /> Cash Receipting System
+                    </span>
+                    <span class="invoice-number"></span>
+                </div>*@
             <div class="pdf-footer">
                 <p>
                     Cash Receipting System<br />
@@ -65,7 +65,7 @@
             </div>
             <div class="pdf-body">
                 <div id="grid"></div>
-                <br/>
+                <br />
                 <h4>Tenders</h4>
                 <div id="tendersGrid"></div>
                 <p class="signature">
@@ -160,7 +160,7 @@
                 ];
                 var columns = [
                     { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
-                    { field: "DepartmentName", title: "Department Name"},
+                    { field: "DepartmentName", title: "Department Name" },
                     {
                         field: "Total",
                         title: "Total",
@@ -192,14 +192,17 @@
                                 }
                             },
                             batch: true,
-                            pageSize: 10,
+                            pageSize: 1000,
                             serverPaging: false,
                             schema: {
                                 data: "Data",
                                 total: "Total",
                                 model: {
-                                    id: "DepartmentId",
+                                    id: "ReceiptHeaderID",
                                     fields: {
+                                        ReceiptHeaderID: {
+                                            type: "number"
+                                        },
                                         DepartmentId: {
                                             type: "number"
                                         },
@@ -279,7 +282,7 @@
                                         PaymentMethodId: {
                                             type: "number"
                                         },
-                                        PaymentMethod:{type: "string"},
+                                        PaymentMethod: { type: "string" },
                                         TotalAmount: { type: "number" }
                                     }
                                 },
