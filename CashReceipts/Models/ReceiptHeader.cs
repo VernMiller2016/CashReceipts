@@ -40,9 +40,13 @@ namespace CashReceipts.Models
 
         public Department Department { get; set; }
 
-        [MaxLength(250)]
+        [MaxLength(250)]//received from
         public string Comments { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        [MaxLength(250)]
+        public string ReceivedFor { get; set; }
+
     }
 }

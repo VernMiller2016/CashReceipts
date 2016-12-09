@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using CashReceipts.Filters;
@@ -18,7 +16,6 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace CashReceipts.Controllers
 {
@@ -226,7 +223,8 @@ namespace CashReceipts.Controllers
                     x.ReceiptTotal,
                     x.ReceiptNumber,
                     x.DepartmentID,
-                    x.Comments
+                    x.Comments,
+                    x.ReceivedFor
                 }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -286,7 +284,8 @@ namespace CashReceipts.Controllers
                     x.ReceiptTotal,
                     x.ReceiptNumber,
                     x.DepartmentID,
-                    x.Comments
+                    x.Comments,
+                    x.ReceivedFor
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 

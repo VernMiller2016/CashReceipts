@@ -216,7 +216,7 @@
                 }
             },
             batch: true,
-            pageSize: 10,
+            pageSize: 500,
             serverPaging: false,
             sort: [{ field: "ReceiptNumber", dir: "desc" }],
             schema: {
@@ -259,6 +259,9 @@
                         },
                         Comments: {
                             type: "string"
+                        },
+                        ReceivedFor: {
+                            type: "string"
                         }
                     }
                 },
@@ -296,7 +299,7 @@
                 refresh: true,
                 input: true,
                 numeric: false,
-                pageSizes: [10, 20, 30, 50, 75, 100]
+                pageSizes: [20, 50, 100, 500, 1000]
             },
             detailTemplate: kendo.template($("#template").html()),
             detailInit: receiptHeaderDetailInit,
@@ -333,7 +336,12 @@
                 },
                 {
                     field: "Comments",
-                    title: "Comments",
+                    title: "Received From",
+                    width: 110
+                },
+                {
+                    field: "ReceivedFor",
+                    title: "Received For",
                     width: 100
                 },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
