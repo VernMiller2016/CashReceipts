@@ -117,8 +117,16 @@ namespace CashReceipts.Controllers
         {
             Department department = db.Departments.Single(m => m.DepartmentID == id);
             db.Departments.Remove(department);
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
             return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+            }
+            return
+                Content("Sorry, Department couldn't be deleted because it's being referenced by other system objects.");
         }
 
         public ActionResult AddTemplate(int id)
@@ -249,7 +257,7 @@ namespace CashReceipts.Controllers
                     var templateInDb = db.Templates.SingleOrDefault(x => x.TemplateID == template.TemplateID);
                     if (templateInDb != null)
                     {
-                        db.Templates.Remove(templateInDb);
+                        templateInDb.DepartmentID = null;
                         try
                         {
                             if (db.SaveChanges() <= 0)

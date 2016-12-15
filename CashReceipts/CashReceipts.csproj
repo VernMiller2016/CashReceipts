@@ -253,6 +253,10 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AuditsController.cs" />
+    <Compile Include="Migrations\201612150022541_Templates_Departments_DeleteAction.cs" />
+    <Compile Include="Migrations\201612150022541_Templates_Departments_DeleteAction.Designer.cs">
+      <DependentUpon>201612150022541_Templates_Departments_DeleteAction.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\SearchAccountDataSource.cs" />
     <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
@@ -536,6 +540,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608030114105_Tenders_DescriptionIsNull.resx">
       <DependentUpon>201608030114105_Tenders_DescriptionIsNull.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612150022541_Templates_Departments_DeleteAction.resx">
+      <DependentUpon>201612150022541_Templates_Departments_DeleteAction.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

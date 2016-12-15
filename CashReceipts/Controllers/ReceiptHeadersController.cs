@@ -813,33 +813,9 @@ namespace CashReceipts.Controllers
 
             cell = new PdfPCell(new Phrase("Received From", font))
             {
-                Colspan = 3,
-                HorizontalAlignment = 1,
+                Colspan = 4,
+                HorizontalAlignment = Element.ALIGN_LEFT,
                 VerticalAlignment = 1,
-                //BackgroundColor = BaseColor.LIGHT_GRAY,
-                Border = 0,
-                PaddingTop = paddingTop,
-                PaddingBottom = paddingBottom,
-                PaddingLeft = paddingLeft,
-                PaddingRight = paddingRight
-            };
-            dataTable.AddCell(cell);
-            dataTable.AddCell(new PdfPCell(new Phrase("", font))
-            {
-                Colspan = 4,
-                Border = 0,
-                PaddingTop = paddingTop,
-                PaddingBottom = paddingBottom,
-                PaddingLeft = paddingLeft,
-                PaddingRight = paddingRight
-            });
-
-            cell = new PdfPCell(new Phrase(receipt.Comments, font))
-            {
-                Colspan = 4,
-                Rowspan = 4,
-                HorizontalAlignment = 1,
-                VerticalAlignment = 3,
                 //BackgroundColor = BaseColor.LIGHT_GRAY,
                 Border = 0,
                 PaddingTop = paddingTop,
@@ -850,15 +826,27 @@ namespace CashReceipts.Controllers
             dataTable.AddCell(cell);
             dataTable.AddCell(new PdfPCell(new Phrase("**ORIGINAL**", font))
             {
-                Colspan = 2,
+                Colspan = 3,
                 Border = 0,
                 PaddingTop = paddingTop,
                 PaddingBottom = paddingBottom,
                 PaddingLeft = paddingLeft,
                 PaddingRight = paddingRight
             });
-            dataTable.AddCell(new Paragraph(" ", font));
 
+            cell = new PdfPCell(new Phrase(receipt.Comments, font))
+            {
+                Colspan = 4,
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = 3,
+                //BackgroundColor = BaseColor.LIGHT_GRAY,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            };
+            dataTable.AddCell(cell);
             dataTable.AddCell(new PdfPCell(new Phrase("Receipt Number", font))
             {
                 Colspan = 2,
@@ -869,6 +857,20 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
             dataTable.AddCell(new Paragraph(receipt.ReceiptNumber.ToString(), font));
+
+            cell = new PdfPCell(new Phrase("Received For", font))
+            {
+                Colspan = 4,
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = 1,
+                //BackgroundColor = BaseColor.LIGHT_GRAY,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            };
+            dataTable.AddCell(cell);
             dataTable.AddCell(new PdfPCell(new Phrase("Receipt Date", font))
             {
                 Colspan = 2,
@@ -879,6 +881,20 @@ namespace CashReceipts.Controllers
                 PaddingRight = paddingRight
             });
             dataTable.AddCell(new Paragraph(receipt.ReceiptDate.ToString("MM/dd/yyyy"), font));
+
+            cell = new PdfPCell(new Phrase(receipt.ReceivedFor, font))
+            {
+                Colspan = 4,
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = 3,
+                //BackgroundColor = BaseColor.LIGHT_GRAY,
+                Border = 0,
+                PaddingTop = paddingTop,
+                PaddingBottom = paddingBottom,
+                PaddingLeft = paddingLeft,
+                PaddingRight = paddingRight
+            };
+            dataTable.AddCell(cell);
             dataTable.AddCell(new PdfPCell(new Phrase("Clerk", font))
             {
                 Colspan = 2,
