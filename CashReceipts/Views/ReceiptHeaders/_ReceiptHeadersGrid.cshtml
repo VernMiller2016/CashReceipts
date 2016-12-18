@@ -216,7 +216,7 @@
                 }
             },
             batch: true,
-            pageSize: 500,
+            pageSize: 50,
             serverPaging: false,
             sort: [{ field: "ReceiptNumber", dir: "desc" }],
             schema: {
@@ -516,7 +516,7 @@
             },
             serverPaging: false,
             aggregate: [
-                { field: "Amount", aggregate: "sum" },
+                { field: "Amount", aggregate: "sum" }
             ],
             schema: {
                 data: "Data",
@@ -664,11 +664,14 @@
         });
 
         receiptsBodyDataSource = new kendo.data.DataSource({
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true,
             transport: {
                 read: {
                     url: '@Url.Action("ReceiptsBody_Read", "ReceiptHeaders")',
                     //contentType: "application/json; charset=utf-8",
-                    dataType: "json"
+                    dataType: "json",
                 },
                 update: {
                     url: '@Url.Action("ReceiptsBody_Update", "ReceiptHeaders")',
@@ -694,17 +697,19 @@
                             return (JSON.stringify({ receiptHeaderId: headersGridRef.data.ReceiptHeaderID, receiptBodies: options.models }));
                         return JSON.stringify({ receiptBodies: options.models });
                     }
+                    else if (operation == "read") {
+                        return { receiptHeaderId: headersGridRef.data.ReceiptHeaderID };
+                    }
                 }
             },
             sort: [{ field: "TemplateOrder", dir: "asc" }, { field: "AccountNumber", dir: "asc" }],
             batch: true,
-            pageSize: 20,
+            pageSize: 500,
             filter: { field: "ReceiptHeaderID", operator: "eq", value: headersGridRef.data.ReceiptHeaderID },
             dataBound: function () {
             },
-            serverPaging: false,
             aggregate: [
-                { field: "LineTotal", aggregate: "sum" },
+                { field: "LineTotal", aggregate: "sum" }
             ],
             schema: {
                 data: "Data",
@@ -753,7 +758,7 @@
                 refresh: true,
                 input: true,
                 numeric: false,
-                pageSizes: [10, 20, 30, 50, 75, 100]
+                pageSizes: [500, 1000, 5000, 10000]
             },
             columns: [
                 {
@@ -793,15 +798,22 @@
 
             ],
             editable: true,
-            toolbar: ["create", "save", "cancel"],
+            toolbar: ["create", "save", "cancel",
+                        {
+                            text: "",
+                            template: "<a class='k-button k-grid-showtotal'></a>"
+                        }],
             dataBound: function () {
                 //highlight total cell if selected, so client would be able to overwrite values
                 $(this.tbody.find(".highlight-cell-text")).on('focus', '.k-input', function () {
                     var input = $(this);
                     setTimeout(function () { input.select(); });
                 });
+
+                updateLineTotalsSum(this.dataSource, headersGridRef.data.ReceiptHeaderID);
             },
             change: function () {
+                updateLineTotalsSum(this.dataSource, headersGridRef.data.ReceiptHeaderID);
                 //selectedRows = this.select();
             },
             edit: function (e) {
@@ -838,6 +850,16 @@
             }
         })
             .find("table").on("keydown", onBodyGridKeydown);
+    }
+
+    function updateLineTotalsSum(currentDataSource, receiptHeaderId) {
+        var receiptsLineTotal = 0;
+        $(currentDataSource.data())
+            .map(function (i, item) {
+                if (item.ReceiptHeaderID == receiptHeaderId)
+                    receiptsLineTotal += item.LineTotal;
+            });
+        $('.k-grid-showtotal').text('Line Items Total: ' + kendo.toString(receiptsLineTotal, 'C'));
     }
 
     function templateAutocompleteEditor(container, options) {

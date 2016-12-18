@@ -1,0 +1,111 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "System Reports";
+}
+@section styles{
+    <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
+    <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
+}
+
+<div id="example">
+    <div class="box wide hidden-on-narrow">
+        <div class="box-col">
+        </div>
+        <div class="box-col" style="padding-right: 10px;">
+            <h4>Start Date</h4>
+            <input id="datepickerStart" style="width: 100%" />
+        </div>
+        <div class="box-col" style="padding-right: 10px;">
+            <h4>End Date</h4>
+            <input id="datepickerEnd" style="width: 100%" />
+        </div>
+        <div class="box-col">
+            <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+        </div>
+        <div class="box-col">
+            <h4>Receipts</h4>
+            <button class="export-csv-receipts k-button" onclick="getReceipts()">Export</button>
+        </div>
+        <div class="box-col">
+            <h4>Line Items</h4>
+            <button class="export-csv-lineitems k-button" onclick="getLineItems()">Export</button>
+        </div>
+        <div class="box-col">
+            <h4>Tenders</h4>
+            <button class="export-csv-tenders k-button" onclick="getTenders()">Export</button>
+        </div>
+    </div>
+
+    <div class="responsive-message"></div>
+
+    <script>
+        function getSelectedDate() {
+            return kendo.toString($("#datepicker").data("kendoDatePicker").value(), "d");
+        }
+
+        function getReceipts() {
+            $("#exportReceiptCSV").submit();
+        }
+
+        function getLineItems() {
+            $("#exportLineItemsCSV").submit();
+        }
+
+        function getTenders() {
+            $("#exportTendersCSV").submit();
+        }
+
+        $(document)
+            .ready(function () {
+                
+                $("#datepickerStart")
+                    .kendoDatePicker({
+                        format: "MM/dd/yyyy",
+                        value: new Date(),
+                        change: function () {
+                            var value = this.value();
+                            $('[name="StartDate"]').val(kendo.toString(value, "d"));
+                        }
+                    });
+
+                $("#datepickerEnd")
+                    .kendoDatePicker({
+                        format: "MM/dd/yyyy",
+                        value: new Date(),
+                        change: function () {
+                            var value = this.value();
+                            $('[name="EndDate"]').val(kendo.toString(value, "d"));
+                        }
+                    });
+
+                $('[name="StartDate"]').val(kendo.toString($("#datepickerStart").data("kendoDatePicker").value(), "d"));
+                $('[name="EndDate"]').val(kendo.toString($("#datepickerEnd").data("kendoDatePicker").value(), "d"));
+
+            });
+
+    </script>
+</div>
+
+@Html.Partial("_HighlightMenu", 6)
+
+@using (Html.BeginForm("DownloadReceipts", "SysReports", FormMethod.Post, new { id = "exportReceiptCSV" }))
+{
+    <input type="hidden" name="StartDate" />
+    <input type="hidden" name="EndDate" />
+}
+
+
+@using (Html.BeginForm("DownloadLineItems", "SysReports", FormMethod.Post, new { id = "exportLineItemsCSV" }))
+{
+    <input type="hidden" name="StartDate" />
+    <input type="hidden" name="EndDate" />
+}
+
+
+@using (Html.BeginForm("DownloadTenders", "SysReports", FormMethod.Post, new { id = "exportTendersCSV" }))
+{
+    <input type="hidden" name="StartDate" />
+    <input type="hidden" name="EndDate" />
+}
+

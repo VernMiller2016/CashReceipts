@@ -132,6 +132,10 @@
     <Reference Include="NPOI.OpenXmlFormats">
       <HintPath>..\Libs\ReportingPackages\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Text, Version=4.5.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ServiceStack.Text.4.5.4\lib\net45\ServiceStack.Text.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -519,6 +523,7 @@
     <Content Include="Views\Audits\Index.cshtml" />
     <Content Include="Views\Accounts\DistAccounts.cshtml" />
     <Content Include="Views\ReceiptHeaders\Search.cshtml" />
+    <Content Include="Views\SysReports\ReceiptsExport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
