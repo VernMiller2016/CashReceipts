@@ -664,9 +664,9 @@
         });
 
         receiptsBodyDataSource = new kendo.data.DataSource({
-            serverPaging: true,
+            serverPaging: false,
             serverFiltering: true,
-            serverSorting: true,
+            serverSorting: false,
             transport: {
                 read: {
                     url: '@Url.Action("ReceiptsBody_Read", "ReceiptHeaders")',
