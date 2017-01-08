@@ -979,7 +979,7 @@ namespace CashReceipts.Controllers
                     PaddingRight = paddingRight
                 });
 
-                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.Description, font))
+                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.AccountDescription ?? receiptBody.Template.Description, font))
                 {
                     Colspan = 3,
                     Border = 1,
@@ -1215,7 +1215,7 @@ namespace CashReceipts.Controllers
                     x.ReceiptBodyID,
                     x.LineTotal,
                     x.TemplateID,
-                    AccountDescription = x.Template.Description,
+                    AccountDescription = x.AccountDescription ?? x.Template.Description,
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
