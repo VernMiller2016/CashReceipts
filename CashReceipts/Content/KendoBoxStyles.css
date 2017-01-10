@@ -85,7 +85,7 @@ html.k-materialblack .demo-section.k-content {
 .box-col {
     display: block;
     float: left;
-    padding: 0 3em 1.667em 0;
+    padding: 0 1em 1.667em 0;
 }
 
 .box ul:not(.km-widget) li,

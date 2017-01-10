@@ -67,8 +67,8 @@ namespace CashReceipts.Controllers
         [HttpPost]
         public ActionResult DownloadReceipts(string StartDate, string EndDate)
         {
-            DateTime startDate = DateTime.ParseExact(StartDate, "MM/d/yyyy", CultureInfo.InvariantCulture),
-                endDate = DateTime.ParseExact(EndDate, "MM/d/yyyy", CultureInfo.InvariantCulture);
+            DateTime startDate = DateTime.ParseExact(StartDate, "M/d/yyyy", null),
+                endDate = DateTime.ParseExact(EndDate, "M/d/yyyy", null);
 
             var query = @"SELECT 
              [receiptnumber]                 AS [ReceiptNumber], 
@@ -106,13 +106,13 @@ namespace CashReceipts.Controllers
                      ON t.templateid = rb.templateid 
              INNER JOIN dbo.receiptheaders rh 
                      ON rh.receiptheaderid = rb.receiptheaderid 
-             WHERE  rh.isdeleted = 0 
+             WHERE  rh.isdeleted = 0 and rb.linetotal != 0
              AND CONVERT(DATE, rh.receiptdate) BETWEEN @startDate AND @endDate 
              ORDER  BY rh.receiptnumber, [AccountNumber] 
 ";
             var result = _db.Database.SqlQuery<LineItemCsv>(query,
-                new SqlParameter { ParameterName = "@StartDate", Value = DateTime.ParseExact(StartDate, "MM/d/yyyy", CultureInfo.InvariantCulture) },
-                new SqlParameter { ParameterName = "@EndDate", Value = DateTime.ParseExact(EndDate, "MM/d/yyyy", CultureInfo.InvariantCulture) }
+                new SqlParameter { ParameterName = "@StartDate", Value = DateTime.ParseExact(StartDate, "M/d/yyyy", CultureInfo.InvariantCulture) },
+                new SqlParameter { ParameterName = "@EndDate", Value = DateTime.ParseExact(EndDate, "M/d/yyyy", CultureInfo.InvariantCulture) }
                 ).ToList();
             return File(Encoding.UTF8.GetBytes(result.ToCsv()), "text/csv", "LineItems.csv");
         }
@@ -122,7 +122,7 @@ namespace CashReceipts.Controllers
         {
             var query = @"SELECT 
              rh.ReceiptNumber, 
-             pm.NAME as Name, 
+             pm.NAME as PaymentMethod, 
              t.[Description], 
              t.Amount 
              FROM   dbo.tenders t 
@@ -135,10 +135,52 @@ namespace CashReceipts.Controllers
              ORDER  BY rh.receiptnumber 
 ";
             var result = _db.Database.SqlQuery<TenderCsv>(query,
-                new SqlParameter { ParameterName = "@StartDate", Value = DateTime.ParseExact(StartDate, "MM/d/yyyy", CultureInfo.InvariantCulture) },
-                new SqlParameter { ParameterName = "@EndDate", Value = DateTime.ParseExact(EndDate, "MM/d/yyyy", CultureInfo.InvariantCulture) }
+                new SqlParameter { ParameterName = "@StartDate", Value = DateTime.ParseExact(StartDate, "M/d/yyyy", CultureInfo.InvariantCulture) },
+                new SqlParameter { ParameterName = "@EndDate", Value = DateTime.ParseExact(EndDate, "M/d/yyyy", CultureInfo.InvariantCulture) }
                 ).ToList();
             return File(Encoding.UTF8.GetBytes(result.ToCsv()), "text/csv", "Tenders.csv");
+        }
+
+        [HttpPost]
+        public ActionResult DownloadAll(string StartDate, string EndDate)
+        {
+            var query = @"SELECT 
+             [receiptnumber]                 AS [ReceiptNumber], 
+             FORMAT([receiptdate], 'MM/d/yyyy')    AS [ReceiptDate], 
+             d.NAME                          AS [Department], 
+             c.lastname + ', ' + c.firstname AS [Clerk], 
+             [receipttotal]                  AS [ReceiptTotal], 
+             COALESCE([comments], '')        AS [ReceivedFrom], 
+             COALESCE([receivedfor], '')     AS [ReceivedFor],
+             t.fund + '.' + t.dept + '.' + t.program + '.' + t.project 
+             + '.' + t.baseelementobjectdetail AS [AccountNumber], 
+             rb.linetotal                      AS [LineTotal], 
+             rb.accountdescription             AS [Template],
+             pm.NAME as PaymentMethod, 
+             tenders.[Description], 
+             tenders.Amount 
+			 FROM   [dbo].[receiptheaders] rh 
+             INNER JOIN dbo.clerks c 
+                     ON c.clerkid = rh.clerkid 
+             INNER JOIN dbo.departments d 
+                     ON rh.departmentid = d.departmentid 
+			 INNER JOIN dbo.receiptbodies rb 
+                     ON rh.receiptheaderid = rb.receiptheaderid 
+             INNER JOIN dbo.templates t 
+                     ON t.templateid = rb.templateid 
+			 INNER JOIN dbo.tenders 
+                     ON rh.receiptheaderid = Tenders.receiptheaderid 
+             INNER JOIN [dbo].[paymentmethods] pm 
+                     ON pm.id = tenders.paymentmethodid 
+             WHERE  rh.isdeleted = 0 and rb.linetotal != 0
+			 AND CONVERT(DATE, rh.receiptdate) BETWEEN @StartDate AND @EndDate
+			 ORDER  BY rh.receiptnumber, [AccountNumber] 
+            ";
+            var result = _db.Database.SqlQuery<ReceiptDetailsCsv>(query,
+                new SqlParameter { ParameterName = "@StartDate", Value = DateTime.ParseExact(StartDate, "M/d/yyyy", CultureInfo.InvariantCulture) },
+                new SqlParameter { ParameterName = "@EndDate", Value = DateTime.ParseExact(EndDate, "M/d/yyyy", CultureInfo.InvariantCulture) }
+                ).ToList();
+            return File(Encoding.UTF8.GetBytes(result.ToCsv()), "text/csv", "ReceiptsWithDetails.csv");
         }
     }
 
@@ -171,6 +213,23 @@ namespace CashReceipts.Controllers
     {
         public int ReceiptNumber { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public class ReceiptDetailsCsv
+    {
+        public int ReceiptNumber { get; set; }
+        public string ReceiptDate { get; set; }
+        public string Department { get; set; }
+        public string Clerk { get; set; }
+        public decimal ReceiptTotal { get; set; }
+        public string ReceivedFrom { get; set; }
+        public string ReceivedFor { get; set; }
+        public string AccountNumber { get; set; }
+        public decimal LineTotal { get; set; }
+        public string Template { get; set; }
+        public string PaymentMethod { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
     }
