@@ -1210,6 +1210,7 @@ namespace CashReceipts.Controllers
                 .Select(x => new
                 {
                     x.ReceiptHeaderID,
+                    ReceiptDate = x.ReceiptHeader.ReceiptDate,
                     ReceiptHeaderNumber = x.ReceiptHeader.ReceiptNumber,
                     ReceiptDepartment = x.ReceiptHeader.Department.Name,
                     x.ReceiptBodyID,

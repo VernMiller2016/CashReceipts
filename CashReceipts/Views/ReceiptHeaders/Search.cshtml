@@ -170,6 +170,7 @@
                             },
                             TemplateOrder: { validation: { required: false }, type: "number" },
                             ReceiptHeaderNumber: { validation: { required: false }, type: "number" },
+                            ReceiptDate: { validation: { required: false }, type: "date" },
                             ReceiptDepartment: { validation: { required: false }, type: "string" },
                         }
                     },
@@ -230,6 +231,11 @@
                             title: "Receipt Number",
                             width: 70
                         },
+                        {
+                            field: "ReceiptDate",
+                            title: "Receipt Date",
+                            format: "{0:MM/dd/yyyy}",
+                            width: 60                        },
                         {
                             field: "ReceiptDepartment",
                             title: "Department",
