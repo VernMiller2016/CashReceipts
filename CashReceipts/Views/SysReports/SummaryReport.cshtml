@@ -15,8 +15,6 @@
         <div class="box-col">
         </div>
         <div class="box-col">
-        </div>
-        <div class="box-col">
             <h4>Select Page size</h4>
             <select id="paper" style="width: 100px;">
                 <option value="size-a4" selected>A4</option>
@@ -30,6 +28,10 @@
         </div>
         <div class="box-col">
             <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+        </div>
+        <div class="box-col" style="padding-right: 10px;">
+            <h4>Select Clerk</h4>
+            <input id="clerk" style="width: 170px" />
         </div>
         <div class="box-col">
             <h4>Get PDF</h4>
@@ -55,7 +57,7 @@
                 </p>
             </div>
             <div class="for">
-                <h3>Summary report of the day</h3>
+                <h3>Summary report of the day <span id="clerkName"></span></h3>
                 <p>
                     Summary Date: <span class="selectedDate"></span>
                 </p>
@@ -125,18 +127,51 @@
 
         function getPDF(selector) {
             kendo.drawing.drawDOM($(selector))
-                .then(function (group) {
+                .then(function(group) {
                     kendo.drawing.pdf.saveAs(group, "Invoice.pdf");
                 });
+        }
+
+        function getSelectedClerk() {
+            return $("#clerk").data("kendoDropDownList").value();
         }
 
         function getSelectedDate() {
             return kendo.toString($("#datepicker").data("kendoDatePicker").value(), "d");
         }
 
+        function refreshGrids() {
+            var grid = summaryGrid.data("kendoGrid");
+            grid.dataSource.read();
+            grid.refresh();
+
+            var tendersDataGrid = tendersGrid.data("kendoGrid");
+            tendersDataGrid.dataSource.read();
+            tendersDataGrid.refresh();
+        }
+
         $(document)
-            .ready(function () {
+            .ready(function() {
                 $('.todayDate').text(kendo.toString(new Date(), "d"));
+                $('#clerk')
+                    .kendoDropDownList({
+                        dataTextField: "ClerkName",
+                        dataValueField: "Id",
+                        optionLabel: "Select Clerk...",
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    dataType: "json",
+                                    url: '@Url.Action("GetAllClerks")'
+                                }
+                            }
+                        },
+                        change: function (e) {
+                            //var value = this.value();
+                            $("#clerkName").html("(" + this.text() + ")");
+                            refreshGrids();
+                        }
+                    });
 
                 $("#datepicker")
                     .kendoDatePicker({
@@ -145,13 +180,7 @@
                         change: function () {
                             var value = this.value();
                             $('.selectedDate').text(kendo.toString(value, "d"));
-                            var grid = summaryGrid.data("kendoGrid");
-                            grid.dataSource.read();
-                            grid.refresh();
-
-                            var tendersDataGrid = tendersGrid.data("kendoGrid");
-                            tendersDataGrid.dataSource.read();
-                            tendersDataGrid.refresh();
+                            refreshGrids();
                         }
                     });
 
@@ -183,11 +212,10 @@
                                 read: {
                                     url: '@Url.Action("DepartmentsSummary_Read", "SysReports")',
                                     dataType: "json",
-
                                 },
                                 parameterMap: function (options, operation) {
                                     if (operation === "read") {
-                                        return { date: getSelectedDate() };
+                                        return { date: getSelectedDate(), clerkId: getSelectedClerk() };
                                     }
                                 }
                             },
@@ -266,7 +294,7 @@
                                 },
                                 parameterMap: function (options, operation) {
                                     if (operation === "read") {
-                                        return { date: getSelectedDate() };
+                                        return { date: getSelectedDate(), clerkId: getSelectedClerk() };
                                     }
                                 }
                             },

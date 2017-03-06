@@ -13,6 +13,7 @@ using System.Data.Entity.SqlServer;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Text;
+using CashReceipts.ViewModels;
 using ServiceStack;
 
 namespace CashReceipts.Controllers
@@ -28,10 +29,10 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult DepartmentsSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date)
+        public ActionResult DepartmentsSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date, int? clerkId)
         {
             var summaryData = _db.ReceiptHeaders.Include(x => x.Department)
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
                 .Where(x => SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
                 .OrderBy(x => x.ReceiptNumber)
                 .ToList()
@@ -41,12 +42,12 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult TendersSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date)
+        public ActionResult TendersSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime date, int? clerkId)
         {
             var summaryData = _db.ReceiptHeaders
                 .Include(x => x.Tenders)
                 .Include(x => x.Tenders.Select(y => y.PaymentMethod))
-                .Where(x => !x.IsDeleted)
+                .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
                 .Where(x => SqlFunctions.DateDiff("DAY", x.ReceiptDate, date) == 0)
                 .SelectMany(x => x.Tenders).ToList();
 
@@ -182,56 +183,11 @@ namespace CashReceipts.Controllers
                 ).ToList();
             return File(Encoding.UTF8.GetBytes(result.ToCsv()), "text/csv", "ReceiptsWithDetails.csv");
         }
-    }
 
-    public class ExpotParams
-    {
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public ActionResult GetAllClerks()
+        {
+            var data = _db.Clerks.Select(x => new {Id = x.ClerkID, ClerkName = x.LastName + ", " + x.FirstName}).ToList();
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
     }
-
-    public class ReceiptCsv
-    {
-        public int ReceiptNumber { get; set; }
-        public string ReceiptDate { get; set; }
-        public string Department { get; set; }
-        public string Clerk { get; set; }
-        public decimal ReceiptTotal { get; set; }
-        public string ReceivedFrom { get; set; }
-        public string ReceivedFor { get; set; }
-    }
-
-    public class LineItemCsv
-    {
-        public int ReceiptNumber { get; set; }
-        public string AccountNumber { get; set; }
-        public decimal LineTotal { get; set; }
-        public string Template { get; set; }
-    }
-
-    public class TenderCsv
-    {
-        public int ReceiptNumber { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public decimal Amount { get; set; }
-    }
-
-    public class ReceiptDetailsCsv
-    {
-        public int ReceiptNumber { get; set; }
-        public string ReceiptDate { get; set; }
-        public string Department { get; set; }
-        public string Clerk { get; set; }
-        public decimal ReceiptTotal { get; set; }
-        public string ReceivedFrom { get; set; }
-        public string ReceivedFor { get; set; }
-        public string AccountNumber { get; set; }
-        public decimal LineTotal { get; set; }
-        public string Template { get; set; }
-        public string PaymentMethod { get; set; }
-        public string Description { get; set; }
-        public decimal Amount { get; set; }
-    }
-
 }

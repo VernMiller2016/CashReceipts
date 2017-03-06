@@ -314,6 +314,11 @@
     <Compile Include="Models\Tender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\ExpotParams.cs" />
+    <Compile Include="ViewModels\LineItemCsv.cs" />
+    <Compile Include="ViewModels\ReceiptCsv.cs" />
+    <Compile Include="ViewModels\ReceiptDetailsCsv.cs" />
+    <Compile Include="ViewModels\TenderCsv.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Readme\Elmah.txt" />

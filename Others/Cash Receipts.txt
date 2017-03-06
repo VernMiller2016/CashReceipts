@@ -1,0 +1,118 @@
+Cash Receipts
+
+1- auto populate description done
+	User must select the item from the list of suggesstions for the auto population to occur
+	http://www.screencast.com/t/uQpiBUP1d
+
+2- moving between receipt body records
+	User must select a cell in the grid at first, then he/she can use TAB or SHIFT + TAB to move up/down between total line cells in records
+	http://www.screencast.com/t/e2SmaXr5ZC9y
+
+3- Selecting from account numbers in receipt body grid
+	http://www.screencast.com/t/dCKs7jgO1c
+
+4- Tenders tab -> Payment method became first colum, description is not mandatory now, and default payment method is 'Cash' now
+	http://www.screencast.com/t/dHpJGq1P
+
+5- Comments column add to receipt header grid, and comments now appear under 'received from' section in receipt pdf.
+	http://www.screencast.com/t/vmNLPBqz
+
+
+
+kendoDropDownList
+
+dataTextField: "text",
+                dataValueField: "value",
+                filter: "contains",
+k-grid-PostCheck
+
+
+
+
+To DO
+
+X 1- Deleted receipts headers report
+	X a- a new table
+	X b- a new column in receipt header (IsDeleted)
+	X c- report page (readonly)
+	X d- when delete a receipt, you actually mark it as deleted (not a real delete)
+
+X 2- merging GC accounts with Dist accounts in search
+	X a- edit department -> add accounts (search)
+	X b- add a receipt body (search)
+	X c- add Source column (either GC or Dist)
+	X d- (receipt body) -> if account is new, then add it to our DB and attach it to the receipt dept.
+
+X 3- include fund/dept in account when adding a new account in dept. (Description column)
+
+X 4- Summary Report -> rename controller
+
+X 5- Dist grid page
+
+
+
+1- search page for receipt body
+	* select a date or an account number
+	* show line items (receipt body records) that belong to all receipt headers with the matched criteria
+	* you may show some receipt header info beside the receipt body columns
+
+X 2- POST button issue
+X 3- Print button
+X 4- Receipt body -> account search issue (starts with 679 not contains)
+X 5- pdf file change text (cash - number)
+
+
+AccountNumber
+
+Object {value: "67", operator: "contains", field: "Account", ignoreCase: true}
+
+
+fromDate, DateTime toDate, string acctNum)
+
+
+
+
+1- Receipt body
+	X a- edit/update template text
+	X b- when pressing tab, highlight all value for the user to overwrite the old value
+
+
+2- receipts search window
+	X a- export/print
+	X b- removed voids/total = 0
+	c- button to show receipt header details
+
+X 3- receipt tenders
+	a- tab to move between tender columns
+
+X 4- Receipt header
+	a- when add new receipt, it should be first row in grid
+
+X 5- Summary Report
+	a- remove cash register icon
+
+X 6- show tenders totals in receipt pdf
+
+X 7- Departments Edit Screen
+	a- sort by "Fund – Dept – Prog – Proj – Base/Elem/Obj" if Order column is the same for records
+
+Not Applicable
+	1- move between receipt body records with Up/Down arrow
+
+Couldn't understand
+	1- Report discrepancy email
+
+Package
+https://drive.google.com/file/d/0B68yiJ-zNfV9US05RHlsX1dfd3c/view?usp=sharing
+
+
+
+
+
+New Done
+
+1- Fix IE issue in receipts
+2- Add receipt details popup in search line items
+
+https://drive.google.com/file/d/0B68yiJ-zNfV9WFVQR0ZHWGU3dWs/view?usp=sharing
+
