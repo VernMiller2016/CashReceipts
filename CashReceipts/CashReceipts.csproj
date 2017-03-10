@@ -269,6 +269,12 @@
     <Compile Include="Migrations\201703102301284_Clerk_User_Add.Designer.cs">
       <DependentUpon>201703102301284_Clerk_User_Add.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703102350521_Screens_Schema.cs" />
+    <Compile Include="Migrations\201703102350521_Screens_Schema.Designer.cs">
+      <DependentUpon>201703102350521_Screens_Schema.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Screen.cs" />
+    <Compile Include="Models\ScreenFeature.cs" />
     <Compile Include="Models\SearchAccountDataSource.cs" />
     <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
@@ -567,6 +573,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703102301284_Clerk_User_Add.resx">
       <DependentUpon>201703102301284_Clerk_User_Add.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703102350521_Screens_Schema.resx">
+      <DependentUpon>201703102350521_Screens_Schema.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
