@@ -265,6 +265,10 @@
     <Compile Include="Migrations\201703102242108_ReceiptHeader_IsPosted_Add.Designer.cs">
       <DependentUpon>201703102242108_ReceiptHeader_IsPosted_Add.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703102301284_Clerk_User_Add.cs" />
+    <Compile Include="Migrations\201703102301284_Clerk_User_Add.Designer.cs">
+      <DependentUpon>201703102301284_Clerk_User_Add.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\SearchAccountDataSource.cs" />
     <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
@@ -560,6 +564,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703102242108_ReceiptHeader_IsPosted_Add.resx">
       <DependentUpon>201703102242108_ReceiptHeader_IsPosted_Add.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703102301284_Clerk_User_Add.resx">
+      <DependentUpon>201703102301284_Clerk_User_Add.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
