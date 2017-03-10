@@ -261,6 +261,10 @@
     <Compile Include="Migrations\201612150022541_Templates_Departments_DeleteAction.Designer.cs">
       <DependentUpon>201612150022541_Templates_Departments_DeleteAction.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703102242108_ReceiptHeader_IsPosted_Add.cs" />
+    <Compile Include="Migrations\201703102242108_ReceiptHeader_IsPosted_Add.Designer.cs">
+      <DependentUpon>201703102242108_ReceiptHeader_IsPosted_Add.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\SearchAccountDataSource.cs" />
     <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
@@ -553,6 +557,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612150022541_Templates_Departments_DeleteAction.resx">
       <DependentUpon>201612150022541_Templates_Departments_DeleteAction.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703102242108_ReceiptHeader_IsPosted_Add.resx">
+      <DependentUpon>201703102242108_ReceiptHeader_IsPosted_Add.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

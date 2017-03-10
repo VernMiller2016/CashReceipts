@@ -48,5 +48,7 @@ namespace CashReceipts.Models
         [MaxLength(250)]
         public string ReceivedFor { get; set; }
 
+        public bool IsPosted { get; set; }
+
     }
 }
