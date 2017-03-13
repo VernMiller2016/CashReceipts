@@ -1224,5 +1224,28 @@ namespace CashReceipts.Controllers
                 }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult LockReceipt(int receiptHeaderId)
+        {
+            var result = true;
+            var msg = "Receipt has been posted successfully!";
+            var receipt = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+            if (receipt != null)
+            {
+                receipt.IsPosted = true;
+                try
+                {
+                    _db.SaveChanges();
+                }
+                catch (Exception)
+                {
+                    result = false;
+                    msg = "Operation failed when trying to save receipt in db.";
+                }
+            }
+            return Json(new { Result = result, Message = msg });
+
+        }
     }
 }
