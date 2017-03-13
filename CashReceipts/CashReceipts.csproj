@@ -265,6 +265,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AuditsController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Migrations\201612150022541_Templates_Departments_DeleteAction.cs" />
     <Compile Include="Migrations\201612150022541_Templates_Departments_DeleteAction.Designer.cs">
       <DependentUpon>201612150022541_Templates_Departments_DeleteAction.cs</DependentUpon>
@@ -341,6 +342,7 @@
     <Compile Include="ViewModels\ReceiptCsv.cs" />
     <Compile Include="ViewModels\ReceiptDetailsCsv.cs" />
     <Compile Include="ViewModels\TenderCsv.cs" />
+    <Compile Include="ViewModels\UsersVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Readme\Elmah.txt" />
@@ -551,6 +553,8 @@
     <Content Include="Views\Accounts\DistAccounts.cshtml" />
     <Content Include="Views\ReceiptHeaders\Search.cshtml" />
     <Content Include="Views\SysReports\ReceiptsExport.cshtml" />
+    <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Users\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

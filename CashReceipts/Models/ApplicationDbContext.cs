@@ -140,5 +140,7 @@ namespace CashReceipts.Models
             var result = FilterGlAccounts(0, 1, acctDs, "", "", "", "", "", "", accountIndex, ref resultsCount);
             return result.FirstOrDefault();
         }
+
+      //  public System.Data.Entity.DbSet<CashReceipts.Models.ApplicationUser> ApplicationUsers { get; set; }
     }
 }

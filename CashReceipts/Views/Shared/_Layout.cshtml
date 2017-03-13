@@ -28,6 +28,7 @@
                 @if (Request.IsAuthenticated)
                 {
                     <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Users", "Index", "Users")</li>
                         <li>@Html.ActionLink("Clerks", "Index", "Clerks")</li>
                         <li>@Html.ActionLink("Entity", "Index", "Entities")</li>
                         <li>@Html.ActionLink("Departments", "Index", "Departments")</li>
