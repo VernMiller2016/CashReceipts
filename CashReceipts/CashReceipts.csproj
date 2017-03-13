@@ -249,7 +249,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationDbContextConfiguration.cs" />
+    <Compile Include="Migrations\201703132307016_AddMissing.cs" />
+    <Compile Include="Migrations\201703132307016_AddMissing.Designer.cs">
+      <DependentUpon>201703132307016_AddMissing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703132317354_Add_UserRole.cs" />
+    <Compile Include="Migrations\201703132317354_Add_UserRole.Designer.cs">
+      <DependentUpon>201703132317354_Add_UserRole.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
@@ -576,6 +584,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703102350521_Screens_Schema.resx">
       <DependentUpon>201703102350521_Screens_Schema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703132307016_AddMissing.resx">
+      <DependentUpon>201703132307016_AddMissing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703132317354_Add_UserRole.resx">
+      <DependentUpon>201703132317354_Add_UserRole.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
