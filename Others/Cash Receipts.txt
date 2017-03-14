@@ -116,3 +116,24 @@ New Done
 
 https://drive.google.com/file/d/0B68yiJ-zNfV9WFVQR0ZHWGU3dWs/view?usp=sharing
 
+
+
+TODO
+
+	1- Disable Post button if already posted
+	2- Hide/disable edit, delete actions in (Receipt Header, Body, Tender) if already posted.
+	3- no search/edit fields if already posted
+	4- a new column to show post status
+
+
+ACLs
+1- Create screens/features lookup
+2- add a view to connect roles to screens/features (permissions screen)
+3- hide/show screen/feature based on current logged in user role
+4- create a global attribute for controllers/actions to prevent access in server side
+
+
+Missing
+
+	Clerk shouldn't be able to edit other clerk's receipts
+	clerk drop list in receipts should be auto populated based on logged in user
