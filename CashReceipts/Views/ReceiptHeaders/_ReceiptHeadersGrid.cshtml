@@ -208,7 +208,7 @@
                     contentType: "application/json; charset=utf-8",
                     type: "POST"
                 },
-                parameterMap: function (options, operation) {
+                parameterMap: function(options, operation) {
                     if (operation !== "read" && options.models) {
                         return JSON.stringify({ receiptHeaders: options.models });
                     }
@@ -267,135 +267,142 @@
                 },
                 errors: "Errors"
             },
-            error: function (e) {
+            error: function(e) {
                 if (e.errors && e.errors["_addKey"]) {
                     notify.showError(e.errors["_addKey"].errors[0]);
-                }
-                else if (e.errors && e.errors["_deleteKey"]) {
+                } else if (e.errors && e.errors["_deleteKey"]) {
                     notify.showError(e.errors["_deleteKey"].errors[0]);
-                }
-                else if (e.errors && e.errors["_updateKey"]) {
+                } else if (e.errors && e.errors["_updateKey"]) {
                     notify.showError(e.errors["_updateKey"].errors[0]);
-                }
-                else {
+                } else {
                     notify.showError('An error has been occurred, please contact system admin.');
                 }
                 this.cancelChanges();
             }
         });
 
-        $("#headersGrid").kendoGrid({
-            dataSource: headersDataSources,
-            //width: 600,
-            selectable: "row",
-            resizable: true,
-            scrollable: true,
-            sortable: true,
-            filterable: true,
-            groupable: true,
-            reorderable: true,
-            columnMenu: true,
-            pageable: {
-                refresh: true,
-                input: true,
-                numeric: false,
-                pageSizes: [20, 50, 100, 500, 1000]
-            },
-            detailTemplate: kendo.template($("#template").html()),
-            detailInit: receiptHeaderDetailInit,
-            columns: [
-                {
-                    field: "ReceiptNumber",
-                    title: "Receipt Number",
-                    format: "{0}",
-                    width: 100
-                }, {
-                    field: "ReceiptDate",
-                    title: "Receipt Date",
-                    format: "{0:MM/dd/yyyy}",
-                    width: 90
-                }, {
-                    field: "ReceiptTotal",
-                    title: "Receipt Total",
-                    editor: oldNumericBoxEditor,
-                    format: "{0:n2}",
-                    width: 90
+        $("#headersGrid")
+            .kendoGrid({
+                dataSource: headersDataSources,
+                //width: 600,
+                selectable: "row",
+                resizable: true,
+                scrollable: true,
+                sortable: true,
+                filterable: true,
+                groupable: true,
+                reorderable: true,
+                columnMenu: true,
+                pageable: {
+                    refresh: true,
+                    input: true,
+                    numeric: false,
+                    pageSizes: [20, 50, 100, 500, 1000]
                 },
-                {
-                    field: "DepartmentID",
-                    title: "Department",
-                    editor: departmentsDropDownEditor,
-                    values: departmentsList,
-                    width: 100
+                detailTemplate: kendo.template($("#template").html()),
+                detailInit: receiptHeaderDetailInit,
+                columns: [
+                    {
+                        field: "ReceiptNumber",
+                        title: "Receipt Number",
+                        format: "{0}",
+                        width: 100
+                    }, {
+                        field: "ReceiptDate",
+                        title: "Receipt Date",
+                        format: "{0:MM/dd/yyyy}",
+                        width: 90
+                    }, {
+                        field: "ReceiptTotal",
+                        title: "Receipt Total",
+                        editor: oldNumericBoxEditor,
+                        format: "{0:n2}",
+                        width: 90
+                    },
+                    {
+                        field: "DepartmentID",
+                        title: "Department",
+                        editor: departmentsDropDownEditor,
+                        values: departmentsList,
+                        width: 100
+                    },
+                    {
+                        field: "ClerkID",
+                        title: "Clerk",
+                        values: clerksList,
+                        width: 100
+                    },
+                    {
+                        field: "Comments",
+                        title: "Received From",
+                        width: 110
+                    },
+                    {
+                        field: "ReceivedFor",
+                        title: "Received For",
+                        width: 100
+                    },
+                    { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
+                ],
+                editable: "inline",
+                toolbar: [
+                    "create",
+                    {
+                        text: "",
+                        template:
+                            "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
+                    },
+                    {
+                        text: "",
+                        template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
+                    }
+                ],
+                dataBound: function(e) {
+                    //debugger;
+                    if (!currentGrid) {
+                        currentGrid = $("#headersGrid").data("kendoGrid");
+                        this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    }
+                    enableDisableReceiptHeadersButtons(false);
                 },
-                {
-                    field: "ClerkID",
-                    title: "Clerk",
-                    values: clerksList,
-                    width: 100
+                edit: function(e) {
+                    //debugger;
+                    var editRow = e.container;
+                    if (e.model.isNew()) {
+                        var receipts = this.dataSource.data();
+                        var lastReceiptId = Math.max.apply(Math,
+                            $(receipts)
+                            .map(function(i, r) {
+                                if (r.ReceiptNumber !== getNextReceiptNumber())
+                                    return r
+                                        .ReceiptNumber;
+                            }));
+                        e.model.set("ReceiptNumber", (lastReceiptId + 1));
+                        e.model.ReceiptNumber = (lastReceiptId + 1);
+                        //var ds = e.sender.dataSource;
+                        //ds.sort(ds.sort());
+                    }
+                    editRow.find('td:eq(1) span.k-numeric-wrap span:first').remove();
+                    editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
+                    editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
                 },
-                {
-                    field: "Comments",
-                    title: "Received From",
-                    width: 110
+                change: function(e) {
+                    debugger;
+                    //selectedRows = this.select();
+                    enableDisableReceiptHeadersButtons(true);
                 },
-                {
-                    field: "ReceivedFor",
-                    title: "Received For",
-                    width: 100
+                save: function(e) {
+                    var updateButton = $(e.container).find('.k-grid-update');
+                    if (!updateButton.hasClass('k-state-disabled')) {
+                        updateButton.addClass('k-state-disabled');
+                    } else {
+                        e.preventDefault();
+                    }
                 },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
-            ],
-            editable: "inline",
-            toolbar: ["create",
-                        {
-                            text: "",
-                            template: "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
-                        },
-                        {
-                            text: "",
-                            template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
-                        }],
-            dataBound: function (e) {
-                //debugger;
-                if (!currentGrid) {
-                    currentGrid = $("#headersGrid").data("kendoGrid");
-                    this.expandRow(this.tbody.find("tr.k-master-row").first());
+                destroy: function() {
+                    enableDisableReceiptHeadersButtons(false);
                 }
-                enableDisableReceiptHeadersButtons(false);
-            },
-            edit: function (e) {
-                //debugger;
-                var editRow = e.container;
-                if (e.model.isNew()) {
-                    var receipts = this.dataSource.data();
-                    var lastReceiptId = Math.max.apply(Math, $(receipts).map(function (i, r) { if (r.ReceiptNumber !== getNextReceiptNumber()) return r.ReceiptNumber; }));
-                    e.model.set("ReceiptNumber", (lastReceiptId + 1));
-                    e.model.ReceiptNumber = (lastReceiptId + 1);
-                    //var ds = e.sender.dataSource;
-                    //ds.sort(ds.sort());
-                }
-                editRow.find('td:eq(1) span.k-numeric-wrap span:first').remove();
-                editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
-                editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
-            },
-            change: function (e) {
-                debugger;
-                //selectedRows = this.select();
-                enableDisableReceiptHeadersButtons(true);
-            },
-            save: function (e) {
-                var updateButton = $(e.container).find('.k-grid-update');
-                if (!updateButton.hasClass('k-state-disabled')) {
-                    updateButton.addClass('k-state-disabled');
-                }
-                else {
-                    e.preventDefault();
-                }
-            }, destroy: function () {
-                enableDisableReceiptHeadersButtons(false);
-            }
-        });
+            });
     }
 
     function getNextReceiptNumber() {
@@ -420,54 +427,84 @@
             $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
             $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
         } else {
-            $(".k-grid-PrintReceipt").removeClass("k-state-disabled").unbind("click").bind("click", function () {
-                var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
-                var receipt = headersDataSources.getByUid(recordUid);
-                if (receipt) {
-                    $("#receiptHeaderId").val(receipt.ReceiptHeaderID);
-                    $("#exportReceiptPDF").submit();
-                }
-            });
+            $(".k-grid-PrintReceipt")
+                .removeClass("k-state-disabled")
+                .unbind("click")
+                .bind("click",
+                    function() {
+                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                        var receipt = headersDataSources.getByUid(recordUid);
+                        if (receipt) {
+                            $("#receiptHeaderId").val(receipt.ReceiptHeaderID);
+                            $("#exportReceiptPDF").submit();
+                        }
+                    });
 
-            $(".k-grid-PostCheck").removeClass("k-state-disabled").unbind("click").bind("click", function () {
-                var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
-                var receipt = headersDataSources.getByUid(recordUid);
-                if (receipt) {
-                    $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
-                        {
-                            ReceiptHeaderID: receipt.ReceiptHeaderID,
-                        })
-                        .done(function (data) {
-                            if (data) {
-                                if (data.Result) {
-                                    notify.showSuccess(data.Message);
-                                } else {
-                                    notify.showError(data.Message);
-                                }
-                            }
-                        });
-                }
-            });
+            $(".k-grid-PostCheck")
+                .removeClass("k-state-disabled")
+                .unbind("click")
+                .bind("click",
+                    function() {
+                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                        var receipt = headersDataSources.getByUid(recordUid);
+                        if (receipt) {
+                            $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
+                                {
+                                    ReceiptHeaderID: receipt.ReceiptHeaderID,
+                                })
+                                .done(function(data) {
+                                    if (data) {
+                                        if (data.Result) {
+                                            notify.postConfirm(data.Message, lockReceipt(receipt));
+                                        } else {
+                                            notify.showError(data.Message);
+                                        }
+                                    }
+                                });
+                        }
+                    });
+        }
+    }
+
+    function lockReceipt(receipt) {
+        return function() {
+            $.post('@Url.Action("LockReceipt")?receiptHeaderId=' +
+                    receipt.ReceiptHeaderID,
+                    {
+                        ReceiptHeaderID: receipt.ReceiptHeaderID
+                    })
+                .done(function(data) {
+                    if (data) {
+                        if (data.Result) {
+                            notify.showSuccess(data.Message);
+                        } else {
+                            notify.showError(data.Message);
+                        }
+                    }
+                });
         }
     }
 
     function receiptHeaderDetailInit(e) {
         var detailRow = e.detailRow;
 
-        detailRow.find(".tabstrip").kendoTabStrip({
-            animation: {
-                open: { effects: "fadeIn" }
-            }
-        });
-
-        $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")?includeAccounts=false', function (data) {
-            templatesList = data;
-            accountsList = $(data).map(function (i, item) {
-                return { value: item.value, text: item.AccountNumber };
+        detailRow.find(".tabstrip")
+            .kendoTabStrip({
+                animation: {
+                    open: { effects: "fadeIn" }
+                }
             });
-            receiptBodyDiv = detailRow.find(".receiptsBodyGrid");
-            initReceiptsBodyGrid(receiptBodyDiv, e);
-        });
+
+        $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")?includeAccounts=false',
+            function(data) {
+                templatesList = data;
+                accountsList = $(data)
+                    .map(function(i, item) {
+                        return { value: item.value, text: item.AccountNumber };
+                    });
+                receiptBodyDiv = detailRow.find(".receiptsBodyGrid");
+                initReceiptsBodyGrid(receiptBodyDiv, e);
+            });
 
         $.getJSON('@Url.Action("GetPaymentMethods", "ReceiptHeaders")', function (data) {
             paymentMethods = data;
