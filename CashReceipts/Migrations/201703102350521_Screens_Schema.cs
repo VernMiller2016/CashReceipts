@@ -11,7 +11,7 @@ namespace CashReceipts
                 "dbo.ScreenFeatures",
                 c => new
                     {
-                        Id = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: false),
                         Name = c.String(),
                         ScreenId = c.Int(nullable: false),
                     })
@@ -23,7 +23,7 @@ namespace CashReceipts
                 "dbo.Screens",
                 c => new
                     {
-                        Id = c.Int(nullable: false, identity: true),
+                        Id = c.Int(nullable: false, identity: false),
                         Name = c.String(),
                     })
                 .PrimaryKey(t => t.Id);

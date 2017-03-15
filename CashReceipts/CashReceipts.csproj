@@ -249,6 +249,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\PermissionsController.cs" />
     <Compile Include="Migrations\201703132307016_AddMissing.cs" />
     <Compile Include="Migrations\201703132307016_AddMissing.Designer.cs">
       <DependentUpon>201703132307016_AddMissing.cs</DependentUpon>
@@ -256,6 +257,14 @@
     <Compile Include="Migrations\201703132317354_Add_UserRole.cs" />
     <Compile Include="Migrations\201703132317354_Add_UserRole.Designer.cs">
       <DependentUpon>201703132317354_Add_UserRole.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703141759471_Screens_Lookup.cs" />
+    <Compile Include="Migrations\201703141759471_Screens_Lookup.Designer.cs">
+      <DependentUpon>201703141759471_Screens_Lookup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703141808301_ScreensFeatures_Lookup.cs" />
+    <Compile Include="Migrations\201703141808301_ScreensFeatures_Lookup.Designer.cs">
+      <DependentUpon>201703141808301_ScreensFeatures_Lookup.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -285,6 +294,7 @@
     <Compile Include="Models\Screen.cs" />
     <Compile Include="Models\ScreenFeature.cs" />
     <Compile Include="Models\SearchAccountDataSource.cs" />
+    <Compile Include="Models\TreeModel.cs" />
     <Compile Include="ViewModels\AuditVm.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.cs" />
     <Compile Include="Migrations\201608030114105_Tenders_DescriptionIsNull.Designer.cs">
@@ -555,6 +565,7 @@
     <Content Include="Views\SysReports\ReceiptsExport.cshtml" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Users\Edit.cshtml" />
+    <Content Include="Views\Permissions\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -594,6 +605,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703132317354_Add_UserRole.resx">
       <DependentUpon>201703132317354_Add_UserRole.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703141759471_Screens_Lookup.resx">
+      <DependentUpon>201703141759471_Screens_Lookup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703141808301_ScreensFeatures_Lookup.resx">
+      <DependentUpon>201703141808301_ScreensFeatures_Lookup.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
