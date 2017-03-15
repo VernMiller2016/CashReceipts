@@ -224,7 +224,8 @@ namespace CashReceipts.Controllers
                     x.ReceiptNumber,
                     x.DepartmentID,
                     x.Comments,
-                    x.ReceivedFor
+                    x.ReceivedFor,
+                    x.IsPosted
                 }).ToList();
             return Json(receiptHeaders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -285,7 +286,8 @@ namespace CashReceipts.Controllers
                     x.ReceiptNumber,
                     x.DepartmentID,
                     x.Comments,
-                    x.ReceivedFor
+                    x.ReceivedFor,
+                    x.IsPosted
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 

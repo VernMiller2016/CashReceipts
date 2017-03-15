@@ -208,7 +208,7 @@
                     contentType: "application/json; charset=utf-8",
                     type: "POST"
                 },
-                parameterMap: function(options, operation) {
+                parameterMap: function (options, operation) {
                     if (operation !== "read" && options.models) {
                         return JSON.stringify({ receiptHeaders: options.models });
                     }
@@ -267,7 +267,7 @@
                 },
                 errors: "Errors"
             },
-            error: function(e) {
+            error: function (e) {
                 if (e.errors && e.errors["_addKey"]) {
                     notify.showError(e.errors["_addKey"].errors[0]);
                 } else if (e.errors && e.errors["_deleteKey"]) {
@@ -342,7 +342,15 @@
                         title: "Received For",
                         width: 100
                     },
-                    { command: ["edit", "destroy"], title: "&nbsp;", width: "90px" }
+                    {
+                        command: [
+                        {
+                            name: "edit", visible: function (dataItem) { return !dataItem.IsPosted }
+                        },
+                        {
+                            name: "destroy", visible: function (dataItem) { return !dataItem.IsPosted }
+                        }], title: "&nbsp;", width: "90px"
+                    }
                 ],
                 editable: "inline",
                 toolbar: [
@@ -357,22 +365,24 @@
                         template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
                     }
                 ],
-                dataBound: function(e) {
+                dataBound: function (e) {
                     //debugger;
                     if (!currentGrid) {
                         currentGrid = $("#headersGrid").data("kendoGrid");
                         this.expandRow(this.tbody.find("tr.k-master-row").first());
                     }
                     enableDisableReceiptHeadersButtons(false);
+
+                    //receiptHeaderOnDataBound(e);
                 },
-                edit: function(e) {
+                edit: function (e) {
                     //debugger;
                     var editRow = e.container;
                     if (e.model.isNew()) {
                         var receipts = this.dataSource.data();
                         var lastReceiptId = Math.max.apply(Math,
                             $(receipts)
-                            .map(function(i, r) {
+                            .map(function (i, r) {
                                 if (r.ReceiptNumber !== getNextReceiptNumber())
                                     return r
                                         .ReceiptNumber;
@@ -386,12 +396,12 @@
                     editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
                     editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
                 },
-                change: function(e) {
+                change: function (e) {
                     debugger;
                     //selectedRows = this.select();
                     enableDisableReceiptHeadersButtons(true);
                 },
-                save: function(e) {
+                save: function (e) {
                     var updateButton = $(e.container).find('.k-grid-update');
                     if (!updateButton.hasClass('k-state-disabled')) {
                         updateButton.addClass('k-state-disabled');
@@ -399,10 +409,26 @@
                         e.preventDefault();
                     }
                 },
-                destroy: function() {
+                destroy: function () {
                     enableDisableReceiptHeadersButtons(false);
                 }
             });
+    }
+
+    function receiptHeaderOnDataBound(e) {
+        var grid = $("#headersGrid").data("kendoGrid");
+        var gridData = grid.dataSource.view();
+
+        for (var i = 0; i < gridData.length; i++) {
+            var currentUid = gridData[i].uid;
+            if (gridData[i].IsPosted) {
+                var currenRow = grid.table.find("tr[data-uid='" + currentUid + "']");
+                var editButton = $(currenRow).find(".k-grid-edit");
+                editButton.hide();
+                var deleteButton = $(currenRow).find(".k-grid-delete");
+                deleteButton.hide();
+            }
+        }
     }
 
     function getNextReceiptNumber() {
@@ -431,7 +457,7 @@
                 .removeClass("k-state-disabled")
                 .unbind("click")
                 .bind("click",
-                    function() {
+                    function () {
                         var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                         var receipt = headersDataSources.getByUid(recordUid);
                         if (receipt) {
@@ -444,7 +470,7 @@
                 .removeClass("k-state-disabled")
                 .unbind("click")
                 .bind("click",
-                    function() {
+                    function () {
                         var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                         var receipt = headersDataSources.getByUid(recordUid);
                         if (receipt) {
@@ -452,7 +478,7 @@
                                 {
                                     ReceiptHeaderID: receipt.ReceiptHeaderID,
                                 })
-                                .done(function(data) {
+                                .done(function (data) {
                                     if (data) {
                                         if (data.Result) {
                                             notify.postConfirm(data.Message, lockReceipt(receipt));
@@ -467,13 +493,13 @@
     }
 
     function lockReceipt(receipt) {
-        return function() {
+        return function () {
             $.post('@Url.Action("LockReceipt")?receiptHeaderId=' +
                     receipt.ReceiptHeaderID,
                     {
                         ReceiptHeaderID: receipt.ReceiptHeaderID
                     })
-                .done(function(data) {
+                .done(function (data) {
                     if (data) {
                         if (data.Result) {
                             notify.showSuccess(data.Message);
@@ -496,10 +522,10 @@
             });
 
         $.getJSON('@Url.Action("GetTemplatesList", "ReceiptHeaders")?includeAccounts=false',
-            function(data) {
+            function (data) {
                 templatesList = data;
                 accountsList = $(data)
-                    .map(function(i, item) {
+                    .map(function (i, item) {
                         return { value: item.value, text: item.AccountNumber };
                     });
                 receiptBodyDiv = detailRow.find(".receiptsBodyGrid");
