@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CashReceipts.Models
 {
@@ -22,5 +23,8 @@ namespace CashReceipts.Models
         public int PaymentMethodId { get; set; }
 
         public virtual PaymentMethod PaymentMethod { get; set; }
+
+        [NotMapped]
+        public bool IsReceiptPosted { get; set; }
     }
 }

@@ -62,7 +62,7 @@
         margin-left: -3px;
         margin-left: -.3rem;
         vertical-align: middle;
-        background-image: url(/Scripts/KendoUI2016.2.504/styles/Bootstrap/sprite.png);
+        background-image: url(/Scripts/KenodUI2017.1.223/styles/Bootstrap/sprite.png);
         border-color: transparent;
         background-position: -32px -16px;
     }
@@ -208,7 +208,7 @@
                     contentType: "application/json; charset=utf-8",
                     type: "POST"
                 },
-                parameterMap: function (options, operation) {
+                parameterMap: function(options, operation) {
                     if (operation !== "read" && options.models) {
                         return JSON.stringify({ receiptHeaders: options.models });
                     }
@@ -267,7 +267,7 @@
                 },
                 errors: "Errors"
             },
-            error: function (e) {
+            error: function(e) {
                 if (e.errors && e.errors["_addKey"]) {
                     notify.showError(e.errors["_addKey"].errors[0]);
                 } else if (e.errors && e.errors["_deleteKey"]) {
@@ -344,12 +344,17 @@
                     },
                     {
                         command: [
-                        {
-                            name: "edit", visible: function (dataItem) { return !dataItem.IsPosted }
-                        },
-                        {
-                            name: "destroy", visible: function (dataItem) { return !dataItem.IsPosted }
-                        }], title: "&nbsp;", width: "90px"
+                            {
+                                name: "edit",
+                                visible: function(dataItem) { return !dataItem.IsPosted }
+                            },
+                            {
+                                name: "destroy",
+                                visible: function(dataItem) { return !dataItem.IsPosted }
+                            }
+                        ],
+                        title: "&nbsp;",
+                        width: "90px"
                     }
                 ],
                 editable: "inline",
@@ -365,7 +370,7 @@
                         template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
                     }
                 ],
-                dataBound: function (e) {
+                dataBound: function(e) {
                     //debugger;
                     if (!currentGrid) {
                         currentGrid = $("#headersGrid").data("kendoGrid");
@@ -375,14 +380,14 @@
 
                     //receiptHeaderOnDataBound(e);
                 },
-                edit: function (e) {
+                edit: function(e) {
                     //debugger;
                     var editRow = e.container;
                     if (e.model.isNew()) {
                         var receipts = this.dataSource.data();
                         var lastReceiptId = Math.max.apply(Math,
                             $(receipts)
-                            .map(function (i, r) {
+                            .map(function(i, r) {
                                 if (r.ReceiptNumber !== getNextReceiptNumber())
                                     return r
                                         .ReceiptNumber;
@@ -396,12 +401,12 @@
                     editRow.find('td:eq(1) span.k-numeric-wrap').css('padding', '0');
                     editRow.find('td:eq(1) :input').attr('readonly', 'readonly');
                 },
-                change: function (e) {
-                    debugger;
-                    //selectedRows = this.select();
-                    enableDisableReceiptHeadersButtons(true);
+                change: function(e) {
+                    var grid = e.sender;
+                    var selectedItem = grid.dataItem(this.select());
+                    enableDisableReceiptHeadersButtons(true, selectedItem);
                 },
-                save: function (e) {
+                save: function(e) {
                     var updateButton = $(e.container).find('.k-grid-update');
                     if (!updateButton.hasClass('k-state-disabled')) {
                         updateButton.addClass('k-state-disabled');
@@ -409,7 +414,7 @@
                         e.preventDefault();
                     }
                 },
-                destroy: function () {
+                destroy: function() {
                     enableDisableReceiptHeadersButtons(false);
                 }
             });
@@ -448,7 +453,7 @@
             });
     }
 
-    function enableDisableReceiptHeadersButtons(isEnable) {
+    function enableDisableReceiptHeadersButtons(isEnable, selectedItem) {
         if (!isEnable) {
             $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
             $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
@@ -457,7 +462,7 @@
                 .removeClass("k-state-disabled")
                 .unbind("click")
                 .bind("click",
-                    function () {
+                    function() {
                         var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                         var receipt = headersDataSources.getByUid(recordUid);
                         if (receipt) {
@@ -466,29 +471,34 @@
                         }
                     });
 
-            $(".k-grid-PostCheck")
-                .removeClass("k-state-disabled")
-                .unbind("click")
-                .bind("click",
-                    function () {
-                        var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
-                        var receipt = headersDataSources.getByUid(recordUid);
-                        if (receipt) {
-                            $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
-                                {
-                                    ReceiptHeaderID: receipt.ReceiptHeaderID,
-                                })
-                                .done(function (data) {
-                                    if (data) {
-                                        if (data.Result) {
-                                            notify.postConfirm(data.Message, lockReceipt(receipt));
-                                        } else {
-                                            notify.showError(data.Message);
+            if (!selectedItem.IsPosted) {
+                $(".k-grid-PostCheck")
+                    .removeClass("k-state-disabled")
+                    .unbind("click")
+                    .bind("click",
+                        function() {
+                            var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                            var receipt = headersDataSources.getByUid(recordUid);
+                            if (receipt) {
+                                $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' +
+                                        receipt.ReceiptHeaderID,
+                                        {
+                                            ReceiptHeaderID: receipt.ReceiptHeaderID,
+                                        })
+                                    .done(function(data) {
+                                        if (data) {
+                                            if (data.Result) {
+                                                notify.postConfirm(data.Message, lockReceipt(receipt));
+                                            } else {
+                                                notify.showError(data.Message);
+                                            }
                                         }
-                                    }
-                                });
-                        }
-                    });
+                                    });
+                            }
+                        });
+            } else {
+                $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
+            }
         }
     }
 
@@ -503,12 +513,18 @@
                     if (data) {
                         if (data.Result) {
                             notify.showSuccess(data.Message);
+                            refreshHeadersGrid();
                         } else {
                             notify.showError(data.Message);
                         }
                     }
                 });
         }
+    }
+
+    function refreshHeadersGrid() {
+        $("#headersGrid").data("kendoGrid").dataSource.read();
+        $("#headersGrid").data("kendoGrid").refresh();
     }
 
     function receiptHeaderDetailInit(e) {
@@ -591,7 +607,8 @@
                         ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: headersGridRef.data.ReceiptHeaderID },
                         Description: { validation: { required: false }, type: "string" },
                         Amount: { validation: { required: true }, type: "number" },
-                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 2 /*Check*/ }
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false, defaultValue: 2 /*Check*/ },
+                        IsReceiptPosted: {type: "boolean"}
                     }
                 },
                 errors: "Errors"
@@ -650,10 +667,15 @@
                     footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                     width: 69
                 },
-                { command: ["destroy"], title: "&nbsp;", width: "140px" }
+                {
+                    command: [{
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted }
+                    }],
+                    title: "&nbsp;", width: "140px"
+                }
             ],
-            editable: true,
-            toolbar: ["create", "save", "cancel"],
+            editable: !headersGridRef.data.IsPosted,
+            toolbar: getTenderToolbarActions(headersGridRef.data.IsPosted),
             change: function () {
                 //selectedRows = this.select();
             },
@@ -697,6 +719,8 @@
     }
 
     function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
+
+        var parentReceipt = headersGridRef;
 
         templatesDataSource = new kendo.data.DataSource({
             transport: {
@@ -785,7 +809,8 @@
                         AccountNumber: { type: "string" },
                         LineTotal: { validation: { required: true }, type: "number", spinners: false },
                         AccountDescription: { validation: { required: true }, type: "string" },
-                        TemplateOrder: { validation: { required: false }, type: "number" }
+                        TemplateOrder: { validation: { required: false }, type: "number" },
+                        IsReceiptPosted: { type: "boolean" }
                     }
                 },
                 errors: "Errors"
@@ -855,17 +880,14 @@
                             this.saveChanges();
                         },
                         text: "Delete",
-                        className: "btn-destroy"
+                        className: "btn-destroy",
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted }
                     }], title: "&nbsp;", width: "60px"
                 }
 
             ],
-            editable: true,
-            toolbar: ["create", "save", "cancel",
-                        {
-                            text: "",
-                            template: "<a class='k-button k-grid-showtotal'></a>"
-                        }],
+            editable: !headersGridRef.data.IsPosted,
+            toolbar: getBodyToolbarActions(headersGridRef.data.IsPosted),
             dataBound: function () {
                 //highlight total cell if selected, so client would be able to overwrite values
                 $(this.tbody.find(".highlight-cell-text")).on('focus', '.k-input', function () {
@@ -913,6 +935,26 @@
             }
         })
             .find("table").on("keydown", onBodyGridKeydown);
+    }
+
+    function getBodyToolbarActions(isPosted) {
+        var actions = [];
+        if (!isPosted) {
+            actions.push("create", "save", "cancel");
+        }
+        actions.push({
+            text: "",
+            template: "<a class='k-button k-grid-showtotal'></a>"
+        });
+        return actions;
+    }
+
+    function getTenderToolbarActions(isPosted) {
+        var actions = [];
+        if (!isPosted) {
+            actions.push("create", "save", "cancel");
+        }
+        return actions;
     }
 
     function updateLineTotalsSum(currentDataSource, receiptHeaderId) {

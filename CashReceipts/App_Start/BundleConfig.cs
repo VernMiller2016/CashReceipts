@@ -26,9 +26,9 @@ namespace CashReceipts
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/site.css"));
 
-            bundles.Add(new StyleBundle("~/Scripts/KendoUI2016.2.504/styles/Kendo").Include(
-                "~/Scripts/KendoUI2016.2.504/styles/kendo.common.min.css",
-                "~/Scripts/KendoUI2016.2.504/styles/kendo.bootstrap.min.css",
+            bundles.Add(new StyleBundle("~/Scripts/KenodUI2017.1.223/styles/Kendo").Include(
+                "~/Scripts/KenodUI2017.1.223/styles/kendo.common.min.css",
+                "~/Scripts/KenodUI2017.1.223/styles/kendo.bootstrap.min.css",
                 "~/Scripts/sweetalert/sweetalert.css",
                 "~/Content/KendoCustomization.css"));
 
@@ -39,8 +39,8 @@ namespace CashReceipts
             bundles.Add(new ScriptBundle("~/bundles/scripts").Include(
                 "~/Scripts/jquery-2.1.4.min.js",
                 "~/Scripts/bootstrap3.3.5.min.js",
-                "~/Scripts/KendoUI2016.2.504/js/kendo.all.min.js",
-                "~/Scripts/KendoUI2016.2.504/js/jszip.min.js",
+                "~/Scripts/KenodUI2017.1.223/js/kendo.all.min.js",
+                "~/Scripts/KenodUI2017.1.223/js/jszip.min.js",
                 "~/Scripts/sweetalert/sweetalert.min.js",
                 "~/Scripts/SwetAlertHelper.js"));
         }

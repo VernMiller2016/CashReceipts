@@ -404,6 +404,7 @@ namespace CashReceipts.Controllers
             var template = _db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
             return template?.Order ?? 0;
         }
+
         private string GetTemplateAccountNumber(int templateID)
         {
             var template = _db.Templates.SingleOrDefault(x => x.TemplateID == templateID);
@@ -425,7 +426,9 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult ReceiptsBody_Read([DataSourceRequest] DataSourceRequest request, int? receiptHeaderId=null)
         {
-            var receiptBodies = _db.ReceiptBodies.Include(x => x.Template)
+            var receiptBodies = _db.ReceiptBodies
+                .Include(x => x.Template)
+                .Include(x => x.ReceiptHeader)
                 .Where(x=> !receiptHeaderId.HasValue || x.ReceiptHeaderID == receiptHeaderId.Value)
                 .ToList()
                 .Select(x => new
@@ -438,7 +441,8 @@ namespace CashReceipts.Controllers
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
-                    AccountDataSource = AccountDataSource.Local
+                    AccountDataSource = AccountDataSource.Local,
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted
                 }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -513,7 +517,8 @@ namespace CashReceipts.Controllers
                         AccountNumber = GetTemplateAccountNumber(x.Template),
                         x.Template.DepartmentID,
                         AccountDataSource = AccountDataSource.Local,
-                        IsRemote = false
+                        IsRemote = false,
+                        IsReceiptPosted = x.ReceiptHeader.IsPosted
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -602,7 +607,8 @@ namespace CashReceipts.Controllers
                     AccountNumber = GetTemplateAccountNumber(x.Template),
                     x.Template.DepartmentID,
                     AccountDataSource = AccountDataSource.Local,
-                    IsRemote = false
+                    IsRemote = false,
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -648,8 +654,11 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptsTenders_Read([DataSourceRequest] DataSourceRequest request, int? receiptHeaderId = null)
         {
             var receiptTenders = _db.Tenders
+                .Include(x=>x.ReceiptHeader)
                 .Where(x => !receiptHeaderId.HasValue || x.ReceiptHeaderID == receiptHeaderId.Value)
-                .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId }).ToList();
+                .Select(x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId,
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted
+                }).ToList();
             return Json(receiptTenders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
 
@@ -679,7 +688,9 @@ namespace CashReceipts.Controllers
             }
 
             return Json(receiptTendersList.Select(
-                    x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId }).ToList().ToDataSourceResult(request, ModelState));
+                    x => new { x.ReceiptHeaderID, x.Amount, x.Description, x.TenderID, x.PaymentMethodId,
+                        IsReceiptPosted = x.ReceiptHeader.IsPosted
+                    }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
