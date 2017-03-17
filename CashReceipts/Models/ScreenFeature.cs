@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
 
 namespace CashReceipts.Models
 {
@@ -12,5 +11,7 @@ namespace CashReceipts.Models
         public int ScreenId { get; set; }
 
         public Screen Screen { get; set; }
+
+        public ICollection<RoleFeaturePermission> Roles { get; set; }
     }
 }
