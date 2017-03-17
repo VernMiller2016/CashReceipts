@@ -120,11 +120,11 @@ https://drive.google.com/file/d/0B68yiJ-zNfV9WFVQR0ZHWGU3dWs/view?usp=sharing
 
 TODO
 
-	1- Disable Post button if already posted
-	2- Hide/disable edit, delete actions in (Receipt Header, Body, Tender) if already posted.
-	3- no search/edit fields if already posted
-	4- a new column to show post status
-
+	X 1- Disable Post button if already posted
+	X 2- Hide/disable edit, delete actions in (Receipt Header, Body, Tender) if already posted.
+	X 3- no search/edit fields if already posted
+	4- a new column to show post status (should we?)
+	X 5- (BACKEND) prevent receipt (header, body, tender) from being updated/altered if receipt is locked
 
 ACLs
 1- Create screens/features lookup
@@ -137,3 +137,9 @@ Missing
 
 	Clerk shouldn't be able to edit other clerk's receipts
 	clerk drop list in receipts should be auto populated based on logged in user
+
+
+                    if (!IsPostedReceipt(receiptHeaderId))
+
+                        ModelState.AddModelError("_addKey", "Can't add tender to locked receipt");
+

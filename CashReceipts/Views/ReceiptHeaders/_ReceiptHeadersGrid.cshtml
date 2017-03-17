@@ -669,7 +669,7 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted; }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
@@ -881,7 +881,7 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted; }
                     }], title: "&nbsp;", width: "60px"
                 }
 
