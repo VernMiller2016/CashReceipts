@@ -4,21 +4,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@*<link rel="stylesheet" href="~/Scripts/KenodUI2017.1.223/styles/kendo.common.min.css" />
-    <link rel="stylesheet" href="~/Scripts/KenodUI2017.1.223/styles/kendo.bootstrap.min.css" />
-    <script src="~/Scripts/jquery-2.1.4.min.js"></script>
-    <script src="~/Scripts/KenodUI2017.1.223/kendo.all.min.js"></script>*@
-
 <link rel="stylesheet" href="~/Scripts/KenodUI2017.1.223/styles/kendo.bootstrap.mobile.min.css" />
 
+<style type="text/css">
+    /*#treeview .k-sprite {
+            background-image: url("~/Scripts/KendoUI2016.2.504/styles/Bootstrap/sprite.png");
+        }*/
 
-    <div id="example">
-    <div class="demo-section k-content" >
+    .rootfolder {
+        background-position: 0 0;
+    }
+
+    .folder {
+        background-position: 0 -16px;
+    }
+
+    .pdf {
+        background-position: 0 -32px;
+    }
+
+    .html {
+        background-position: 0 -48px;
+    }
+
+    .image {
+        background-position: 0 -64px;
+    }
+</style>
+
+<div id="example">
+    <div class="demo-section k-content">
         <div>
             <div class="form-group">
-                <label class="control-label col-md-2">Role</label>
+                <label class="control-label col-md-2">Select Role</label>
                 <div class="col-md-10">
-                    @Html.DropDownList("RoleId", (SelectList)ViewBag.Roles, "-- Select Role --", new { @class = "form-control",@onchange="UpdateTree()" })
+                    @Html.DropDownList("RoleId", (SelectList)ViewBag.Roles, "-- Select Role --", new { @class = "form-control", onchange = "UpdateTree()" })
                 </div>
             </div>
             <div id="treeview" style="overflow:hidden;padding:10px;"></div>
@@ -30,43 +50,74 @@
             </div>
         </div>
         <div id="SuccessMessage" style="color:green;display:none">
-            <p >Permissions Saved Sucessfully</p>
+            <p>Permissions Saved Sucessfully</p>
         </div>
         <div id="ErrorMessage" style="color:red;display:none">
-            <p >Something went wrong</p>
+            <p>Something went wrong</p>
         </div>
         <div id="NoSelectErrorMessage" style="color:red;display:none">
-            <p >No features Selected</p>
+            <p>No features Selected</p>
         </div>
         <div id="NoRoleErrorMessage" style="color:red;display:none">
-            <p >No Roles Selected</p>
+            <p>No Roles Selected</p>
         </div>
     </div>
 
     <script>
-        $.ajax({
-            type: "POST",
-            url: "/Permissions/GetScreens",
-            dataType: "json",
-            success: function (data) {
-                $("#treeview").kendoTreeView({
-                    dataSource: data,
-                    checkboxes: {
-                        checkChildren: true
-                    },
-
-                    check: onCheck
+        var selectedRoleId = '', dataSource, screensData = [];
+        $(document)
+            .ready(function () {
+                dataSource = new kendo.data.HierarchicalDataSource({
+                    data: screensData,
+                    schema: {
+                        model: {
+                            id: "id",
+                            hasChildren: "hasFeatures",
+                            children: "items"
+                        }
+                    }
                 });
-            },
-        });
 
-        function SaveRoleFeatures()
-        {
+                $("#treeview")
+                    .kendoTreeView({
+                        dataSource: dataSource,
+                        //loadOnDemand: false,
+                        dataTextField: "text",
+                        dataValueField: "id",
+                        checkboxes: {
+                            checkChildren: true
+                        },
+                        check: onCheck,
+                        dataBound: function (e) {
+                            //console.log("DataBound", e.node);
+                            $('.k-state-selected').parent().find('input:checkbox').prop('checked', true);
+                        }
+                    });
+
+                getRolesPermissions();
+
+            });
+
+        function getRolesPermissions() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetScreens")?roleId=' + selectedRoleId,
+                dataType: "json",
+                success: function (data) {
+                    var treeView = $("#treeview").data("kendoTreeView");
+                    screensData = data;
+                    treeView.dataSource.data(data);
+                    //treeView.refresh();
+                    //treeView.dataSource.refresh();
+                }
+            });
+        }
+
+        function SaveRoleFeatures() {
             var nodeIds = $("#CheckedNodes").val();
 
             var roleId = $("[name=RoleId]").val();
-            if (roleId == "" || roleId == null)
-            {
+            if (roleId == "" || roleId == null) {
                 $("#NoRoleErrorMessage").show();
             }
             else if (nodeIds == "") {
@@ -83,8 +134,9 @@
                     url: "/Permissions/SavePermissions",
                     data: data,
                     dataType: "json",
-                    contentType: "application/jsonrequest; charset=utf-8",
+                    contentType: "application/json; charset=utf-8",
                     success: function (data) {
+                        debugger;
                         if (data == true) {
                             $("#SuccessMessage").show();
                             $("#ErrorMessage").hide();
@@ -97,8 +149,6 @@
                 });
             }
         }
-        
-
 
         // function that gathers IDs of checked nodes
         function checkedNodeIds(nodes, checkedNodes) {
@@ -127,100 +177,16 @@
                 message = "";
             }
 
-             $("#CheckedNodes").val(message);
+            $("#CheckedNodes").val(message);
         }
 
-        function UpdateTree()
-        {
+        function UpdateTree() {
             var roleId = $("[name=RoleId]").val();
-            if (roleId == "" || roleId == null)
-                return;
-            roleId = JSON.stringify({ 'roleId': roleId });
-            $.ajax({
-                type: "POST",
-                url: "/Permissions/GetRoleValues" ,
-                data:roleId,
-                dataType: "json",
-                contentType: "application/jsonrequest; charset=utf-8",
-                success: function (data) {
-                    if (data != "new") {
-                        var treeview = $("#treeview").data("kendoTreeView");
-                        for (var i = 0; i < data.SelectedFeatures.length; i++) {
-                            var getitem = treeview.findByText(data.SelectedFeatures[i]);
-                            getitem.children()[0].childNodes[0].childNodes[0].checked = true;
-                            getitem.checked = true;
-                        }
-                        for (var i = 0; i < data.UnSelectedFeatures.length; i++) {
-                            var getitem = treeview.findByText(data.UnSelectedFeatures[i]);
-                            getitem.children()[0].childNodes[0].childNodes[0].checked = false;
-                            getitem.checked = false;
-
-                        }
-                        for (var i = 0; i < data.SelectedScreens.length; i++) {
-                            var getitem = treeview.findByText(data.SelectedScreens[i]);
-                            getitem.children()[0].childNodes[1].childNodes[0].checked = true;
-                            getitem.checked = true;
-                        }
-                        for (var i = 0; i < data.UnSelectedScreens.length; i++) {
-                            var getitem = treeview.findByText(data.UnSelectedScreens[i]);
-                            getitem.children()[0].childNodes[1].childNodes[0].checked = false;
-                            getitem.checked = false;
-                        }
-                        onCheck();
-                    }
-                    else
-                    {
-                        for (var i = 0; i <  $("#treeview .k-checkbox").length; i++) {
-                            $("#treeview .k-checkbox")[i].checked = false;
-                        }
-                        onCheck();
-                    }
-                },
-            });
-
-            ////var checkboxes = $("#treeview .k-item input[type=checkbox]");
-            //var treeview = $("#treeview").data("kendoTreeView");
-            //for (var i = 0; i < treeview.dataItems().length; i++) {
-
-            //    var getitem = treeview.findByText("Users");
-            //    //treeview.findByUid(getitem.uid);
-            //    //var selectitem = treeview.findByUid(getitem.uid);
-            //    // selectitem[0].childNodes[0].childNodes[1].childNodes[0].checked = true;
-            //    getitem.children()[0].childNodes[1].childNodes[0].checked = true;
-            //   // for (var i = 0; i < treeview.dataItems()[0].items.length; i++) {
-            //        var getitem = treeview.findByText("Edit Clerk");
-            //        getitem.children()[0].childNodes[0].childNodes[0].checked = true;
-            //    //}
-            //}
-            
+            selectedRoleId = roleId;
+            getRolesPermissions();
         }
     </script>
 
-    <style>
-        /*#treeview .k-sprite {
-            background-image: url("~/Scripts/KendoUI2016.2.504/styles/Bootstrap/sprite.png");
-        }*/
-
-        .rootfolder {
-            background-position: 0 0;
-        }
-
-        .folder {
-            background-position: 0 -16px;
-        }
-
-        .pdf {
-            background-position: 0 -32px;
-        }
-
-        .html {
-            background-position: 0 -48px;
-        }
-
-        .image {
-            background-position: 0 -64px;
-        }
-    </style>
-        </div>
-    @Html.Partial("_HighlightMenu", 1)
+</div>
+@Html.Partial("_HighlightMenu", 1)
 

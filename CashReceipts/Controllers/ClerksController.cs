@@ -15,7 +15,7 @@ namespace CashReceipts.Controllers
         // GET: Clerks
         public ActionResult Index()
         {
-            return View(db.Clerks.ToList());
+            return View(db.Clerks.Include(x=>x.User).ToList());
         }
 
         // GET: Clerks/Details/5

@@ -16,6 +16,9 @@
         <th>
             Role
         </th>
+        <th>
+            Actions
+        </th>
     </tr>
 
 @foreach (var item in Model) {
@@ -29,7 +32,7 @@
         </td>
         
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+            @Html.ActionLink("Select Role", "Edit", new { id = item.Id })
         </td>
     </tr>
 }
