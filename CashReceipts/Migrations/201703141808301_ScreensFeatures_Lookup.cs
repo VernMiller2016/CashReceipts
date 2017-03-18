@@ -10,7 +10,7 @@ namespace CashReceipts.Migrations
             Sql("SET IDENTITY_INSERT dbo.ScreenFeatures ON");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(1,'Users Page Access',1)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(2,'Edit User Role',1)");
-            Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(3,'Clerks Page Access',1)");
+            Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(3,'Clerks Page Access',2)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(4,'Create Clerk',2)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(5,'Edit Clerk',2)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values(6,'View Clerk Details',2)");
@@ -47,6 +47,9 @@ namespace CashReceipts.Migrations
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 37,'Day Summary Report Page Access',11)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 38,'Export and Print Summary',11)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 39,'Audits Page Access',12)");
+            Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 40,'Grant County Accounts Page Access',6)");
+            Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 41,'District Accounts Page Access',7)");
+
             Sql("SET IDENTITY_INSERT dbo.ScreenFeatures OFF");
         }
         

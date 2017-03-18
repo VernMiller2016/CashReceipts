@@ -266,10 +266,6 @@
     <Compile Include="Migrations\201703141808301_ScreensFeatures_Lookup.Designer.cs">
       <DependentUpon>201703141808301_ScreensFeatures_Lookup.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201703172342090_RoleFeaturePermission_Add.cs" />
-    <Compile Include="Migrations\201703172342090_RoleFeaturePermission_Add.Designer.cs">
-      <DependentUpon>201703172342090_RoleFeaturePermission_Add.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -295,6 +291,7 @@
     <Compile Include="Migrations\201703102350521_Screens_Schema.Designer.cs">
       <DependentUpon>201703102350521_Screens_Schema.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Permissions.cs" />
     <Compile Include="Models\RoleFeaturePermission.cs" />
     <Compile Include="Models\Screen.cs" />
     <Compile Include="Models\ScreenFeature.cs" />
@@ -2193,9 +2190,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703141808301_ScreensFeatures_Lookup.resx">
       <DependentUpon>201703141808301_ScreensFeatures_Lookup.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201703172342090_RoleFeaturePermission_Add.resx">
-      <DependentUpon>201703172342090_RoleFeaturePermission_Add.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

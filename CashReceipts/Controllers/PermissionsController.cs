@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
+using System.Data;
 
 namespace CashReceipts.Controllers
 {
@@ -15,6 +16,8 @@ namespace CashReceipts.Controllers
         // GET: Permissions
         public ActionResult Index()
         {
+            var Roles = db.Roles.ToList();
+            ViewBag.Roles = new SelectList(Roles, "Id", "Name");
             return View();
         }
         [HttpPost]
@@ -23,30 +26,106 @@ namespace CashReceipts.Controllers
             var screens = db.Screens.Include(s=>s.Features).ToList();
             TreeViewModel tv = new TreeViewModel();
             List<TreeViewModel> tvList = new List<TreeViewModel>();
-
+            int count = 1;
             foreach (var item in screens)
             {
-                tv.Id = item.Id;
+                tv = new TreeViewModel();
+                tv.id = item.Id;
                 tv.text = item.Name;
-                tv.spriteCssClass = "rootfolder";
+                tv.spriteCssClass = "folder";
                 tv.expanded = true;
                 if (item.Features != null)
                 {
-                    tv.Items = new List<TreeModel>();
+                    tv.items = new List<TreeModel>();
 
                     foreach (var feature in item.Features)
                     {
                         TreeModel tv2 = new TreeModel();
-                        tv2.Id = feature.Id;
+                        tv2.id = feature.Id;
                         tv2.text = feature.Name;
-                        tv2.spriteCssClass = "folder";
-                        tv2.expanded = true;
-                        tv.Items.Add( tv2);
+                        //tv2.spriteCssClass = "folder";
+                        //tv2.expanded = true;
+                        tv.items.Add( tv2);
                     }
                 }
                 tvList.Add(tv);
             }
             return Json(tvList);
+            
+        }
+
+        [HttpPost]
+        public JsonResult GetRoleValues(string roleId)
+        {
+            var screenFeatures = db.ScreenFeatures.Include(r => r.Roles).Where(r => r.Roles.Any(ro => ro.RoleId == roleId)).ToList();
+            var AllScreenFeatures = db.ScreenFeatures.ToList();
+            var AllScreens = db.Screens.ToList();
+            if (screenFeatures.Count > 0)
+            {
+                Permissions permission = new Permissions();
+                foreach (var item in screenFeatures)
+                {
+                    permission.SelectedFeatures.Add(item.Name);
+                    if (permission.SelectedScreens.Where(s => s == item.Screen.Name).FirstOrDefault() == null)
+                        permission.SelectedScreens.Add(item.Screen.Name);
+                }
+                foreach (var item in AllScreenFeatures)
+                {
+                    if (permission.SelectedFeatures.Where(s => s == item.Name).FirstOrDefault() == null)
+                        permission.UnSelectedFeatures.Add(item.Name);
+                }
+                foreach (var item in AllScreens)
+                {
+                    if (permission.SelectedScreens.Where(s => s == item.Name).FirstOrDefault() == null)
+                        permission.UnSelectedScreens.Add(item.Name);
+                }
+
+                return Json(permission);
+
+            }
+            else return Json("new");
+
+        }
+
+        [HttpPost]
+        public bool SavePermissions(string nodeIds,string roleId)
+        {
+            string[] featureIds = nodeIds.Split(',').Distinct().ToArray();
+            var existingFeatures = db.ScreenFeatures.Include(r => r.Roles).Where(r => r.Roles.Any(ro => ro.RoleId == roleId)).ToList();
+            var allScreenFeatures = db.ScreenFeatures.ToList();
+            RoleFeaturePermission rfp = new RoleFeaturePermission();
+            rfp.RoleId = roleId;
+            try
+            {
+                foreach (var item in allScreenFeatures)
+                {
+                    var feature = existingFeatures.Where(f => f.Id == item.Id).FirstOrDefault();
+                    if (featureIds.Where(s => s == item.Id.ToString()).FirstOrDefault() != null)
+                    {
+                        if (feature == null)
+                        {
+                            rfp.FeatureId = item.Id;
+                            if (item.Roles == null)
+                                item.Roles = new List<RoleFeaturePermission>();
+                            item.Roles.Add(rfp);
+                            db.SaveChanges();
+                        }
+                    }
+                    else if (feature != null)
+                    {
+                        rfp.FeatureId = feature.Id;
+                        item.Roles.Remove(rfp);
+                        db.SaveChanges();
+                    }
+                    rfp = new RoleFeaturePermission();
+                    rfp.RoleId = roleId;
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
             
         }
 
