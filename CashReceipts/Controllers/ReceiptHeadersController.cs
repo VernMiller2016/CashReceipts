@@ -35,7 +35,8 @@ namespace CashReceipts.Controllers
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
 
-        // GET: ReceiptHeaders
+        // GET: ReceiptHeaders'
+        [CanAccess((int)FeaturePermissions.ManageReceiptsIndex)]
         public ActionResult Index()
         {
             return View(_lookupHelper.LastReceiptId);
@@ -1219,7 +1220,7 @@ namespace CashReceipts.Controllers
             }
             return Json(new { Result = result, Message = msg });
         }
-
+        [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
         public ActionResult Search()
         {
             return View();

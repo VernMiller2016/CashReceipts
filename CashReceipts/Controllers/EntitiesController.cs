@@ -24,12 +24,14 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Entities
+        [CanAccess((int)FeaturePermissions.EntitiesIndex)]
         public ActionResult Index()
         {
             return View(db.Entities.ToList());
         }
 
         // GET: Entities/Details/5
+        [CanAccess((int)FeaturePermissions.ViewEntity)]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -45,6 +47,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Entities/Create
+        [CanAccess((int)FeaturePermissions.CreateEntity)]
         public ActionResult Create()
         {
             return View();
@@ -68,6 +71,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Entities/Edit/5
+        [CanAccess((int)FeaturePermissions.EditEntity)]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -99,6 +103,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Entities/Delete/5
+        [CanAccess((int)FeaturePermissions.DeleteEntity)]
         public ActionResult Delete(int? id)
         {
             if (id == null)

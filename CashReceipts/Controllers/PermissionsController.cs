@@ -82,8 +82,9 @@ namespace CashReceipts.Controllers
                     }
                     else if (feature != null)
                     {
-                        rfp.FeatureId = feature.Id;
-                        item.Roles.Remove(rfp);
+                        rfp = db.RolesPermissions.Where(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId).FirstOrDefault();
+                       // rfp.FeatureId = feature.Id;
+                        db.RolesPermissions.Remove(rfp);
                         db.SaveChanges();
                     }
                     rfp = new RoleFeaturePermission {RoleId = roleId};

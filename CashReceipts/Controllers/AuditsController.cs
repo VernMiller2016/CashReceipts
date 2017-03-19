@@ -20,7 +20,7 @@ namespace CashReceipts.Controllers
         {
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
-
+        [CanAccess((int)FeaturePermissions.AuditsIndex)]
         public ActionResult Index()
         {
             return View();

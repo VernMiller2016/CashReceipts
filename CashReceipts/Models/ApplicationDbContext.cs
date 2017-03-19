@@ -54,6 +54,7 @@ namespace CashReceipts.Models
         public DbSet<Audit> Audits { get; set; }
         public DbSet<Screen> Screens { get; set; }
         public DbSet<ScreenFeature> ScreenFeatures { get; set; }
+        public DbSet<RoleFeaturePermission> RolesPermissions { get; set; }
 
         public List<Template> GetGCAccounts(ColumnOrders colIndex, string searchTerm, int rowsNum, int skipRows = 0)
         {

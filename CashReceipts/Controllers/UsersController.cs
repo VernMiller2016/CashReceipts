@@ -15,6 +15,7 @@ namespace CashReceipts.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         // GET: Users
+        [CanAccess((int)FeaturePermissions.UsersIndex)]
         public ActionResult Index()
         {
             List<UsersVM> usersList = new List<UsersVM>();
@@ -63,6 +64,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Users/Edit/5
+        [CanAccess((int)FeaturePermissions.EditUserRole)]
         public ActionResult Edit(string id)
         {
             if (id == null)

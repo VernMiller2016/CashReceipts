@@ -1,0 +1,75 @@
+﻿@using Kendo.Mvc.UI
+@{
+    //Layout = null;
+}
+@section Styles
+{
+}
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/Kendo")
+    <script src="../../Scripts/Kendo/kendo.aspnetmvc.min.js"></script>
+}
+
+<div id="datasource-views" style="background-color: #fff; width: 92%; min-height: 480px;margin: 0 auto;">
+    <h2 style="text-align: center; padding: 5px">Sorry !!!</h2>
+    <div style="background-color: #fff;" class="section-box">
+        <h2 style="text-align: center; padding: 5px">You are not authorized to see this content.</h2>
+        <p style="text-align: center; padding: 5px">If you think you should have access to this content please ask the system admin to give you the permission from link below.</p>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#menu_active').attr('id', 'menu_active1');
+    });
+</script>
+<style scoped>
+    #datasource-views {
+        padding: 20px;
+    }
+
+    .section-box {
+        margin-top: 20px;
+        padding: 10px;
+        text-align: center;
+    }
+
+        .section-box span {
+            text-align: left;
+        }
+
+    #datasource-views, .section-box {
+        -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.45), inset 0 0 30px rgba(0,0,0,0.07);
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.45), inset 0 0 30px rgba(0,0,0,0.07);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.45), inset 0 0 30px rgba(0,0,0,0.07);
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+    }
+</style>
+<div style="display: none;">
+    @(Html.Kendo().Window()
+          .Name("window")
+          .Title("Give Me Access!")
+          .Content("loading Controls ...")
+          .LoadContentFrom("GiveMePermission", "Error")
+          .Width(500).Height(310)
+            //.Iframe(true)
+          .Draggable()
+          .Resizable()
+            //.HtmlAttributes(dic)
+          .Events(builder => builder.Open("windowOpen")))
+</div>
+<script>
+    //$(document).ready(function () {
+    //    //$("#window").data("kendoWindow").open();
+    //});
+
+    function windowOpen() {
+        $('#window').parent().css('left', '540px').css('top', '300px');
+    }
+    function ShowPermissionModal() {
+        $("#window").data("kendoWindow").center().open();
+    }
+</script>

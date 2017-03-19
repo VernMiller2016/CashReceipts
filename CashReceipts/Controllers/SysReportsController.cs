@@ -22,7 +22,7 @@ namespace CashReceipts.Controllers
     public class SysReportsController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
-
+        [CanAccess((int)FeaturePermissions.DaySummaryReportIndex)]
         public ActionResult SummaryReport()
         {
             return View();
@@ -59,11 +59,12 @@ namespace CashReceipts.Controllers
             }).ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
 
         }
-
+        [CanAccess((int)FeaturePermissions.ReceiptsExport)]
         public ActionResult ReceiptsExport()
         {
             return View();
         }
+
 
         [HttpPost]
         public ActionResult DownloadReceipts(string StartDate, string EndDate)

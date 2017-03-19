@@ -13,12 +13,14 @@ namespace CashReceipts.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Clerks
+        [CanAccess((int)FeaturePermissions.ClerksIndex)]
         public ActionResult Index()
         {
             return View(db.Clerks.Include(x=>x.User).ToList());
         }
 
         // GET: Clerks/Details/5
+        [CanAccess((int)FeaturePermissions.ViewClerks)]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -34,6 +36,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Clerks/Create
+        [CanAccess((int)FeaturePermissions.CreateClerks)]
         public ActionResult Create()
         {
             var Users = db.Users.ToList();
@@ -102,6 +105,7 @@ namespace CashReceipts.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [CanAccess((int)FeaturePermissions.EditClerks)]
         public ActionResult Edit([Bind(Include = "ClerkID,FirstName,LastName,UserId")] Clerk clerk, string OldUserId)
         {
             if (ModelState.IsValid)
@@ -129,6 +133,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Clerks/Delete/5
+        [CanAccess((int)FeaturePermissions.DeleteClerks)]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -162,5 +167,50 @@ namespace CashReceipts.Controllers
             }
             base.Dispose(disposing);
         }
+    }
+
+    public enum FeaturePermissions
+    {
+        UsersIndex=1,
+        EditUserRole=2,
+        ClerksIndex=3,
+        CreateClerks = 4,
+        EditClerks = 5,
+        ViewClerks = 6,
+        DeleteClerks = 7,
+        EntitiesIndex = 8,
+        CreateEntity = 9,
+        EditEntity = 10,
+        ViewEntity = 11,
+        DeleteEntity = 12,
+        DepartmentIndex = 13,
+        CreateDepartment = 14,
+        EditDepartment = 15,
+        ViewDepartment = 16,
+        DeleteDepartment = 17,
+        SystemAccountIndex = 18,
+        EditSystemAccount = 19,
+        ViewSystemAccount = 20,
+        DeleteSystemAccount = 21,
+        ManageReceiptsIndex = 22,
+        AddNewReceipt = 23,
+        DownloadReceipt = 24,
+        PostReceipt = 25,
+        AddReceiptItem = 26,
+        EditReceiptItem = 27,
+        DeleteReceiptItem = 28,
+        SearchLineItemIndex = 29,
+        ExportLineItem = 30,
+        ShowReceipt = 31,
+        ReceiptsExportIndex = 32,
+        ReceiptsExport = 33,
+        LineItemsExport = 34,
+        TendersExport = 35,
+        ReceiptsDetailsExport = 36,
+        DaySummaryReportIndex = 37,
+        ExportAndPrintSummary = 38,
+        AuditsIndex = 39,
+        GrantCountyAccountIndex = 40,
+        DistrictsAccountIndex = 41
     }
 }

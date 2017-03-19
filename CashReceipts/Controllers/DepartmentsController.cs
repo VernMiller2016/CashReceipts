@@ -19,12 +19,14 @@ namespace CashReceipts.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Dpartments
+        [CanAccess((int)FeaturePermissions.DepartmentIndex)]
         public ActionResult Index()
         {
             return View(db.Departments.OrderBy(x=>x.Name).ToList());
         }
 
         // GET: Dpartments/Details/5
+        [CanAccess((int)FeaturePermissions.ViewDepartment)]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -41,6 +43,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Dpartments/Create
+        [CanAccess((int)FeaturePermissions.CreateDepartment)]
         public ActionResult Create()
         {
             return View();
@@ -64,6 +67,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Dpartments/Edit/5
+        [CanAccess((int)FeaturePermissions.EditDepartment)]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -96,6 +100,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Dpartments/Delete/5
+        [CanAccess((int)FeaturePermissions.DeleteDepartment)]
         public ActionResult Delete(int? id)
         {
             if (id == null)

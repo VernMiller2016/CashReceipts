@@ -30,6 +30,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Templates
+        [CanAccess((int)FeaturePermissions.SystemAccountIndex)]
         public ActionResult Index(int? SelectedDepartment)
         {
             var departments = db.Departments.OrderBy(q => q.Name).ToList();
@@ -45,6 +46,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Templates/Details/5
+        [CanAccess((int)FeaturePermissions.ViewSystemAccount)]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -83,6 +85,7 @@ namespace CashReceipts.Controllers
         }
 
         // GET: Templates/Edit/5
+        [CanAccess((int)FeaturePermissions.EditSystemAccount)]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -124,6 +127,7 @@ namespace CashReceipts.Controllers
 
         // GET: Templates/Delete/5
         [ActionName("Delete")]
+        [CanAccess((int)FeaturePermissions.DeleteSystemAccount)]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -151,7 +155,7 @@ namespace CashReceipts.Controllers
             return RedirectToAction("Index");
         }
 
-
+        [CanAccess((int)FeaturePermissions.GrantCountyAccountIndex)]
         public ActionResult GcAccounts()
         {
             return View();
@@ -166,6 +170,7 @@ namespace CashReceipts.Controllers
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
 
+        [CanAccess((int)FeaturePermissions.DistrictsAccountIndex)]
         public ActionResult DistAccounts()
         {
             return View();
