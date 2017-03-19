@@ -1,20 +1,28 @@
 ﻿@model int
 
+@functions {
+    private string ClientBool(bool hasAccess)
+    {
+        return hasAccess.ToString().ToLower();
+    }
+}
+
 @{
-    var hasEditReceiptsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditReceiptsPermission"];
-    var hasDeleteReceiptsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteReceiptsPermission"];
-    var hasCreateReceiptItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasCreateReceiptItemsPermission"];
-    var hasReadReceiptItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadReceiptItemsPermission"];
-    var hasReadTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadTenderItemsPermission"];
-    var hasAddTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasAddTenderItemsPermission"];
-    var hasEditTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditTenderItemsPermission"];
-    var hasDeleteTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteTenderItemsPermission"];
-    var hasReadReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadReceiptsBodyPermission"];
-    var hasEditReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditReceiptsBodyPermission"];
-    var hasCreateReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasCreateReceiptsBodyPermission"];
-    var hasDeleteReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteReceiptsBodyPermission"];
-    var hasDownloadReceiptPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDownloadReceiptPermission"];
-    var hasPostPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasPostPermission"];
+    var permissions = (Dictionary<string, bool>) ViewBag.Permissions;
+    var hasEditReceiptsPermission = permissions["hasEditReceiptsPermission"];
+    var hasDeleteReceiptsPermission = permissions["hasDeleteReceiptsPermission"];
+    var hasCreateReceiptItemsPermission = permissions["hasCreateReceiptItemsPermission"];
+    var hasReadReceiptItemsPermission = permissions["hasReadReceiptItemsPermission"];
+    var hasReadTenderItemsPermission = permissions["hasReadTenderItemsPermission"];
+    var hasAddTenderItemsPermission = permissions["hasAddTenderItemsPermission"];
+    var hasEditTenderItemsPermission = permissions["hasEditTenderItemsPermission"];
+    var hasDeleteTenderItemsPermission = permissions["hasDeleteTenderItemsPermission"];
+    var hasReadReceiptsBodyPermission = permissions["hasReadReceiptsBodyPermission"];
+    var hasEditReceiptsBodyPermission = permissions["hasEditReceiptsBodyPermission"];
+    var hasCreateReceiptsBodyPermission = permissions["hasCreateReceiptsBodyPermission"];
+    var hasDeleteReceiptsBodyPermission = permissions["hasDeleteReceiptsBodyPermission"];
+    var hasDownloadReceiptPermission = permissions["hasDownloadReceiptPermission"];
+    var hasPostPermission = permissions["hasPostPermission"];
 }
 
 <style type="text/css">
@@ -363,11 +371,11 @@
                         command: [
                             {
                                 name: "edit",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @hasEditReceiptsPermission }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) }
                             },
                             {
                                 name: "destroy",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @hasDeleteReceiptsPermission }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) }
                             }
                         ],
                         title: "&nbsp;",
@@ -375,18 +383,7 @@
                     }
                 ],
                 editable: "inline",
-                toolbar: [
-                    "create",
-                    {
-                        text: "",
-                        template:
-                            "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
-                    },
-                    {
-                        text: "",
-                        template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
-                    }
-                ],
+                toolbar: getHeaderToolbarActions(),
                 dataBound: function(e) {
                     //debugger;
                     if (!currentGrid) {
@@ -686,7 +683,7 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @hasDeleteTenderItemsPermission; }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission); }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
@@ -898,7 +895,7 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @hasDeleteReceiptsBodyPermission; }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission); }
                     }], title: "&nbsp;", width: "60px"
                 }
 
@@ -957,10 +954,10 @@
     function getBodyToolbarActions(isPosted) {
         var actions = [];
         if (!isPosted) {
-            if(@hasCreateReceiptsBodyPermission)
-             actions.push("create")
-        if(@hasEditReceiptsBodyPermission)
-         actions.push( "save", "cancel")
+            if (@ClientBool(hasCreateReceiptsBodyPermission))
+                actions.push("create");
+            if (@ClientBool(hasEditReceiptsBodyPermission))
+                actions.push("save", "cancel");
         }
         actions.push({
             text: "",
@@ -972,11 +969,31 @@
     function getTenderToolbarActions(isPosted) {
         var actions = [];
         if (!isPosted) {
-            if(@hasAddTenderItemsPermission)
-                actions.push("create")
-            if(@hasEditTenderItemsPermission)
-                actions.push( "save", "cancel")
+            if (@ClientBool(hasAddTenderItemsPermission))
+                actions.push("create");
+            if (@ClientBool(hasEditTenderItemsPermission))
+                actions.push("save", "cancel");
         }
+        return actions;
+    }
+
+    function getHeaderToolbarActions() {
+        var actions = [];
+        if (@ClientBool(hasCreateReceiptItemsPermission))
+            actions.push("create");
+
+        if (@ClientBool(true))
+            actions.push({
+                text: "",
+                template:
+                    "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
+            });
+
+        if (@ClientBool(hasPostPermission))
+            actions.push({
+                text: "",
+                template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"
+        });
         return actions;
     }
 

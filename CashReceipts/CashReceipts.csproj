@@ -274,6 +274,10 @@
     <Compile Include="Migrations\201703172342090_RoleFeaturePermission_Add.Designer.cs">
       <DependentUpon>201703172342090_RoleFeaturePermission_Add.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703192239315_ScreenFeatures_Add_Missing.cs" />
+    <Compile Include="Migrations\201703192239315_ScreenFeatures_Add_Missing.Designer.cs">
+      <DependentUpon>201703192239315_ScreenFeatures_Add_Missing.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -2202,6 +2206,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703172342090_RoleFeaturePermission_Add.resx">
       <DependentUpon>201703172342090_RoleFeaturePermission_Add.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703192239315_ScreenFeatures_Add_Missing.resx">
+      <DependentUpon>201703192239315_ScreenFeatures_Add_Missing.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

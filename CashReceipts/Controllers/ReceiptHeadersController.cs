@@ -1254,13 +1254,14 @@ namespace CashReceipts.Controllers
             }
             return Json(new { Result = result, Message = msg });
         }
+
         [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
         public ActionResult Search()
         {
             Dictionary<string,bool> permissions=new Dictionary<string,bool>();
-           bool flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ExportLineItem).FirstOrDefault() == null ? false : true;
+           bool flag= access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ExportLineItem) != null;
             permissions.Add("hasExportPermission",flag);
-             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ShowReceipt).FirstOrDefault() == null ? false : true;
+             flag= access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ShowReceipt) != null;
             permissions.Add("hasShowReceiptPermission",flag);
             ViewBag.Permissions=permissions;
             return View();
