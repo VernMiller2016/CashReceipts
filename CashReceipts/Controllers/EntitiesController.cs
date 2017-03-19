@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using CashReceipts.Filters;
 using CashReceipts.Models;
 using CashReceipts.Helpers;
 

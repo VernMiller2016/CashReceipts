@@ -7,6 +7,7 @@ using CashReceipts.Filters;
 
 namespace CashReceipts.Controllers
 {
+    [IsAdmin]
     public class PermissionsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -53,7 +54,9 @@ namespace CashReceipts.Controllers
                 }
                 tvList.Add(tv);
             }
-            return Json(tvList , JsonRequestBehavior.AllowGet);
+
+            var val = string.Join(",", tvList.SelectMany(x => x.items).Where(x => x.selected).Select(x => x.id));
+            return Json(new { Screens = tvList, ScreensValue = val }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -83,11 +86,11 @@ namespace CashReceipts.Controllers
                     else if (feature != null)
                     {
                         rfp = db.RolesPermissions.Where(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId).FirstOrDefault();
-                       // rfp.FeatureId = feature.Id;
+                        // rfp.FeatureId = feature.Id;
                         db.RolesPermissions.Remove(rfp);
                         db.SaveChanges();
                     }
-                    rfp = new RoleFeaturePermission {RoleId = roleId};
+                    rfp = new RoleFeaturePermission { RoleId = roleId };
                 }
                 return true;
             }

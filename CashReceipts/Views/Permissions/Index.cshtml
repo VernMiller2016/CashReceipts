@@ -90,7 +90,7 @@
                         check: onCheck,
                         dataBound: function (e) {
                             //console.log("DataBound", e.node);
-                            $('.k-state-selected').parent().find('input:checkbox').prop('checked', true);
+                            //$('.k-state-selected').parent().find('input:checkbox').prop('checked', true);
                         }
                     });
 
@@ -105,8 +105,9 @@
                 dataType: "json",
                 success: function (data) {
                     var treeView = $("#treeview").data("kendoTreeView");
-                    screensData = data;
-                    treeView.dataSource.data(data);
+                    screensData = data.Screens;
+                    treeView.dataSource.data(screensData);
+                    $("#CheckedNodes").val(data.ScreensValue);
                     //treeView.refresh();
                     //treeView.dataSource.refresh();
                 }
@@ -188,5 +189,5 @@
     </script>
 
 </div>
-@Html.Partial("_HighlightMenu", 1)
+@Html.Partial("_HighlightMenu", 0)
 
