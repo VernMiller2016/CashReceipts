@@ -16,9 +16,10 @@
         <th>
             Role
         </th>
-        <th>
+       @if (@ViewBag.isEdit==true)
+        { <th>
             Actions
-        </th>
+        </th>}
     </tr>
 
 @foreach (var item in Model) {
@@ -30,10 +31,10 @@
                 @Html.DisplayFor(modelItem => item.RoleName)
             
         </td>
-        
-        <td>
+        @if (@ViewBag.isEdit==true)
+        { <td>
             @Html.ActionLink("Select Role", "Edit", new { id = item.Id })
-        </td>
+        </td>}
     </tr>
 }
 

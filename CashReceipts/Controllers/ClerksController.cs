@@ -4,6 +4,7 @@ using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
+using CashReceipts.Helpers;
 
 namespace CashReceipts.Controllers
 {
@@ -11,11 +12,20 @@ namespace CashReceipts.Controllers
     public class ClerksController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+         public AccessHelper access;
+         public ClerksController()
+        {
+            access = new AccessHelper();
+        }
 
         // GET: Clerks
         [CanAccess((int)FeaturePermissions.ClerksIndex)]
         public ActionResult Index()
         {
+            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditClerks).FirstOrDefault() == null ? false : true;
+            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateClerks).FirstOrDefault() == null ? false : true;
+            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewClerks).FirstOrDefault() == null ? false : true;
+            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteClerks).FirstOrDefault() == null ? false : true;
             return View(db.Clerks.Include(x=>x.User).ToList());
         }
 

@@ -253,6 +253,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\PermissionsController.cs" />
     <Compile Include="Filters\AccessAttribute.cs" />
+    <Compile Include="Helpers\AccessHelper.cs" />
     <Compile Include="Migrations\201703132307016_AddMissing.cs" />
     <Compile Include="Migrations\201703132307016_AddMissing.Designer.cs">
       <DependentUpon>201703132307016_AddMissing.cs</DependentUpon>

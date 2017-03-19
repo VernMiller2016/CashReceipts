@@ -8,7 +8,8 @@
 
 <p>
     <h4>Entities</h4>
-    @Html.ActionLink("Create New", "Create")
+@if (ViewBag.isCreate == true)
+{ @Html.ActionLink("Create New", "Create")}
 </p>
 <table class="table">
     <tr>
@@ -60,9 +61,13 @@
             @Html.DisplayFor(modelItem => item.Telephone)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.EntityID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.EntityID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.EntityID })
+            @if (ViewBag.isEdit == true)
+            { @Html.ActionLink("Edit", "Edit", new { id = item.EntityID })} &nbsp;
+            @if (ViewBag.isDetails == true)
+            {@Html.ActionLink("Details", "Details", new { id = item.EntityID })} &nbsp;
+            @if (ViewBag.isDelete == true)
+            {@Html.ActionLink("Delete", "Delete", new { id = item.EntityID })}
+                                                                            
         </td>
     </tr>
 }

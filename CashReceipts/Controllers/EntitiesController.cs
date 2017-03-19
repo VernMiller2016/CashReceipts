@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Models;
+using CashReceipts.Helpers;
 
 namespace CashReceipts.Controllers
 {
@@ -10,9 +11,11 @@ namespace CashReceipts.Controllers
     public class EntitiesController : Controller
     {
         private ApplicationDbContext db;
+        public AccessHelper access;
         public EntitiesController()
         {
             db = new ApplicationDbContext();
+            access = new AccessHelper();
         }
 
         protected override void Dispose(bool disposing)
@@ -27,6 +30,10 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.EntitiesIndex)]
         public ActionResult Index()
         {
+            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateEntity).FirstOrDefault() == null ? false : true;
+            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditEntity).FirstOrDefault() == null ? false : true;
+            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewEntity).FirstOrDefault() == null ? false : true;
+            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteEntity).FirstOrDefault() == null ? false : true;
             return View(db.Entities.ToList());
         }
 

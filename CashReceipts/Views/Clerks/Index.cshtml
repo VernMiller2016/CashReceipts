@@ -8,7 +8,8 @@
 
 <p>
     <h4>Clerks</h4>
-    @Html.ActionLink("Create New", "Create")
+    @if (ViewBag.isCreate==true)
+    {@Html.ActionLink("Create New", "Create")}
 </p>
 <table class="table">
     <tr>
@@ -36,9 +37,12 @@
             @Html.DisplayFor(modelItem => item.User.UserName)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.ClerkID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.ClerkID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ClerkID })
+            @if (ViewBag.isEdit == true)
+            { @Html.ActionLink("Edit", "Edit", new { id=item.ClerkID })} &nbsp;
+            @if (ViewBag.isDetails == true)
+            {@Html.ActionLink("Details", "Details", new { id = item.ClerkID })} &nbsp;
+            @if (ViewBag.isDelete == true)
+            {@Html.ActionLink("Delete", "Delete", new { id = item.ClerkID })}
         </td>
     </tr>
 }

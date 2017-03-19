@@ -20,9 +20,11 @@ namespace CashReceipts.Controllers
     public class AccountsController : Controller
     {
         private ApplicationDbContext db;
+        public AccessHelper access;
+       
         public AccountsController() : this(new ApplicationDbContext())
         {
-
+            access = new AccessHelper();
         }
         public AccountsController(ApplicationDbContext context)
         {
@@ -42,6 +44,9 @@ namespace CashReceipts.Controllers
                 .OrderBy(d => d.TemplateID)
                 .Include(d => d.Department);
             var sql = templates.ToString();
+            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditSystemAccount).FirstOrDefault() == null ? false : true;
+            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewSystemAccount).FirstOrDefault() == null ? false : true;
+            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteSystemAccount).FirstOrDefault() == null ? false : true;
             return View(templates.ToList());
         }
 

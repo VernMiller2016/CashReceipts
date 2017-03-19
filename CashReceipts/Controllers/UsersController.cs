@@ -1,4 +1,5 @@
-﻿using CashReceipts.Models;
+﻿using CashReceipts.Helpers;
+using CashReceipts.Models;
 using CashReceipts.ViewModels;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
@@ -14,6 +15,11 @@ namespace CashReceipts.Controllers
     public class UsersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        public AccessHelper access;
+        public UsersController()
+        {
+            access = new AccessHelper();
+        }
         // GET: Users
         [CanAccess((int)FeaturePermissions.UsersIndex)]
         public ActionResult Index()
@@ -32,6 +38,7 @@ namespace CashReceipts.Controllers
 
                 usersList.Add(userItem);
             }
+            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditUserRole).FirstOrDefault()==null? false:true;
             return View(usersList);
         }
 

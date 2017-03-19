@@ -45,9 +45,12 @@
                 @(item.Department != null ? item.Department.Name : "")
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.TemplateID }) |
-                @Html.ActionLink("Details", "Details", new { id = item.TemplateID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.TemplateID })
+                @if (ViewBag.isEdit == true)
+                { @Html.ActionLink("Edit", "Edit", new { id = item.TemplateID })} &nbsp;
+                @if (ViewBag.isDetails == true)
+                {@Html.ActionLink("Details", "Details", new { id = item.TemplateID })} &nbsp;
+                @if (ViewBag.isDelete == true)
+                {@Html.ActionLink("Delete", "Delete", new { id = item.TemplateID })}
             </td>
         </tr>
     }

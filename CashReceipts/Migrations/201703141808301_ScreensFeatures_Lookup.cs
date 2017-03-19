@@ -49,6 +49,8 @@ namespace CashReceipts.Migrations
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 39,'Audits Page Access',12)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 40,'Grant County Accounts Page Access',6)");
             Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 41,'District Accounts Page Access',7)");
+            Sql("Insert into dbo.ScreenFeatures([Id],[Name],[ScreenId]) values( 42,'Permissions Page Access',13)");
+
 
             Sql("SET IDENTITY_INSERT dbo.ScreenFeatures OFF");
         }

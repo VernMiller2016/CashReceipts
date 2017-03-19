@@ -6,7 +6,8 @@
 
 <p>
     <h4>Departments</h4>
-    @Html.ActionLink("Create New", "Create")
+@if (ViewBag.isCreate == true)
+{@Html.ActionLink("Create New", "Create")}
 </p>
 <table class="table sortable">
     <thead>
@@ -25,9 +26,12 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.DepartmentID }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.DepartmentID }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.DepartmentID })
+                    @if (ViewBag.isEdit == true)
+                    { @Html.ActionLink("Edit", "Edit", new { id = item.DepartmentID })} &nbsp;
+                    @if (ViewBag.isDetails == true)
+                    {@Html.ActionLink("Details", "Details", new { id = item.DepartmentID })} &nbsp;
+                    @if (ViewBag.isDelete == true)
+                    {@Html.ActionLink("Delete", "Delete", new { id = item.DepartmentID })}
                 </td>
             </tr>
         }

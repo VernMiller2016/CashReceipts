@@ -17,11 +17,19 @@ namespace CashReceipts.Controllers
     public class DepartmentsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
-
+        public AccessHelper access;
+        public DepartmentsController()
+        {
+            access = new AccessHelper();
+        }
         // GET: Dpartments
         [CanAccess((int)FeaturePermissions.DepartmentIndex)]
         public ActionResult Index()
         {
+            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateDepartment).FirstOrDefault() == null ? false : true;
+            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditDepartment).FirstOrDefault() == null ? false : true;
+            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewDepartment).FirstOrDefault() == null ? false : true;
+            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteDepartment).FirstOrDefault() == null ? false : true;
             return View(db.Departments.OrderBy(x=>x.Name).ToList());
         }
 
