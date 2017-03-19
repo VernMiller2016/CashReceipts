@@ -21,7 +21,6 @@ namespace CashReceipts.Migrations
             Insert into dbo.Screens(Id, Name) values(10, 'Receipts Export')
             Insert into dbo.Screens(Id, Name) values(11, 'Day Summary Report')
             Insert into dbo.Screens(Id, Name) values(12, 'Audits')
-            Insert into dbo.Screens(Id, Name) values(13, 'Permissions')
             SET IDENTITY_INSERT dbo.Screens OFF
             Go");
         }

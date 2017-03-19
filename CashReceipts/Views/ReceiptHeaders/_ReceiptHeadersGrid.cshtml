@@ -1,5 +1,22 @@
 ﻿@model int
 
+@{
+    var hasEditReceiptsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditReceiptsPermission"];
+    var hasDeleteReceiptsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteReceiptsPermission"];
+    var hasCreateReceiptItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasCreateReceiptItemsPermission"];
+    var hasReadReceiptItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadReceiptItemsPermission"];
+    var hasReadTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadTenderItemsPermission"];
+    var hasAddTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasAddTenderItemsPermission"];
+    var hasEditTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditTenderItemsPermission"];
+    var hasDeleteTenderItemsPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteTenderItemsPermission"];
+    var hasReadReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasReadReceiptsBodyPermission"];
+    var hasEditReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasEditReceiptsBodyPermission"];
+    var hasCreateReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasCreateReceiptsBodyPermission"];
+    var hasDeleteReceiptsBodyPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDeleteReceiptsBodyPermission"];
+    var hasDownloadReceiptPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasDownloadReceiptPermission"];
+    var hasPostPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasPostPermission"];
+}
+
 <style type="text/css">
     .k-widget.k-window .k-edit-form-container input.k-textbox {
         width: 407px !important;
@@ -346,11 +363,11 @@
                         command: [
                             {
                                 name: "edit",
-                                visible: function(dataItem) { return !dataItem.IsPosted }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @hasEditReceiptsPermission }
                             },
                             {
                                 name: "destroy",
-                                visible: function(dataItem) { return !dataItem.IsPosted }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @hasDeleteReceiptsPermission }
                             }
                         ],
                         title: "&nbsp;",
@@ -479,7 +496,7 @@
                         function() {
                             var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                             var receipt = headersDataSources.getByUid(recordUid);
-                            if (receipt) {
+                            if (receipt && hasPostPermission) {
                                 $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' +
                                         receipt.ReceiptHeaderID,
                                         {
@@ -669,7 +686,7 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted; }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @hasDeleteTenderItemsPermission; }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
@@ -881,7 +898,7 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted; }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @hasDeleteReceiptsBodyPermission; }
                     }], title: "&nbsp;", width: "60px"
                 }
 
@@ -940,7 +957,10 @@
     function getBodyToolbarActions(isPosted) {
         var actions = [];
         if (!isPosted) {
-            actions.push("create", "save", "cancel");
+            if(@hasCreateReceiptsBodyPermission)
+             actions.push("create")
+        if(@hasEditReceiptsBodyPermission)
+         actions.push( "save", "cancel")
         }
         actions.push({
             text: "",
@@ -952,7 +972,10 @@
     function getTenderToolbarActions(isPosted) {
         var actions = [];
         if (!isPosted) {
-            actions.push("create", "save", "cancel");
+            if(@hasAddTenderItemsPermission)
+                actions.push("create")
+            if(@hasEditTenderItemsPermission)
+                actions.push( "save", "cancel")
         }
         return actions;
     }
@@ -1105,7 +1128,7 @@
                     }
                 },
                 select: function (e) {
-                    debugger;
+                    //debugger;
                     if (fieldName == 'TemplateID') {
                         var accountNumber = e.item.text().split("|")[1].trim();
                         $(rowContainer).parents('tr:first').find('td:first').text(accountNumber);
@@ -1127,8 +1150,10 @@
     }
 
 </script>
-
-@using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
+@if(hasDownloadReceiptPermission)
+{ 
+using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
 {
     <input type="hidden" id="receiptHeaderId" name="receiptHeaderId" />
+}
 }

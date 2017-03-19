@@ -33,14 +33,17 @@
             <h4>Select Clerk</h4>
             <input id="clerk" style="width: 170px" />
         </div>
-        <div class="box-col">
-            <h4>Get PDF</h4>
-            <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
-        </div>
-        <div class="box-col">
-            <h4>Print Report</h4>
-            <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
-        </div>
+        @if (ViewBag.isExport==true)
+        { 
+            <div class="box-col">
+                <h4>Get PDF</h4>
+                <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
+            </div>
+            <div class="box-col">
+                <h4>Print Report</h4>
+                <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
+            </div>
+        }
     </div>
 
     <div class="page-container hidden-on-narrow">

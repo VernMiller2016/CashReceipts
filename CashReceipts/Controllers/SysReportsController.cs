@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Text;
 using CashReceipts.ViewModels;
 using ServiceStack;
+using CashReceipts.Helpers;
 
 namespace CashReceipts.Controllers
 {
@@ -22,9 +23,15 @@ namespace CashReceipts.Controllers
     public class SysReportsController : Controller
     {
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
+        public AccessHelper access;
+        public SysReportsController()
+        {
+            access = new AccessHelper();
+        }
         [CanAccess((int)FeaturePermissions.DaySummaryReportIndex)]
         public ActionResult SummaryReport()
         {
+            ViewBag.isExport = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ExportAndPrintSummary).FirstOrDefault() == null ? false : true;
             return View();
         }
 
@@ -62,6 +69,10 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.ReceiptsExport)]
         public ActionResult ReceiptsExport()
         {
+            ViewBag.isExport = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReceiptsExport).FirstOrDefault() == null ? false : true;
+            ViewBag.isExportLineItems = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.LineItemsExport).FirstOrDefault() == null ? false : true;
+            ViewBag.isExportTenders = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.TendersExport).FirstOrDefault() == null ? false : true;
+            ViewBag.isExportAll = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReceiptsDetailsExport).FirstOrDefault() == null ? false : true;
             return View();
         }
 

@@ -13,15 +13,18 @@ namespace CashReceipts.Helpers
         public List<RoleFeaturePermission> UserFeatures;
         public AccessHelper()
         {
-            if(HttpContext.Current.Session["AccessFeatures"]==null )
+            if (HttpContext.Current.User.Identity.IsAuthenticated)
             {
-                var userName =HttpContext.Current.User.Identity.Name;
-            var user = db.Users.Where(u => u.UserName == userName).FirstOrDefault();
-           UserFeatures = db.RolesPermissions.Where(r => r.RoleId == user.RoleId).ToList();
-                HttpContext.Current.Session["AccessFeatures"]=UserFeatures;
+                if (HttpContext.Current.Session["AccessFeatures"] == null)
+                {
+                    var userName = HttpContext.Current.User.Identity.Name;
+                    var user = db.Users.Where(u => u.UserName == userName).FirstOrDefault();
+                    UserFeatures = db.RolesPermissions.Where(r => r.RoleId == user.RoleId).ToList();
+                    HttpContext.Current.Session["AccessFeatures"] = UserFeatures;
+                }
+                else
+                    UserFeatures = (List<RoleFeaturePermission>)HttpContext.Current.Session["AccessFeatures"];
             }
-            else
-                UserFeatures=(List<RoleFeaturePermission>)HttpContext.Current.Session["AccessFeatures"];
         }
     }
 }

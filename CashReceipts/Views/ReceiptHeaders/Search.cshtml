@@ -1,4 +1,8 @@
 ﻿@model dynamic
+@{
+    var hasExportPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasExportPermission"];
+    var hasShowReceiptPermission = ((Dictionary<string, bool>)ViewBag.Permissions)["hasShowReceiptPermission"];
+}
 <style type="text/css">
     /*.k-filter-row th>span:first-child>span:first-child {
         width: 85% !important;
@@ -244,14 +248,16 @@
                         }
                     ],
                     editable: "inline",
-                    toolbar: [
-                        "pdf", "excel",
-                        {
-                            text: "",
-                            template:
-                                "<a class='k-button k-grid-ShowReceipt'>Show Receipt</a>"
-                        }
-                    ],
+                    toolbar:getPossibleActions(),
+                        //[
+                        //"pdf", "excel",
+                        //{
+                        //    text: "",
+                        //    template:
+                        //        "<a class='k-button k-grid-ShowReceipt'>Show Receipt</a>"
+                        //}
+                   // ]
+                    //,
                     pdf: {
                         allPages: true,
                         paperSize: "A4",
@@ -316,6 +322,12 @@
             return serialize(value);
         else
             return encodeURIComponent(prop) + "=" + encodeURIComponent(value);
+    }
+
+    function getPossibleActions() {
+        var actions = []
+        if (@hasExportPermission)
+            actions.push("pdf", "excel");
     }
 
     function enableDisableToolbarButtons(isEnable) {

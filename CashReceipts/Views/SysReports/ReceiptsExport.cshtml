@@ -18,22 +18,34 @@
             <h4>End Date</h4>
             <input id="datepickerEnd" style="width: 100%" />
         </div>
-        <div class="box-col">
-            <h4>Receipts</h4>
-            <button class="export-csv-receipts k-button" onclick="getReceipts()">Export</button>
-        </div>
-        <div class="box-col">
-            <h4>Line Items</h4>
-            <button class="export-csv-lineitems k-button" onclick="getLineItems()">Export</button>
-        </div>
-        <div class="box-col">
-            <h4>Tenders</h4>
-            <button class="export-csv-tenders k-button" onclick="getTenders()">Export</button>
-        </div>
-        <div class="box-col">
-            <h4>Receipts With Details</h4>
-            <button class="export-csv-tenders k-button" onclick="getAll()">Export</button>
-        </div>
+        @if (ViewBag.isExport == true)
+        { 
+            <div class="box-col">
+                <h4>Receipts</h4>
+                <button class="export-csv-receipts k-button" onclick="getReceipts()">Export</button>
+            </div>
+        }
+        @if (ViewBag.isExportLineItems == true)
+        {
+            <div class="box-col">
+                <h4>Line Items</h4>
+                <button class="export-csv-lineitems k-button" onclick="getLineItems()">Export</button>
+            </div>
+        }
+        @if (ViewBag.isExportTenders == true)
+        {
+            <div class="box-col">
+                <h4>Tenders</h4>
+                <button class="export-csv-tenders k-button" onclick="getTenders()">Export</button>
+            </div>
+        }
+        @if (ViewBag.isExportAll== true)
+        {
+            <div class="box-col">
+                <h4>Receipts With Details</h4>
+                <button class="export-csv-tenders k-button" onclick="getAll()">Export</button>
+            </div>
+        }
     </div>
 
     <div class="responsive-message"></div>
