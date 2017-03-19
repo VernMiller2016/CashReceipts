@@ -60,8 +60,9 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
-        public bool SavePermissions(string nodeIds, string roleId)
+        public ActionResult SavePermissions(string nodeIds, string roleId)
         {
+            var result = false;
             string[] featureIds = nodeIds.Split(',').Distinct().ToArray();
             var existingFeatures = db.ScreenFeatures.Include(r => r.Roles).Where(r => r.Roles.Any(ro => ro.RoleId == roleId)).ToList();
             var allScreenFeatures = db.ScreenFeatures.ToList();
@@ -85,20 +86,20 @@ namespace CashReceipts.Controllers
                     }
                     else if (feature != null)
                     {
-                        rfp = db.RolesPermissions.Where(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId).FirstOrDefault();
+                        rfp = db.RolesPermissions.FirstOrDefault(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId);
                         // rfp.FeatureId = feature.Id;
                         db.RolesPermissions.Remove(rfp);
                         db.SaveChanges();
                     }
                     rfp = new RoleFeaturePermission { RoleId = roleId };
                 }
-                return true;
+                result = true;
             }
             catch
             {
-                return false;
+                result = false;
             }
-
+            return Json(new {Success = result});
         }
 
     }
