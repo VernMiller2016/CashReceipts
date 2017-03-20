@@ -174,7 +174,7 @@
                 $.getJSON('@Url.Action("GetDepartmentsList", "ReceiptHeaders")')
             )
             .done(function (result1, result2) {
-                if (result1[1] == "success") clerksList = result1[0];
+                if (result1[1] == "success") clerksList = result1[0].filter(function(item){return @ClientBool((bool)ViewBag.IsAdmin) || item.value == '@(ViewBag.UserClerkId)'});
                 if (result2[1] == "success") departmentsList = result2[0];
                 receiptsHeaderGridInit();
             });

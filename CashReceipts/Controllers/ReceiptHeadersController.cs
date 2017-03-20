@@ -12,6 +12,7 @@ using CashReceipts.Helpers;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.SqlServer;
 using System.IO;
+using System.Web;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNet.Identity;
@@ -25,7 +26,7 @@ namespace CashReceipts.Controllers
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
         private readonly LookupHelper _lookupHelper;
         public AccessHelper access;
-        
+
         /// <summary>
         /// User manager - attached to application DB context
         /// </summary>
@@ -33,7 +34,7 @@ namespace CashReceipts.Controllers
 
         public ReceiptHeadersController()
         {
-             access = new AccessHelper();
+            access = new AccessHelper();
             _lookupHelper = new LookupHelper(_db);
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
@@ -42,38 +43,50 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.ManageReceiptsIndex)]
         public ActionResult Index()
         {
-            Dictionary<string,bool> permissions=new Dictionary<string,bool>();
-           bool flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditReceiptItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasEditReceiptsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteReceiptItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasDeleteReceiptsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddReceiptItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasCreateReceiptItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadReceiptItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadReceiptItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadTenderItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadTenderItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddTenderItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasAddTenderItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditTenderItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasEditTenderItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteTenderItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasDeleteTenderItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadReceiptBody).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadReceiptsBodyPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditReceiptBody).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasEditReceiptsBodyPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddReceiptBody).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasCreateReceiptsBodyPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteReceiptBody).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasDeleteReceiptsBodyPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DownloadReceipt).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasDownloadReceiptPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.PostReceipt).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasPostPermission",flag);
+            var currentUser = GetCurrentUser();
+            Dictionary<string, bool> permissions = new Dictionary<string, bool>
+            {
+                {"hasEditReceiptsPermission", HasAccess(FeaturePermissions.EditReceiptItem)},
+                {"hasDeleteReceiptsPermission", HasAccess(FeaturePermissions.DeleteReceiptItem)},
+                {"hasCreateReceiptItemsPermission", HasAccess(FeaturePermissions.AddReceiptItem)},
+                {"hasReadReceiptItemsPermission", HasAccess(FeaturePermissions.ReadReceiptItem)},
+                {"hasReadTenderItemsPermission", HasAccess(FeaturePermissions.ReadTenderItem)},
+                {"hasAddTenderItemsPermission", HasAccess(FeaturePermissions.AddTenderItem)},
+                {"hasEditTenderItemsPermission", HasAccess(FeaturePermissions.EditTenderItem)},
+                {"hasDeleteTenderItemsPermission", HasAccess(FeaturePermissions.DeleteTenderItem)},
+                {"hasReadReceiptsBodyPermission", HasAccess(FeaturePermissions.ReadReceiptBody)},
+                {"hasEditReceiptsBodyPermission", HasAccess(FeaturePermissions.EditReceiptBody)},
+                {"hasCreateReceiptsBodyPermission", HasAccess(FeaturePermissions.AddReceiptBody)},
+                {"hasDeleteReceiptsBodyPermission", HasAccess(FeaturePermissions.DeleteReceiptBody)},
+                {"hasDownloadReceiptPermission", HasAccess(FeaturePermissions.DownloadReceipt)},
+                {"hasPostPermission", HasAccess(FeaturePermissions.PostReceipt)}
+            };
+            ViewBag.Permissions = permissions;
+            ViewBag.IsAdmin = IsAdminUser(currentUser);
+            ViewBag.UserClerkId = GetUserClerkId(currentUser);
 
-            ViewBag.Permissions=permissions;
             return View(_lookupHelper.LastReceiptId);
+        }
+
+        private int? GetUserClerkId(ApplicationUser currentUser)
+        {
+            return _db.Clerks.FirstOrDefault(x => x.UserId == currentUser.Id)?.ClerkID;
+        }
+
+        private ApplicationUser GetCurrentUser()
+        {
+            var userName = HttpContext.User.Identity.Name;
+            return _db.Users.FirstOrDefault(u => u.UserName == userName);
+        }
+
+        private bool IsAdminUser(ApplicationUser currentUser)
+        {
+            return currentUser?.RoleId == AccessHelper.AdminRoleId;
+        }
+
+        private bool HasAccess(FeaturePermissions feature)
+        {
+            return access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)feature) != null;
         }
 
         // GET: ReceiptHeaders/Details/5
@@ -1258,12 +1271,12 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
         public ActionResult Search()
         {
-            Dictionary<string,bool> permissions=new Dictionary<string,bool>();
-           bool flag= access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ExportLineItem) != null;
-            permissions.Add("hasExportPermission",flag);
-             flag= access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ShowReceipt) != null;
-            permissions.Add("hasShowReceiptPermission",flag);
-            ViewBag.Permissions=permissions;
+            Dictionary<string, bool> permissions = new Dictionary<string, bool>();
+            bool flag = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ExportLineItem) != null;
+            permissions.Add("hasExportPermission", HasAccess(FeaturePermissions.EditReceiptItem));
+            flag = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ShowReceipt) != null;
+            permissions.Add("hasShowReceiptPermission", HasAccess(FeaturePermissions.EditReceiptItem));
+            ViewBag.Permissions = permissions;
             return View();
         }
 
