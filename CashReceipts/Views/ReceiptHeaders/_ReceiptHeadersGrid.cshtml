@@ -12,17 +12,16 @@
     var hasEditReceiptsPermission = permissions["hasEditReceiptsPermission"];
     var hasDeleteReceiptsPermission = permissions["hasDeleteReceiptsPermission"];
     var hasCreateReceiptItemsPermission = permissions["hasCreateReceiptItemsPermission"];
-    var hasReadReceiptItemsPermission = permissions["hasReadReceiptItemsPermission"];
-    var hasReadTenderItemsPermission = permissions["hasReadTenderItemsPermission"];
     var hasAddTenderItemsPermission = permissions["hasAddTenderItemsPermission"];
     var hasEditTenderItemsPermission = permissions["hasEditTenderItemsPermission"];
     var hasDeleteTenderItemsPermission = permissions["hasDeleteTenderItemsPermission"];
-    var hasReadReceiptsBodyPermission = permissions["hasReadReceiptsBodyPermission"];
     var hasEditReceiptsBodyPermission = permissions["hasEditReceiptsBodyPermission"];
     var hasCreateReceiptsBodyPermission = permissions["hasCreateReceiptsBodyPermission"];
     var hasDeleteReceiptsBodyPermission = permissions["hasDeleteReceiptsBodyPermission"];
     var hasDownloadReceiptPermission = permissions["hasDownloadReceiptPermission"];
     var hasPostPermission = permissions["hasPostPermission"];
+    var hasPrintReceiptPermission = permissions["hasPrintReceiptPermission"]; 
+        
 }
 
 <style type="text/css">
@@ -468,7 +467,7 @@
     }
 
     function enableDisableReceiptHeadersButtons(isEnable, selectedItem) {
-        if (!isEnable) {
+        if (!isEnable || @hasPrintReceiptPermission.ToString().ToLower()) {
             $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
             $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
         } else {
@@ -493,7 +492,7 @@
                         function() {
                             var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
                             var receipt = headersDataSources.getByUid(recordUid);
-                            if (receipt && hasPostPermission) {
+                            if (receipt && @hasPostPermission.ToString().ToLower()) {
                                 $.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' +
                                         receipt.ReceiptHeaderID,
                                         {

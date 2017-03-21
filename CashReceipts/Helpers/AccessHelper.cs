@@ -15,6 +15,7 @@ namespace CashReceipts.Helpers
         {
             if (HttpContext.Current.User.Identity.IsAuthenticated)
             {
+                HttpContext.Current.Session["AccessFeatures"] = null;
                 if (HttpContext.Current.Session["AccessFeatures"] == null)
                 {
                     var userName = HttpContext.Current.User.Identity.Name;

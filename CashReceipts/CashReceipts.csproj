@@ -278,6 +278,10 @@
     <Compile Include="Migrations\201703192239315_ScreenFeatures_Add_Missing.Designer.cs">
       <DependentUpon>201703192239315_ScreenFeatures_Add_Missing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703210003315_Screen_features_update.cs" />
+    <Compile Include="Migrations\201703210003315_Screen_features_update.Designer.cs">
+      <DependentUpon>201703210003315_Screen_features_update.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -2209,6 +2213,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703192239315_ScreenFeatures_Add_Missing.resx">
       <DependentUpon>201703192239315_ScreenFeatures_Add_Missing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703210003315_Screen_features_update.resx">
+      <DependentUpon>201703210003315_Screen_features_update.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

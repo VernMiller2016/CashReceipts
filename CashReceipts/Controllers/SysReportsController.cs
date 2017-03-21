@@ -66,7 +66,7 @@ namespace CashReceipts.Controllers
             }).ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
 
         }
-        [CanAccess((int)FeaturePermissions.ReceiptsExport)]
+        [CanAccess((int)FeaturePermissions.ReceiptsExportIndex)]
         public ActionResult ReceiptsExport()
         {
             ViewBag.isExport = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReceiptsExport).FirstOrDefault() == null ? false : true;

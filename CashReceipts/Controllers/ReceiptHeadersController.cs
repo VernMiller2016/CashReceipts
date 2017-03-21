@@ -49,18 +49,12 @@ namespace CashReceipts.Controllers
             permissions.Add("hasDeleteReceiptsPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddReceiptItem).FirstOrDefault() == null ? false : true;
             permissions.Add("hasCreateReceiptItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadReceiptItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadReceiptItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadTenderItem).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadTenderItemsPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddTenderItem).FirstOrDefault() == null ? false : true;
             permissions.Add("hasAddTenderItemsPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditTenderItem).FirstOrDefault() == null ? false : true;
             permissions.Add("hasEditTenderItemsPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteTenderItem).FirstOrDefault() == null ? false : true;
             permissions.Add("hasDeleteTenderItemsPermission",flag);
-            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ReadReceiptBody).FirstOrDefault() == null ? false : true;
-            permissions.Add("hasReadReceiptsBodyPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditReceiptBody).FirstOrDefault() == null ? false : true;
             permissions.Add("hasEditReceiptsBodyPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.AddReceiptBody).FirstOrDefault() == null ? false : true;
@@ -71,6 +65,8 @@ namespace CashReceipts.Controllers
             permissions.Add("hasDownloadReceiptPermission",flag);
             flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.PostReceipt).FirstOrDefault() == null ? false : true;
             permissions.Add("hasPostPermission",flag);
+            flag= access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.PrintReceipt).FirstOrDefault() == null ? false : true;
+            permissions.Add("hasPrintReceiptPermission",flag);
 
             ViewBag.Permissions=permissions;
             return View(_lookupHelper.LastReceiptId);

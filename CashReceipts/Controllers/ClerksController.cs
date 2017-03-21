@@ -207,15 +207,12 @@ namespace CashReceipts.Controllers
         AddNewReceipt = 23,
         DownloadReceipt = 24,
         PostReceipt = 25,
-        ReadReceiptItem=42,
         AddReceiptItem = 26,
         EditReceiptItem = 27,
         DeleteReceiptItem = 28,
-        ReadTenderItem=43,
         AddTenderItem = 44,
         EditTenderItem = 45,
         DeleteTenderItem = 46,
-        ReadReceiptBody = 47,
         AddReceiptBody = 48,
         EditReceiptBody = 49,
         DeleteReceiptBody = 50,
@@ -231,6 +228,8 @@ namespace CashReceipts.Controllers
         ExportAndPrintSummary = 38,
         AuditsIndex = 39,
         GrantCountyAccountIndex = 40,
-        DistrictsAccountIndex = 41
+        DistrictsAccountIndex = 41,
+        PrintReceipt = 42
+
     }
 }
