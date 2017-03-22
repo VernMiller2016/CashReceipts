@@ -127,19 +127,14 @@ TODO
 	X 5- (BACKEND) prevent receipt (header, body, tender) from being updated/altered if receipt is locked
 
 ACLs
-1- Create screens/features lookup
-2- add a view to connect roles to screens/features (permissions screen)
+X 1- Create screens/features lookup
+X 2- add a view to connect roles to screens/features (permissions screen)
 3- hide/show screen/feature based on current logged in user role
-4- create a global attribute for controllers/actions to prevent access in server side
+X 4- create a global attribute for controllers/actions to prevent access in server side
 
 
 Missing
 
 	Clerk shouldn't be able to edit other clerk's receipts
-	clerk drop list in receipts should be auto populated based on logged in user
-
-
-                    if (!IsPostedReceipt(receiptHeaderId))
-
-                        ModelState.AddModelError("_addKey", "Can't add tender to locked receipt");
+	X clerk drop list in receipts should be auto populated based on logged in user
 

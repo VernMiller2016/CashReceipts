@@ -458,7 +458,8 @@ namespace CashReceipts.Controllers
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
                     AccountDataSource = AccountDataSource.Local,
-                    IsReceiptPosted = x.ReceiptHeader.IsPosted
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted,
+                    ReceiptClerkId = x.ReceiptHeader.ClerkID
                 }).ToList();
             return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -542,7 +543,8 @@ namespace CashReceipts.Controllers
                         x.Template.DepartmentID,
                         AccountDataSource = AccountDataSource.Local,
                         IsRemote = false,
-                        IsReceiptPosted = x.ReceiptHeader.IsPosted
+                        IsReceiptPosted = x.ReceiptHeader.IsPosted,
+                        ReceiptClerkId = x.ReceiptHeader.ClerkID
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -638,7 +640,8 @@ namespace CashReceipts.Controllers
                     x.Template.DepartmentID,
                     AccountDataSource = AccountDataSource.Local,
                     IsRemote = false,
-                    IsReceiptPosted = x.ReceiptHeader.IsPosted
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted,
+                    ReceiptClerkId = x.ReceiptHeader.ClerkID
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -701,7 +704,8 @@ namespace CashReceipts.Controllers
                     x.Description,
                     x.TenderID,
                     x.PaymentMethodId,
-                    IsReceiptPosted = x.ReceiptHeader.IsPosted
+                    IsReceiptPosted = x.ReceiptHeader.IsPosted,
+                    ReceiptClerkId = x.ReceiptHeader.ClerkID
                 }).ToList();
             return Json(receiptTenders.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -745,7 +749,8 @@ namespace CashReceipts.Controllers
                         x.Description,
                         x.TenderID,
                         x.PaymentMethodId,
-                        IsReceiptPosted = x.ReceiptHeader.IsPosted
+                        IsReceiptPosted = x.ReceiptHeader.IsPosted,
+                        ReceiptClerkId = x.ReceiptHeader.ClerkID
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 

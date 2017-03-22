@@ -7,8 +7,7 @@ namespace CashReceipts.Migrations
     {
         public override void Up()
         {
-            Sql("update dbo.ScreenFeatures set name='Print Receipt' where id= 42");
-            Sql("delete from dbo.ScreenFeatures where id in (43,47)");
+            Sql("delete from dbo.ScreenFeatures where id in (42, 43,47)");
         }
         
         public override void Down()

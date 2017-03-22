@@ -26,5 +26,8 @@ namespace CashReceipts.Models
 
         [NotMapped]
         public bool IsReceiptPosted { get; set; }
+
+        [NotMapped]
+        public int ReceiptClerkId { get; set; }
     }
 }

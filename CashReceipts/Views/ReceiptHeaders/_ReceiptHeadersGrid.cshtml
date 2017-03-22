@@ -370,11 +370,11 @@
                         command: [
                             {
                                 name: "edit",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) && (dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             },
                             {
                                 name: "destroy",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) && (dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             }
                         ],
                         title: "&nbsp;",
@@ -682,13 +682,13 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission); }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission) && dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'; }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
             ],
             editable: !headersGridRef.data.IsPosted,
-            toolbar: getTenderToolbarActions(headersGridRef.data.IsPosted),
+            toolbar: getTenderToolbarActions(headersGridRef.data),
             change: function () {
                 //selectedRows = this.select();
             },
@@ -894,13 +894,13 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission); }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission) && dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'; }
                     }], title: "&nbsp;", width: "60px"
                 }
 
             ],
             editable: !headersGridRef.data.IsPosted,
-            toolbar: getBodyToolbarActions(headersGridRef.data.IsPosted),
+            toolbar: getBodyToolbarActions(headersGridRef.data),
             dataBound: function () {
                 //highlight total cell if selected, so client would be able to overwrite values
                 $(this.tbody.find(".highlight-cell-text")).on('focus', '.k-input', function () {
@@ -950,9 +950,9 @@
             .find("table").on("keydown", onBodyGridKeydown);
     }
 
-    function getBodyToolbarActions(isPosted) {
+    function getBodyToolbarActions(receipt) {
         var actions = [];
-        if (!isPosted) {
+        if (!receipt.IsPosted && receipt.ClerkID == '@ViewBag.UserClerkId') {
             if (@ClientBool(hasCreateReceiptsBodyPermission))
                 actions.push("create");
             if (@ClientBool(hasEditReceiptsBodyPermission))
@@ -965,9 +965,9 @@
         return actions;
     }
 
-    function getTenderToolbarActions(isPosted) {
+    function getTenderToolbarActions(receipt) {
         var actions = [];
-        if (!isPosted) {
+        if (!receipt.IsPosted && receipt.ClerkID == '@ViewBag.UserClerkId') {
             if (@ClientBool(hasAddTenderItemsPermission))
                 actions.push("create");
             if (@ClientBool(hasEditTenderItemsPermission))
