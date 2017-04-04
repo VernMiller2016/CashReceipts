@@ -467,6 +467,7 @@ namespace CashReceipts.Controllers
         [HttpPost]
         public ActionResult ReceiptsBody_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptBody> receiptBodies, int receiptHeaderId)
         {
+            var receiptHeader = _db.ReceiptHeaders.First(x => x.ReceiptHeaderID == receiptHeaderId);
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
             {
@@ -543,8 +544,8 @@ namespace CashReceipts.Controllers
                         x.Template.DepartmentID,
                         AccountDataSource = AccountDataSource.Local,
                         IsRemote = false,
-                        IsReceiptPosted = x.ReceiptHeader.IsPosted,
-                        ReceiptClerkId = x.ReceiptHeader.ClerkID
+                        IsReceiptPosted = receiptHeader.IsPosted,
+                        ReceiptClerkId = receiptHeader.ClerkID
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -552,9 +553,12 @@ namespace CashReceipts.Controllers
         public ActionResult ReceiptsBody_Update([DataSourceRequest] DataSourceRequest request,
             IEnumerable<ReceiptBody> receiptBodies)
         {
+            ReceiptHeader receiptHeader = null;
             var receiptBodiesList = receiptBodies as List<ReceiptBody> ?? receiptBodies.ToList();
             if (receiptBodiesList.Any() && ModelState.IsValid)
             {
+                var receiptHeaderId = receiptBodiesList.First().ReceiptHeaderID;
+                receiptHeader = _db.ReceiptHeaders.First(x => x.ReceiptHeaderID == receiptHeaderId);
                 foreach (var receiptBody in receiptBodiesList)
                 {
                     var receipt =
@@ -640,8 +644,8 @@ namespace CashReceipts.Controllers
                     x.Template.DepartmentID,
                     AccountDataSource = AccountDataSource.Local,
                     IsRemote = false,
-                    IsReceiptPosted = x.ReceiptHeader.IsPosted,
-                    ReceiptClerkId = x.ReceiptHeader.ClerkID
+                    IsReceiptPosted = receiptHeader?.IsPosted ?? false,
+                    ReceiptClerkId = receiptHeader?.ClerkID ?? 0
                 }).ToList().ToDataSourceResult(request, ModelState));
         }
 
@@ -713,6 +717,7 @@ namespace CashReceipts.Controllers
         [HttpPost]
         public ActionResult ReceiptsTenders_Create([DataSourceRequest] DataSourceRequest request, IEnumerable<Tender> receiptTenders, int receiptHeaderId)
         {
+            var receiptHeader = _db.ReceiptHeaders.First(x => x.ReceiptHeaderID == receiptHeaderId);
             var receiptTendersList = receiptTenders as List<Tender> ?? receiptTenders.ToList();
             if (receiptTendersList.Any() && ModelState.IsValid)
             {
@@ -749,8 +754,8 @@ namespace CashReceipts.Controllers
                         x.Description,
                         x.TenderID,
                         x.PaymentMethodId,
-                        IsReceiptPosted = x.ReceiptHeader.IsPosted,
-                        ReceiptClerkId = x.ReceiptHeader.ClerkID
+                        IsReceiptPosted = receiptHeader.IsPosted,
+                        ReceiptClerkId = receiptHeader.ClerkID
                     }).ToList().ToDataSourceResult(request, ModelState));
         }
 
