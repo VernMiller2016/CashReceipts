@@ -20,8 +20,9 @@
     var hasDeleteReceiptsBodyPermission = permissions["hasDeleteReceiptsBodyPermission"];
     var hasDownloadReceiptPermission = permissions["hasDownloadReceiptPermission"];
     var hasPostPermission = permissions["hasPostPermission"];
-    var hasPrintReceiptPermission = permissions["hasPrintReceiptPermission"]; 
-        
+    var hasLockPermission = permissions["hasLockPermission"];
+    var hasPrintReceiptPermission = permissions["hasPrintReceiptPermission"];
+
 }
 
 <style type="text/css">
@@ -370,11 +371,11 @@
                         command: [
                             {
                                 name: "edit",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) && (dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             },
                             {
                                 name: "destroy",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) && (dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             }
                         ],
                         title: "&nbsp;",
@@ -501,7 +502,14 @@
                                     .done(function(data) {
                                         if (data) {
                                             if (data.Result) {
-                                                notify.postConfirm(data.Message, lockReceipt(receipt));
+                                                if (@ClientBool(hasLockPermission))
+                                                {
+                                                    notify.postConfirm(data.Message, lockReceipt(receipt));
+                                                }
+                                                else
+                                                {
+                                                    notify.showSuccess(data.Message);
+                                                }
                                             } else {
                                                 notify.showError(data.Message);
                                             }
@@ -682,7 +690,7 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission) && dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'; }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
@@ -894,10 +902,9 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission) && dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'; }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
                     }], title: "&nbsp;", width: "60px"
                 }
-
             ],
             editable: !headersGridRef.data.IsPosted,
             toolbar: getBodyToolbarActions(headersGridRef.data),
@@ -907,7 +914,6 @@
                     var input = $(this);
                     setTimeout(function () { input.select(); });
                 });
-
                 updateLineTotalsSum(this.dataSource, headersGridRef.data.ReceiptHeaderID);
             },
             change: function () {
@@ -952,7 +958,7 @@
 
     function getBodyToolbarActions(receipt) {
         var actions = [];
-        if (!receipt.IsPosted && receipt.ClerkID == '@ViewBag.UserClerkId') {
+        if (!receipt.IsPosted && (@ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
             if (@ClientBool(hasCreateReceiptsBodyPermission))
                 actions.push("create");
             if (@ClientBool(hasEditReceiptsBodyPermission))
@@ -967,7 +973,7 @@
 
     function getTenderToolbarActions(receipt) {
         var actions = [];
-        if (!receipt.IsPosted && receipt.ClerkID == '@ViewBag.UserClerkId') {
+        if (!receipt.IsPosted && (@ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
             if (@ClientBool(hasAddTenderItemsPermission))
                 actions.push("create");
             if (@ClientBool(hasEditTenderItemsPermission))

@@ -26,7 +26,7 @@ namespace CashReceipts.Controllers
         private readonly ApplicationDbContext _db = new ApplicationDbContext();
         private readonly LookupHelper _lookupHelper;
         public AccessHelper access;
-        
+
         /// <summary>
         /// User manager - attached to application DB context
         /// </summary>
@@ -34,7 +34,7 @@ namespace CashReceipts.Controllers
 
         public ReceiptHeadersController()
         {
-             access = new AccessHelper();
+            access = new AccessHelper();
             _lookupHelper = new LookupHelper(_db);
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
@@ -57,7 +57,8 @@ namespace CashReceipts.Controllers
                 {"hasCreateReceiptsBodyPermission", HasAccess(FeaturePermissions.AddReceiptBody)},
                 {"hasDeleteReceiptsBodyPermission", HasAccess(FeaturePermissions.DeleteReceiptBody)},
                 {"hasDownloadReceiptPermission", HasAccess(FeaturePermissions.DownloadReceipt)},
-                {"hasPostPermission", HasAccess(FeaturePermissions.PostReceipt)}
+                {"hasPostPermission", HasAccess(FeaturePermissions.PostReceipt)},
+                {"hasLockPermission", HasAccess(FeaturePermissions.LockReceipt)}
             };
             ViewBag.Permissions = permissions;
             ViewBag.IsAdmin = IsAdminUser(currentUser);
@@ -1324,10 +1325,48 @@ namespace CashReceipts.Controllers
         {
             var result = true;
             var msg = "Receipt has been posted successfully!";
-            var receipt = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
-            if (receipt != null)
+
+            if (!HasAccess(FeaturePermissions.LockReceipt))
             {
-                receipt.IsPosted = true;
+                result = false;
+                msg = "You don't have access to do such an action!";
+            }
+            else
+            {
+                var receipt = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+                if (receipt != null)
+                {
+                    receipt.IsPosted = true;
+                    try
+                    {
+                        _db.SaveChanges();
+                    }
+                    catch (Exception)
+                    {
+                        result = false;
+                        msg = "Operation failed when trying to save receipt in db.";
+                    }
+                }
+            }
+            return Json(new { Result = result, Message = msg });
+        }
+
+        [HttpPost]
+        public ActionResult LockReceipts(List<int> receiptsIds)
+        {
+            var result = true;
+            var msg = "Receipt has been locked successfully!";
+
+            if (!HasAccess(FeaturePermissions.LockReceipts))
+            {
+                result = false;
+                msg = "You don't have access to do such an action!";
+            }
+            else
+            {
+                var receipts = _db.ReceiptHeaders.Where(x => receiptsIds.Contains(x.ReceiptHeaderID));
+                foreach (var receiptHeader in receipts)
+                    receiptHeader.IsPosted = true;
                 try
                 {
                     _db.SaveChanges();
@@ -1339,7 +1378,6 @@ namespace CashReceipts.Controllers
                 }
             }
             return Json(new { Result = result, Message = msg });
-
         }
 
         private string GetTemplateText(Template template)

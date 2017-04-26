@@ -23,25 +23,40 @@
             </select>
         </div>
         <div class="box-col" style="padding-right: 10px;">
-            <h4>Select Date</h4>
-            <input id="datepicker" style="width: 100%" />
+            <h4>From</h4>
+            <input id="startdatepicker" style="width: 100%" />
         </div>
-        <div class="box-col">
-            <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+        <div class="box-col" style="padding-right: 10px;">
+            <h4>To</h4>
+            <input id="enddatepicker" style="width: 100%" />
         </div>
         <div class="box-col" style="padding-right: 10px;">
             <h4>Select Clerk</h4>
             <input id="clerk" style="width: 170px" />
         </div>
-        @if (ViewBag.isExport==true)
-        { 
+        <div class="box-col">
+            <h4>Search</h4>
+            <button class="search-btn k-button" onclick="refreshGrids()">Search</button>
+        </div>
+        <div class="box-col">
+            <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+        </div>
+        @if (ViewBag.HasExportAccess == true)
+            {
             <div class="box-col">
                 <h4>Get PDF</h4>
                 <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
             </div>
+                <div class="box-col">
+                    <h4>Print Report</h4>
+                    <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
+                </div>
+        }
+        @if (ViewBag.HasLockReceiptsAccess == true)
+            {
             <div class="box-col">
-                <h4>Print Report</h4>
-                <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
+                <h4>Lock Receipts</h4>
+                <button class="lock-receipts k-button">Lock Selected Receipts</button>
             </div>
         }
     </div>
@@ -62,7 +77,7 @@
             <div class="for">
                 <h3>Summary report of the day <span id="clerkName"></span></h3>
                 <p>
-                    Summary Date: <span class="selectedDate"></span>
+                    Summary Date From <span class="selectedStartDate"></span> to <span class="selectedEndDate"></span>
                 </p>
             </div>
 
@@ -139,8 +154,12 @@
             return $("#clerk").data("kendoDropDownList").value();
         }
 
-        function getSelectedDate() {
-            return kendo.toString($("#datepicker").data("kendoDatePicker").value(), "d");
+        function getSelectedStartDate() {
+            return kendo.toString($("#startdatepicker").data("kendoDatePicker").value(), "d");
+        }
+
+        function getSelectedEndDate() {
+            return kendo.toString($("#enddatepicker").data("kendoDatePicker").value(), "d");
         }
 
         function refreshGrids() {
@@ -176,14 +195,25 @@
                         }
                     });
 
-                $("#datepicker")
+                $("#startdatepicker")
                     .kendoDatePicker({
                         format: "MM/dd/yyyy",
                         value: new Date(),
                         change: function () {
                             var value = this.value();
-                            $('.selectedDate').text(kendo.toString(value, "d"));
-                            refreshGrids();
+                            $('.selectedStartDate').text(kendo.toString(value, "d"));
+                            //refreshGrids();
+                        }
+                    });
+
+                $("#enddatepicker")
+                    .kendoDatePicker({
+                        format: "MM/dd/yyyy",
+                        value: new Date(),
+                        change: function () {
+                            var value = this.value();
+                            $('.selectedEndDate').text(kendo.toString(value, "d"));
+                            //refreshGrids();
                         }
                     });
 
@@ -191,8 +221,14 @@
                     { field: "Total", aggregate: "sum" }
                 ];
                 var columns = [
+                    {
+                        width: 50,
+                        template: "<input type='checkbox' class='checkbox' />",
+                        headerTemplate: "<input type='checkbox' id='checkAll'/>"
+                    },
                     { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
                     { field: "DepartmentName", title: "Department Name" },
+                    { width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
@@ -218,7 +254,7 @@
                                 },
                                 parameterMap: function (options, operation) {
                                     if (operation === "read") {
-                                        return { date: getSelectedDate(), clerkId: getSelectedClerk() };
+                                        return { startDate: getSelectedStartDate(), endDate: getSelectedEndDate(), clerkId: getSelectedClerk() };
                                     }
                                 }
                             },
@@ -243,7 +279,8 @@
                                         DepartmentName: {
                                             type: "string"
                                         },
-                                        Total: { type: "number" }
+                                        Total: { type: "number" },
+                                        Locked: { type:"string" }
                                     }
                                 },
                                 errors: "Errors"
@@ -266,7 +303,8 @@
                         }),
                         columns: columns,
                         dataBound: function (e) {
-                            $('.selectedDate').text(getSelectedDate());
+                            $('.selectedStartDate').text(getSelectedStartDate());
+                            $('.selectedEndDate').text(getSelectedEndDate());
                         }
                     });
 
@@ -297,7 +335,7 @@
                                 },
                                 parameterMap: function (options, operation) {
                                     if (operation === "read") {
-                                        return { date: getSelectedDate(), clerkId: getSelectedClerk() };
+                                        return { startDate: getSelectedStartDate(), endDate: getSelectedEndDate(), clerkId: getSelectedClerk() };
                                     }
                                 }
                             },
@@ -348,7 +386,67 @@
                                 .addClass(this.value());
                         }
                     });
+
+                var grid = summaryGrid.data("kendoGrid");
+                //bind click event to the checkbox
+                grid.table.on("click", ".checkbox", selectRow);
+
+                $(".lock-receipts").bind("click",
+                    function() {
+                        var checked = [];
+                        for (var i in checkedIds) {
+                            if (checkedIds[i]) {
+                                checked.push(i);
+                            }
+                        }
+                        if (checked.length)
+                            notify.confirm('Lock Receipts',
+                                'Are you sure you want to lock all of the selected receipts?',
+                                function() {
+
+                                });
+                        else {
+                            notify.showError('Please select at least one receipt to lock.');
+                        }
+                    });
+
             });
+
+        var checkedIds = {};
+
+        //on click of the checkbox:
+        function selectRow() {
+            var checked = this.checked,
+                row = $(this).closest("tr"),
+                grid = $("#grid").data("kendoGrid"),
+                dataItem = grid.dataItem(row);
+
+            checkedIds[dataItem.id] = checked;
+            if (checked) {
+                //-select the row
+                row.addClass("k-state-selected");
+            } else {
+                //-remove selection
+                row.removeClass("k-state-selected");
+            }
+        }
+
+        function lockReceipts(receiptsIds) {
+            $.post('@Url.Action("LockReceipts", "ReceiptHeaders")',
+                    {
+                        ReceiptsIds: receiptsIds
+                    })
+                .done(function (data) {
+                    if (data) {
+                        if (data.Result) {
+                            notify.showSuccess(data.Message);
+                            refreshGrids();
+                        } else {
+                            notify.showError(data.Message);
+                        }
+                    }
+                });
+    }
     </script>
 </div>
 
