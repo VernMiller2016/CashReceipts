@@ -1263,18 +1263,30 @@ namespace CashReceipts.Controllers
         [HttpPost]
         public ActionResult CheckReciptHeaderTotals(int receiptHeaderId)
         {
-            bool result = false;
-            string msg = "";
+            var result = AreReceiptTotalsEqual(receiptHeaderId);
+            var msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
+            return Json(new { Result = result, Message = msg });
+        }
+
+        private bool AreReceiptTotalsEqual(int receiptHeaderId)
+        {
             var receipt = _db.ReceiptHeaders
                 .Include(x => x.Tenders)
-                .Include(x => x.ReceiptBodyRecords).SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+                .Include(x => x.ReceiptBodyRecords)
+                .SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderId);
+            var result = AreReceiptTotalsEqual(receipt);
+            return result;
+        }
+
+        private static bool AreReceiptTotalsEqual(ReceiptHeader receipt)
+        {
+            bool result = false;
             if (receipt != null)
             {
                 var bodyTotal = receipt.ReceiptBodyRecords.Sum(x => x.LineTotal);
                 result = bodyTotal == receipt.Tenders.Sum(x => x.Amount) && bodyTotal == receipt.ReceiptTotal;
-                msg = result ? "Values Are Equal!" : "Values Are Not Equal!";
             }
-            return Json(new { Result = result, Message = msg });
+            return result;
         }
 
         [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
@@ -1355,8 +1367,8 @@ namespace CashReceipts.Controllers
         public ActionResult LockReceipts(List<int> receiptsIds)
         {
             var result = true;
-            var msg = "Receipt has been locked successfully!";
-
+            var msg = "Following Receipts ({0}) has been locked successfully!";
+            var lockedReceipts = new List<string>();
             if (!HasAccess(FeaturePermissions.LockReceipts))
             {
                 result = false;
@@ -1364,9 +1376,18 @@ namespace CashReceipts.Controllers
             }
             else
             {
-                var receipts = _db.ReceiptHeaders.Where(x => receiptsIds.Contains(x.ReceiptHeaderID));
+                var receipts = _db.ReceiptHeaders.Where(x => receiptsIds.Contains(x.ReceiptHeaderID))
+                    .Include(x=>x.Tenders)
+                    .Include(x=>x.ReceiptBodyRecords)
+                    .ToList();
                 foreach (var receiptHeader in receipts)
-                    receiptHeader.IsPosted = true;
+                {
+                    if (AreReceiptTotalsEqual(receiptHeader))
+                    {
+                        lockedReceipts.Add(receiptHeader.ReceiptNumber.ToString());
+                        receiptHeader.IsPosted = true;
+                    }
+                }
                 try
                 {
                     _db.SaveChanges();
@@ -1377,7 +1398,7 @@ namespace CashReceipts.Controllers
                     msg = "Operation failed when trying to save receipt in db.";
                 }
             }
-            return Json(new { Result = result, Message = msg });
+            return Json(new { Result = result, Message = string.Format(msg, string.Join(",", lockedReceipts)) });
         }
 
         private string GetTemplateText(Template template)

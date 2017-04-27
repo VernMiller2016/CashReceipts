@@ -224,7 +224,7 @@
                     {
                         width: 50,
                         template: "<input type='checkbox' class='checkbox' />",
-                        headerTemplate: "<input type='checkbox' id='checkAll'/>"
+                        //headerTemplate: "<input type='checkbox' id='checkAll'/>"
                     },
                     { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
                     { field: "DepartmentName", title: "Department Name" },
@@ -403,21 +403,32 @@
                             notify.confirm('Lock Receipts',
                                 'Are you sure you want to lock all of the selected receipts?',
                                 function() {
-
+                                    lockReceipts(checked);
                                 });
                         else {
                             notify.showError('Please select at least one receipt to lock.');
                         }
                     });
 
+                //$('#checkAll').bind("click",
+                //    function () {
+                //        var checkBoxes = $("#grid tbody input:checkbox");
+                //        if (this.checked)
+                //            checkBoxes.attr('checked', 'checked');
+                //        else checkBoxes.removeAttr('checked');
+                //        //selectDataRow()
+                //    });
             });
 
         var checkedIds = {};
 
         //on click of the checkbox:
         function selectRow() {
-            var checked = this.checked,
-                row = $(this).closest("tr"),
+            selectDataRow(this);
+        }
+        function selectDataRow(elem) {
+            var checked = elem.checked,
+                row = $(elem).closest("tr"),
                 grid = $("#grid").data("kendoGrid"),
                 dataItem = grid.dataItem(row);
 
