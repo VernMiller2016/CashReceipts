@@ -70,6 +70,10 @@
                         <input id="acctNum" type="text" style="width: 100%" class="form-control" />
                     </div>
                     <div class="box-col" style="padding-right: 10px;">
+                        <h4>Receipt Number</h4>
+                        <input id="receiptNumber" type="text" style="width: 100%" class="form-control" />
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
                         <h4>From Date</h4>
                         <input id="fromDate" style="width: 100%" />
                     </div>
@@ -122,16 +126,15 @@
     });
 
     function search() {
-        var fromDateVal = $("#fromDate").data("kendoDatePicker").value();
-        var toDateVal = $("#toDate").data("kendoDatePicker").value();
-        var acctNumVal = $('#acctNum').val();
+        var fromDateVal = $("#fromDate").data("kendoDatePicker").value(),
+            toDateVal = $("#toDate").data("kendoDatePicker").value(),
+            acctNumVal = $('#acctNum').val(),
+            receiptNumber = $('#receiptNumber').val();
         accountsDs.transport.options.read.url = apiUrl +
-            "?fromDate=" +
-            kendo.toString(fromDateVal, "d") +
-            "&toDate=" +
-            kendo.toString(toDateVal, "d") +
-            "&acctNum=" +
-            acctNumVal;
+            "?fromDate=" + kendo.toString(fromDateVal, "d") +
+            "&toDate=" + kendo.toString(toDateVal, "d") +
+            "&acctNum=" + acctNumVal + 
+            '&receiptNumber=' + receiptNumber;
         accountsDs.read();
     }
 

@@ -22,7 +22,6 @@
     var hasPostPermission = permissions["hasPostPermission"];
     var hasLockPermission = permissions["hasLockPermission"];
     var hasPrintReceiptPermission = permissions["hasPrintReceiptPermission"];
-
 }
 
 <style type="text/css">
@@ -179,6 +178,21 @@
                 receiptsHeaderGridInit();
             });
     });
+
+    var dataBoundFirstTime = true;
+
+    function BindTopPager() {
+        var g = $("#headersGrid"),    //grid object from jquery selector
+            grid = g.data('kendoGrid'),
+            pager = $('#headersGrid .k-pager-wrap'), //regular bottom pager
+            pagerTop = $("#pager_top");      //additional top pager
+        if (pagerTop.length == 0) {
+            var newPager = $('<div id="pager_top" class="k-pager-wrap pagerTop" />')
+                .insertBefore(g.find(".k-grouping-header")); //assumes that groupable is enabled
+            g.topPager = new kendo.ui.Pager(newPager, $.extend({}, { 'refresh': true, 'pageSizes': true }, { dataSource: grid.dataSource }));
+            g.topPager.refresh();
+        }
+    }
 
     var receiptsHeaderGridInit = function () {
 
@@ -385,14 +399,17 @@
                 editable: "inline",
                 toolbar: getHeaderToolbarActions(),
                 dataBound: function(e) {
-                    //debugger;
                     if (!currentGrid) {
                         currentGrid = $("#headersGrid").data("kendoGrid");
                         this.expandRow(this.tbody.find("tr.k-master-row").first());
                     }
                     enableDisableReceiptHeadersButtons(false);
-
                     //receiptHeaderOnDataBound(e);
+
+                    if (dataBoundFirstTime) {
+                        BindTopPager();
+                        dataBoundFirstTime = false;
+                    }
                 },
                 edit: function(e) {
                     //debugger;

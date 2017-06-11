@@ -20,6 +20,7 @@ namespace CashReceipts.Controllers
 
         public AccountController()
         {
+            
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -68,6 +69,9 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            if (Session != null)
+                Session["AccessFeatures"] = null;
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -391,6 +395,8 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            if (Session != null)
+                Session["AccessFeatures"] = null;
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
         }

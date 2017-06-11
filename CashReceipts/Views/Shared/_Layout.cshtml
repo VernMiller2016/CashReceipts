@@ -4,7 +4,8 @@
 @using CashReceipts.Controllers
 
 @{
-    AccessHelper access=new AccessHelper();
+    AccessHelper access = new AccessHelper();
+    var isAdminUser = access.IsAdminUser();
 }
 <!DOCTYPE html>
 <html>
@@ -34,20 +35,25 @@
                 <a href="@Url.Action("Index", "Home")" class="navbar-brand">Cash Receipting</a>
             </div>
             <div class="navbar-collapse collapse">
-                @if (Request.IsAuthenticated && access.UserFeatures.Count>0 )
+                @if (Request.IsAuthenticated && access.UserFeatures.Count > 0)
                 {
                     <ul class="nav navbar-nav">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users & Permissions<span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.UsersIndex))
-                                {
-                                    <li>@Html.ActionLink("Users", "Index", "Users")</li>
-                                }
-                                
-                                <li>@Html.ActionLink("Permissions", "Index", "Permissions")</li>
-                            </ul>
-                        </li>
+                        @if (isAdminUser || access.HasUsersIndexAccess)
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users & Permissions<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    @if (access.HasUsersIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Users", "Index", "Users")</li>
+                                    }
+                                    @if (isAdminUser)
+                                    {
+                                        <li>@Html.ActionLink("Permissions", "Index", "Permissions")</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
                         @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.ClerksIndex))
                         {
                             <li>@Html.ActionLink("Clerks", "Index", "Clerks")</li>
@@ -60,55 +66,63 @@
                         {
                             <li>@Html.ActionLink("Departments", "Index", "Departments")</li>
                         }
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Accounts <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.SystemAccountIndex))
-                                {
-                                    <li>@Html.ActionLink("System Accounts", "Index", "Accounts")</li>
-                                }
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.GrantCountyAccountIndex))
-                                {
-                                    <li>@Html.ActionLink("Grant County Accounts", "GcAccounts", "Accounts")</li>
-                                }
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.DistrictsAccountIndex))
-                                {
-                                    <li>@Html.ActionLink("Districts Accounts", "DistAccounts", "Accounts")</li>
-                                }
-                                @*<li role="separator" class="divider"></li>*@
-                            </ul>
-                        </li>
-                        <li></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Receipts <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.ManageReceiptsIndex))
-                                {
-                                    <li>@Html.ActionLink("Manage Receipts", "Index", "ReceiptHeaders")</li>
-                                }
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.SearchLineItemIndex))
-                                {
-                                    <li>@Html.ActionLink("Search Line Items", "Search", "ReceiptHeaders")</li>
-                                }
-                            </ul>
-                        </li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.ReceiptsExportIndex))
-                                {
-                                    <li>@Html.ActionLink("Receipts Export", "ReceiptsExport", "SysReports")</li>
-                                }
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.DaySummaryReportIndex))
-                                {
-                                    <li>@Html.ActionLink("Day Summary Report", "SummaryReport", "SysReports")</li>
-                                }
-                                @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.AuditsIndex))
-                                {
-                                    <li>@Html.ActionLink("Audits", "Index", "Audits")</li>
-                                }
-                            </ul>
-                        </li>
+                        @if (access.HasSystemAccountIndexAccess || access.HasGrantCountyAccountIndexAccess || access.HasDistrictsAccountIndexAccess)
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Accounts <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    @if (access.HasSystemAccountIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("System Accounts", "Index", "Accounts")</li>
+                                    }
+                                    @if (access.HasGrantCountyAccountIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Grant County Accounts", "GcAccounts", "Accounts")</li>
+                                    }
+                                    @if (access.HasDistrictsAccountIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Districts Accounts", "DistAccounts", "Accounts")</li>
+                                    }
+                                    @*<li role="separator" class="divider"></li>*@
+                                </ul>
+                            </li>
+                        }
+                        @if (access.HasManageReceiptsIndexAccess || access.HasSearchLineItemIndexAccess)
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Receipts <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.ManageReceiptsIndex))
+                                    {
+                                        <li>@Html.ActionLink("Manage Receipts", "Index", "ReceiptHeaders")</li>
+                                    }
+                                    @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.SearchLineItemIndex))
+                                    {
+                                        <li>@Html.ActionLink("Search Line Items", "Search", "ReceiptHeaders")</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (access.HasReceiptsExportIndexAccess || access.HasDaySummaryReportIndexAccess || access.HasAuditsIndexAccess)
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reports <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    @if (access.HasReceiptsExportIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Receipts Export", "ReceiptsExport", "SysReports")</li>
+                                    }
+                                    @if (access.HasDaySummaryReportIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Day Summary Report", "SummaryReport", "SysReports")</li>
+                                    }
+                                    @if (access.HasAuditsIndexAccess)
+                                    {
+                                        <li>@Html.ActionLink("Audits", "Index", "Audits")</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
                     </ul>
                 }
                 @Html.Partial("_LoginPartial")

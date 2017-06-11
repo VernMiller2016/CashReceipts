@@ -99,6 +99,9 @@ namespace CashReceipts.Controllers
             {
                 result = false;
             }
+
+            HttpContext.Session["AccessFeatures"] = null;
+
             return Json(new {Success = result});
         }
 

@@ -1302,13 +1302,14 @@ namespace CashReceipts.Controllers
         }
 
         [NoCache]
-        public ActionResult LineItems_Read([DataSourceRequest] DataSourceRequest request, DateTime? fromDate = null, DateTime? toDate = null, string acctNum = "")
+        public ActionResult LineItems_Read([DataSourceRequest] DataSourceRequest request, DateTime? fromDate = null, DateTime? toDate = null, string acctNum = "", int? receiptNumber = null)
         {
             var receiptBodies = _db.ReceiptBodies
                 .Include(x => x.ReceiptHeader)
                 .Include(x => x.ReceiptHeader.Department)
                 .Include(x => x.Template)
                 .Where(x => x.LineTotal != 0)
+                .Where(x => !receiptNumber.HasValue || x.ReceiptHeader.ReceiptNumber == receiptNumber)
                 .Where(x => !fromDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, fromDate) <= 0)
                 .Where(x => !toDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, toDate) >= 0)
                 .Where(x => string.IsNullOrEmpty(acctNum) ||
