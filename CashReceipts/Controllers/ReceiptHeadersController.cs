@@ -1292,11 +1292,12 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
         public ActionResult Search()
         {
-            Dictionary<string, bool> permissions = new Dictionary<string, bool>();
-            bool flag = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ExportLineItem) != null;
-            permissions.Add("hasExportPermission", HasAccess(FeaturePermissions.EditReceiptItem));
-            flag = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ShowReceipt) != null;
-            permissions.Add("hasShowReceiptPermission", HasAccess(FeaturePermissions.EditReceiptItem));
+            Dictionary<string, bool> permissions = new Dictionary<string, bool>
+            {
+                {"hasExportPermission", HasAccess(FeaturePermissions.ExportLineItem)},
+                {"hasDownloadReceiptPermission", HasAccess(FeaturePermissions.DownloadReceipt)},
+                {"hasShowReceiptPermission", HasAccess(FeaturePermissions.ShowReceipt)}
+            };
             ViewBag.Permissions = permissions;
             return View();
         }

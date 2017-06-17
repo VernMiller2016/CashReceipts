@@ -485,7 +485,7 @@
     }
 
     function enableDisableReceiptHeadersButtons(isEnable, selectedItem) {
-        if (!isEnable || @hasPrintReceiptPermission.ToString().ToLower()) {
+        if (!isEnable) {
             $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
             $('.k-grid-PostCheck').addClass("k-state-disabled").unbind("click");
         } else {
@@ -1185,14 +1185,14 @@
     }
 
     function lessThanOrEqual(val, charLength) {
-        return val.length <= charLength
+        return val.length <= charLength;
     }
 
 </script>
 @if(hasDownloadReceiptPermission)
 { 
-using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
-{
-    <input type="hidden" id="receiptHeaderId" name="receiptHeaderId" />
-}
+    using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
+    {
+        <input type="hidden" id="receiptHeaderId" name="receiptHeaderId" />
+    }
 }

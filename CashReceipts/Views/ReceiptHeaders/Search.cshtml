@@ -12,6 +12,8 @@
     var permissions = ((Dictionary<string, bool>) ViewBag.Permissions);
     var hasExportPermission = permissions["hasExportPermission"];
     var hasShowReceiptPermission = permissions["hasShowReceiptPermission"];
+    var hasDownloadReceiptPermission = permissions["hasDownloadReceiptPermission"];
+
 }
 <style type="text/css">
     /*.k-filter-row th>span:first-child>span:first-child {
@@ -99,7 +101,13 @@
     <div id="receiptWndGrid" style="height: 580px">
     </div>
 </div>
-
+@if (hasDownloadReceiptPermission)
+{
+    using (Html.BeginForm("DownloadReceipt", "ReceiptHeaders", FormMethod.Post, new { id = "exportReceiptPDF" }))
+    {
+        <input type="hidden" id="receiptHeaderId" name="receiptHeaderId" />
+    }
+}
 <script>
     var selectedRows = undefined,
         currentGrid = null,
@@ -332,12 +340,18 @@
         var actions = []
         if (@ClientBool(hasExportPermission))
             actions.push("pdf", "excel");
+        actions.push({
+            text: "",
+            template:
+            "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
+        });
         return actions;
     }
 
     function enableDisableToolbarButtons(isEnable) {
         if (!isEnable) {
             $('.k-grid-ShowReceipt').addClass("k-state-disabled").unbind("click");
+            $('.k-grid-PrintReceipt').addClass("k-state-disabled").unbind("click");
         } else {
             $(".k-grid-ShowReceipt")
                 .removeClass("k-state-disabled")
@@ -352,22 +366,20 @@
                                 refreshDataSources(receiptBody.ReceiptHeaderID);
                             }
                             receiptWnd.center().open();
-
-                            @*$.post('@Url.Action("CheckReciptHeaderTotals")?receiptHeaderId=' + receipt.ReceiptHeaderID,
-                        {
-                            ReceiptHeaderID: receipt.ReceiptHeaderID,
-                        })
-                        .done(function (data) {
-                            if (data) {
-                                if (data.Result) {
-                                    notify.showSuccess(data.Message);
-                                } else {
-                                    notify.showError(data.Message);
-                                }
-                            }
-                        });*@
                         }
-                    });
+                });
+            $(".k-grid-PrintReceipt")
+                .removeClass("k-state-disabled")
+                .unbind("click")
+                .bind("click",
+                function () {
+                    var recordUid = currentGrid.tbody.find(".k-state-selected").data('uid');
+                    var receiptBody = accountsDs.getByUid(recordUid);
+                    if (receiptBody) {
+                        $("#receiptHeaderId").val(receiptBody.ReceiptHeaderID);
+                        $("#exportReceiptPDF").submit();
+                    }
+                });
         }
     }
 
@@ -731,8 +743,6 @@
             dataBound: function () {
             }
         });
-    }
-
-
+    }    
 </script>
-@Html.Partial("_HighlightMenu", 6)
+@Html.Partial("_HighlightMenu", "Receipts")
