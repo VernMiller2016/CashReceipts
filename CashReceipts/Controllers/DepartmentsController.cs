@@ -26,10 +26,10 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.DepartmentIndex)]
         public ActionResult Index()
         {
-            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateDepartment).FirstOrDefault() == null ? false : true;
-            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditDepartment).FirstOrDefault() == null ? false : true;
-            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewDepartment).FirstOrDefault() == null ? false : true;
-            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteDepartment).FirstOrDefault() == null ? false : true;
+            ViewBag.isCreate = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.CreateDepartment) != null;
+            ViewBag.isEdit = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.EditDepartment) != null;
+            ViewBag.isDetails = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ViewDepartment) != null;
+            ViewBag.isDelete = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.DeleteDepartment) != null;
             return View(db.Departments.OrderBy(x=>x.Name).ToList());
         }
 
@@ -149,8 +149,7 @@ namespace CashReceipts.Controllers
             {
                 ViewBag.DepartmentName = department.Name;
                 //ViewData["DepartmentName"] = department.Name;
-                Template template = new Template();
-                template.DepartmentID = id;
+                Template template = new Template {DepartmentID = id};
                 return View(template);
             }
             return Content("No such department has been found in database!");
@@ -183,7 +182,7 @@ namespace CashReceipts.Controllers
         {
             var templates =
            db.Templates.Where(x => x.DepartmentID == departmentId).Select(
-               p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID }).ToList();
+               p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID, p.DataSource }).ToList();
 
             return Json(templates.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
@@ -222,7 +221,7 @@ namespace CashReceipts.Controllers
             }
 
             return Json(templateList.Select(
-                    p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID }).ToList().ToDataSourceResult(request, ModelState));
+                    p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID, p.DataSource }).ToList().ToDataSourceResult(request, ModelState));
         }
 
         [HttpPost]
@@ -237,7 +236,7 @@ namespace CashReceipts.Controllers
                         || (template.DataSource == AccountDataSource.District && !db.IsValidDistAccount(template)))
                     {
                         ModelState.AddModelError("_addKey",
-                            "Invalid account, Please check GC Accounts page for a valid data!");
+                            "Invalid account, Please check GC/DIST Accounts page for a valid data!");
                     }
                     else
                     {
