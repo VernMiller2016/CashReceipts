@@ -297,7 +297,8 @@ namespace CashReceipts.Controllers
                         {
                             LineTotal = 0,
                             TemplateID = template.TemplateID,
-                            AccountDescription = template.Description
+                            AccountDescription = template.Description,
+                            AccountNumber = GetAccountNumber(template)
                         });
                     }
                     _db.ReceiptHeaders.Add(receiptHeader);
@@ -454,8 +455,8 @@ namespace CashReceipts.Controllers
                     x.ReceiptBodyID,
                     x.LineTotal,
                     x.TemplateID,
-                    AccountDescription = x.AccountDescription,
-                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    x.AccountDescription,
+                    x.AccountNumber,
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
                     AccountDataSource = AccountDataSource.Local,
@@ -539,10 +540,10 @@ namespace CashReceipts.Controllers
                         x.ReceiptBodyID,
                         x.LineTotal,
                         x.TemplateID,
-                        TemplateOrder = GetTemplateOrder(x.TemplateID),
-                        AccountDescription = x.AccountDescription,
-                        AccountNumber = GetTemplateAccountNumber(x.Template),
+                        x.AccountDescription,
+                        x.AccountNumber,
                         x.Template.DepartmentID,
+                        TemplateOrder = GetTemplateOrder(x.TemplateID),
                         AccountDataSource = AccountDataSource.Local,
                         IsRemote = false,
                         IsReceiptPosted = receiptHeader.IsPosted,
@@ -562,8 +563,8 @@ namespace CashReceipts.Controllers
                 receiptHeader = _db.ReceiptHeaders.First(x => x.ReceiptHeaderID == receiptHeaderId);
                 foreach (var receiptBody in receiptBodiesList)
                 {
-                    var receipt =
-                        _db.ReceiptHeaders.Include(x => x.Department)
+                    var receipt = _db.ReceiptHeaders
+                            .Include(x => x.Department)
                             .Single(x => x.ReceiptHeaderID == receiptBody.ReceiptHeaderID);
                     if (!receipt.IsPosted)
                     {
@@ -573,7 +574,7 @@ namespace CashReceipts.Controllers
                             if (template != null)
                             {
                                 var localTemplate =
-                                    receipt.Department.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
+                                    _db.Templates.FirstOrDefault(x => x.Fund == template.Fund &&
                                                                                      x.BaseElementObjectDetail ==
                                                                                      template
                                                                                          .BaseElementObjectDetail &&
@@ -602,8 +603,9 @@ namespace CashReceipts.Controllers
                                         DataSource = template.DataSource
                                     };
                                     //receipt.Department.Templates.Add(newTemplate);
+                                    _db.Templates.Add(newTemplate);
                                     receiptBody.TemplateID = newTemplate.TemplateID;
-                                    receiptBody.Template = newTemplate;
+                                    //receiptBody.Template = newTemplate;
                                 }
                             }
                         }
@@ -640,8 +642,8 @@ namespace CashReceipts.Controllers
                     x.LineTotal,
                     x.TemplateID,
                     TemplateOrder = GetTemplateOrder(x.TemplateID),
-                    AccountDescription = x.AccountDescription,
-                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    x.AccountDescription,
+                    x.AccountNumber,
                     x.Template.DepartmentID,
                     AccountDataSource = AccountDataSource.Local,
                     IsRemote = false,
@@ -1047,7 +1049,7 @@ namespace CashReceipts.Controllers
 
             foreach (var receiptBody in receipt.ReceiptBodyRecords.Where(x => x.LineTotal != 0).ToList())
             {
-                dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateFundDept(receiptBody.Template), font))
+                dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateFundDept(receiptBody), font))
                 {
                     Colspan = 2,
                     Border = 1,
@@ -1057,7 +1059,7 @@ namespace CashReceipts.Controllers
                     PaddingRight = paddingRight
                 });
 
-                dataTable.AddCell(new PdfPCell(new Phrase(receiptBody.Template.BaseElementObjectDetail, font))
+                dataTable.AddCell(new PdfPCell(new Phrase(GetTemplateBase(receiptBody), font))
                 {
                     Colspan = 1,
                     Border = 1,
@@ -1313,9 +1315,11 @@ namespace CashReceipts.Controllers
                 .Where(x => !receiptNumber.HasValue || x.ReceiptHeader.ReceiptNumber == receiptNumber)
                 .Where(x => !fromDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, fromDate) <= 0)
                 .Where(x => !toDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, toDate) >= 0)
-                .Where(x => string.IsNullOrEmpty(acctNum) ||
-                (x.Template.Fund + x.Template.Dept + x.Template.Program + x.Template.Project + x.Template.BaseElementObjectDetail)
-                .StartsWith(acctNum)).ToList()
+                //.Where(x => string.IsNullOrEmpty(acctNum) ||
+                //(x.Template.Fund + x.Template.Dept + x.Template.Program + x.Template.Project + x.Template.BaseElementObjectDetail)
+                //.StartsWith(acctNum))
+                .Where(x => string.IsNullOrEmpty(acctNum) || x.AccountNumber.StartsWith(acctNum))
+                .ToList()
                 .Select(x => new
                 {
                     x.ReceiptHeaderID,
@@ -1326,7 +1330,7 @@ namespace CashReceipts.Controllers
                     x.LineTotal,
                     x.TemplateID,
                     AccountDescription = x.AccountDescription ?? x.Template.Description,
-                    AccountNumber = GetTemplateAccountNumber(x.Template),
+                    AccountNumber = x.AccountNumber,
                     x.Template.DepartmentID,
                     TemplateOrder = x.Template.Order,
                     AccountDataSource = AccountDataSource.Local
@@ -1437,6 +1441,20 @@ namespace CashReceipts.Controllers
         private string GetTemplateFundDept(Template template)
         {
             return $"{template.Fund}.{template.Dept}.{template.Program}.{template.Project}";
+        }
+
+        private string GetTemplateFundDept(ReceiptBody receiptBody)
+        {
+            return string.IsNullOrEmpty(receiptBody.AccountNumber)
+                ? GetTemplateFundDept(receiptBody.Template)
+                : receiptBody.AccountNumber.Substring(0, receiptBody.AccountNumber.LastIndexOf("."));
+        }
+
+        private string GetTemplateBase(ReceiptBody receiptBody)
+        {
+            return string.IsNullOrEmpty(receiptBody.AccountNumber)
+                ? receiptBody.Template.BaseElementObjectDetail
+                : receiptBody.AccountNumber.Substring(receiptBody.AccountNumber.LastIndexOf(".") + 1);
         }
 
         private bool IsPostedReceipt(int receiptHeaderId)
