@@ -19,8 +19,12 @@
             });
     };
 
-    var showSuccess = function (msg) {
-        swal({ title: "Success!", text: msg, type: "success", confirmButtonText: "Ok" });
+    var showSuccess = function (msg, callback) {
+        swal({ title: "Success!", text: msg, type: "success", confirmButtonText: "Ok" },
+            function() {
+                if (callback)
+                    callback();
+            });
     }
 
     var postConfirm = function (msg, preConfirmCallback) {

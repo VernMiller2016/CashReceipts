@@ -6,6 +6,14 @@
 @section styles{
     <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
     <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
+    <style>
+        .locked_Yes {
+            display: none;
+        }
+        .margin_10 {
+            margin-left: 10px !important;
+        }
+    </style>
 }
 
 <div id="example">
@@ -223,8 +231,9 @@
                 var columns = [
                     {
                         width: 50,
-                        template: "<input type='checkbox' class='checkbox' />",
-                        //headerTemplate: "<input type='checkbox' id='checkAll'/>"
+                        template: "<input type='checkbox' class='checkbox margin_10 locked_#= Locked #' data-locked='#= Locked #'/>",
+                        //"#if(!Locked){# <input type='checkbox' class='checkbox' /> #}#"
+                        headerTemplate: "<input type='checkbox' id='checkAll' class='margin_10'/>"
                     },
                     { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
                     { field: "DepartmentName", title: "Department Name" },
@@ -305,6 +314,8 @@
                         dataBound: function (e) {
                             $('.selectedStartDate').text(getSelectedStartDate());
                             $('.selectedEndDate').text(getSelectedEndDate());
+                            $('#checkAll').prop("checked", false);
+                            checkedIds = {};
                         }
                     });
 
@@ -410,14 +421,17 @@
                         }
                     });
 
-                //$('#checkAll').bind("click",
-                //    function () {
-                //        var checkBoxes = $("#grid tbody input:checkbox");
-                //        if (this.checked)
-                //            checkBoxes.attr('checked', 'checked');
-                //        else checkBoxes.removeAttr('checked');
-                //        //selectDataRow()
-                //    });
+                $('#checkAll').bind("click",
+                    function () {
+                        var checkBoxes = $("#grid tbody input:checkbox[data-locked=No]");
+                        if (this.checked) 
+                            checkBoxes.prop("checked", true);
+                        else checkBoxes.prop("checked", false);
+                        checkBoxes.each(function (i, item) {
+                            selectDataRow(item);
+                        });
+                        //selectDataRow()
+                    });
             });
 
         var checkedIds = {};
@@ -450,8 +464,11 @@
                 .done(function (data) {
                     if (data) {
                         if (data.Result) {
-                            notify.showSuccess(data.Message);
-                            refreshGrids();
+                            checkedIds = {};
+                            notify.showSuccess(data.Message,
+                                function() {
+                                    refreshGrids();
+                                });
                         } else {
                             notify.showError(data.Message);
                         }
