@@ -15,3 +15,6 @@ log/
 packages/
 PublishProfiles/
 .vs/
+/CashReceipts/App_Data/HPENVY.mdf
+/CashReceipts/App_Data/HPENVY_log.ldf
+/Others/AccountNumber_Update.sql
