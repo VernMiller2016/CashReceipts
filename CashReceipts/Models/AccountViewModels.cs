@@ -102,6 +102,13 @@ namespace CashReceipts.Models
         public string Code { get; set; }
     }
 
+    public class ChangePasswordModel
+    {
+        public string UserId { get; set; }
+
+        public string NewPassword { get; set; }
+    }
+
     public class ForgotPasswordViewModel
     {
         [Required]

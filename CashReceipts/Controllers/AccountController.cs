@@ -267,6 +267,29 @@ namespace CashReceipts.Controllers
             return View();
         }
 
+
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult ChangePassword(ChangePasswordModel model)
+        {
+            var opResult = false;
+            var msg = "";
+
+            if (!ModelState.IsValid)
+            {
+                msg = "Please provide valid password";
+                return Json(new {OperationResult = opResult, Message=msg});
+            }
+            UserManager.RemovePassword(model.UserId);
+            var result = UserManager.AddPassword(model.UserId, model.NewPassword);
+
+            opResult = result.Succeeded;
+            msg = GetErrors(result);
+
+            return Json(new {OperationResult = opResult, Message=msg});
+        }
+
+
         //
         // GET: /Account/ResetPasswordConfirmation
         [AllowAnonymous]
@@ -449,6 +472,11 @@ namespace CashReceipts.Controllers
             }
         }
 
+        private string GetErrors(IdentityResult result)
+        {
+            return string.Join("\r\n", result.Errors);
+        }
+        
         private ActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
