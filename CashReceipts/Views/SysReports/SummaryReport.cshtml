@@ -10,6 +10,7 @@
         .locked_Yes {
             display: none;
         }
+
         .margin_10 {
             margin-left: 10px !important;
         }
@@ -50,18 +51,19 @@
             <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
         </div>
         @if (ViewBag.HasExportAccess == true)
-            {
+        {
+        <div class="box-col">
+            <h4>Get PDF</h4>
+            <button class="export-pdf k-button" onclick="getPDF('.pdf-body')">Export</button>
+            <img src="/Images/ajax-loader.gif" class="pdfExportLoading" style="display: none;">
+        </div>
             <div class="box-col">
-                <h4>Get PDF</h4>
-                <button class="export-pdf k-button" onclick="getPDF('.pdf-page')">Export</button>
+                <h4>Print Report</h4>
+                <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
             </div>
-                <div class="box-col">
-                    <h4>Print Report</h4>
-                    <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
-                </div>
         }
         @if (ViewBag.HasLockReceiptsAccess == true)
-            {
+        {
             <div class="box-col">
                 <h4>Lock Receipts</h4>
                 <button class="lock-receipts k-button">Lock Selected Receipts</button>
@@ -152,10 +154,41 @@
         }
 
         function getPDF(selector) {
-            kendo.drawing.drawDOM($(selector))
-                .then(function(group) {
-                    kendo.drawing.pdf.saveAs(group, "Invoice.pdf");
+            $('.pdfExportLoading').show();
+            kendo.drawing.drawDOM($(selector), {
+                forcePageBreak: ".page-break",
+                paperSize: "A4",
+                margin: { left: "1pt", top: "1pt", right: "1pt", bottom: "1pt" },
+                multiPage: true
+            })
+                .then(function (group) {
+                    // Render the result as a PDF file
+                    return kendo.drawing.exportPDF(group);
+                })
+                .done(function (data) {
+                    // Save the PDF file
+                    kendo.saveAs({
+                        dataURI: data,
+                        fileName: "Invoice.pdf"
+                    });
+                    $('.pdfExportLoading').hide();
                 });
+                //.then(function (group) {
+                //    //group.options.set("pdf", {
+                //    //    //paperSize: "A4",
+                //    //    //multiPage: true,
+                //    //    margin: {
+                //    //        left: "5px",
+                //    //        top: "5px",
+                //    //        right: "5px",
+                //    //        bottom: "5px"
+                //    //    }
+                //    //});
+                //    //group.options.set("pdf.margin", "5px");
+                //    group.options.set("pdf.margin", "1pt");
+                //    group.options.set("pdf.padding", "1pt");
+                //    kendo.drawing.pdf.saveAs(group, "Invoice.pdf");
+                //});
         }
 
         function getSelectedClerk() {
@@ -230,23 +263,23 @@
                 ];
                 var columns = [
                     {
-                        width: 50,
+                        //width: 40,
                         template: "<input type='checkbox' class='checkbox margin_10 locked_#= Locked #' data-locked='#= Locked #'/>",
                         //"#if(!Locked){# <input type='checkbox' class='checkbox' /> #}#"
                         headerTemplate: "<input type='checkbox' id='checkAll' class='margin_10'/>"
                     },
-                    { field: "ReceiptNumber", title: "Receipt Number", width: 150 },
-                    { field: "DepartmentName", title: "Department Name" },
+                    { field: "ReceiptNumber", title: "Receipt#", width: 90 },
+                    { field: "DepartmentName", title: "Department Name", width: 300 },
                     { width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
-                        width: 150,
+                        width: 120,
                         aggregates: ["sum"],
                         footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
-                        headerAttributes: { style: "text-align:right" },
-                        attributes: { class: "text-right" }
+                        //headerAttributes: { style: "text-align:right" },
+                        //attributes: { class: "text-right" }
                     }
                 ];
                 summaryGrid = $("#grid")
@@ -316,6 +349,12 @@
                             $('.selectedEndDate').text(getSelectedEndDate());
                             $('#checkAll').prop("checked", false);
                             checkedIds = {};
+                            var items = e.sender.items();
+                            items.each(function (index) {
+                                if (index % 16 == 15) {
+                                    this.className += " page-break";
+                                }
+                            })
                         }
                     });
 
@@ -424,7 +463,7 @@
                 $('#checkAll').bind("click",
                     function () {
                         var checkBoxes = $("#grid tbody input:checkbox[data-locked=No]");
-                        if (this.checked) 
+                        if (this.checked)
                             checkBoxes.prop("checked", true);
                         else checkBoxes.prop("checked", false);
                         checkBoxes.each(function (i, item) {
