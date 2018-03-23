@@ -36,8 +36,8 @@
 
         .pdf-body {
             position: absolute;
-            top: 1.2in;
-            bottom: 1.2in;
+            top: .5in;
+            bottom: .5in;
             left: .5in;
             right: .5in;
         }
