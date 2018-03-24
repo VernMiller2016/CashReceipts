@@ -93,7 +93,7 @@
                     Summary Date From <span class="selectedStartDate"></span> to <span class="selectedEndDate"></span>
                 </p>
                 <div id="grid"></div>
-                <br />
+                <br class="page-break"/>
                 <h4>Tenders</h4>
                 <div id="tendersGrid"></div>
                 <p class="signature">
@@ -153,6 +153,11 @@
 
         function getPDF(selector) {
             $('.pdfExportLoading').show();
+            var grid = $("#grid").data("kendoGrid");
+            grid.hideColumn(0);
+            grid.hideColumn(3);
+            $('#grid .k-grid-footer').css('padding-right', '0');
+
             kendo.drawing.drawDOM($(selector), {
                 forcePageBreak: ".page-break",
                 paperSize: "A4",
@@ -168,6 +173,10 @@
                         dataURI: data,
                         fileName: "Invoice.pdf"
                     });
+                    grid.showColumn(0);
+                    if(@(((bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower()))
+                        grid.showColumn(3);
+                    $('#grid .k-grid-footer').css('padding-right', '17px');
                     $('.pdfExportLoading').hide();
                 });
                 //.then(function (group) {
@@ -260,20 +269,20 @@
                 ];
                 var columns = [
                     {
-                        //width: 40,
+                        width: 40,
                         template: "<input type='checkbox' class='checkbox margin_10 locked_#= Locked #' data-locked='#= Locked #'/>",
                         //"#if(!Locked){# <input type='checkbox' class='checkbox' /> #}#"
                         headerTemplate: "<input type='checkbox' id='checkAll' class='margin_10'/>"
                     },
-                    { field: "ReceiptNumber", title: "Receipt#", width: 90 },
-                    { field: "DepartmentName", title: "Department Name", width: 300 },
-                    //{ width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
+                    { field: "ReceiptNumber", title: "Receipt#", width: 70 },
+                    { field: "DepartmentName", title: "Department Name", width: 280 },
+                    { width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
-                        width: 120,
+                        width: 190,
                         aggregates: ["sum"],
-                        footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                        footerTemplate: "#=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
                         //headerAttributes: { style: "text-align:right" },
                         //attributes: { class: "text-right" }
@@ -362,7 +371,7 @@
                         title: "Total",
                         width: 150,
                         aggregates: ["sum"],
-                        footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
+                        footerTemplate: "#=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
                         headerAttributes: { style: "text-align:right" },
                         attributes: { class: "text-right" }
@@ -420,6 +429,12 @@
                         }),
                         columns: tendersColumns,
                         dataBound: function (e) {
+                            var items = e.sender.items();
+                            items.each(function (index) {
+                                if (index % 16 == 15) {
+                                    this.className += " page-break";
+                                }
+                            })
                         }
                     });
 

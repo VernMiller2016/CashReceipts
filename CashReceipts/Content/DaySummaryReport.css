@@ -84,3 +84,6 @@
         .signature {
             padding-top: .5in;
         }
+/*#grid .k-grid-footer, #grid .k-grid-header {
+    padding-right: 0 !important;
+}*/
