@@ -18,7 +18,7 @@
 }
 
 <div id="example">
-    <div class="box wide hidden-on-narrow">
+    <div class="box wide hidden-on-narrow" style="margin-top: 0;margin-bottom: 0;padding-bottom: 0;">
         <div class="box-col">
         </div>
         <div class="box-col">
@@ -50,13 +50,36 @@
         <div class="box-col">
             <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
         </div>
+    </div>
+    <div class="box wide hidden-on-narrow" style="margin-top: 5px;margin-bottom: 10px;">
         @if (ViewBag.HasExportAccess == true)
         {
-        <div class="box-col">
-            <h4>Get PDF</h4>
-            <button class="export-pdf k-button" onclick="getPDF('.pdf-body')">Export</button>
-            <img src="/Images/ajax-loader.gif" class="pdfExportLoading" style="display: none;">
-        </div>
+            <div class="box-col">
+                <h4>Items Per Page</h4>
+                <select id="itemsPerPage" onchange="refreshGrids()">
+                    <option value="15">14</option>
+                    <option value="16" selected="selected">15</option>
+                    <option value="17">16</option>
+                    <option value="18">17</option>
+                    <option value="19">18</option>
+                    <option value="20">19</option>
+                    <option value="21">20</option>
+                    <option value="22">21</option>
+                    <option value="23">22</option>
+                    <option value="24">23</option>
+                    <option value="25">24</option>
+                    <option value="26">25</option>
+                    <option value="27">26</option>
+                    <option value="28">27</option>
+                    <option value="29">28</option>
+                </select>
+            </div>
+
+            <div class="box-col">
+                <h4>Get PDF</h4>
+                <button class="export-pdf k-button" onclick="getPDF('.pdf-body')">Export</button>
+                <img src="/Images/ajax-loader.gif" class="pdfExportLoading" style="display: none;">
+            </div>
             <div class="box-col">
                 <h4>Print Report</h4>
                 <button class="export-pdf k-button" onclick="printReport('.pdf-page')">Print</button>
@@ -84,7 +107,7 @@
                     Cash Receipting System<br />
                 </p>
             </div>
-            
+
             <div class="from" style="display: none">
             </div>
             <div class="pdf-body">
@@ -93,7 +116,7 @@
                     Summary Date From <span class="selectedStartDate"></span> to <span class="selectedEndDate"></span>
                 </p>
                 <div id="grid"></div>
-                <br class="page-break"/>
+                <br class="page-break" />
                 <h4>Tenders</h4>
                 <div id="tendersGrid"></div>
                 <p class="signature">
@@ -132,7 +155,7 @@
     <!-- Load Pako ZLIB library to enable PDF compression -->
     <script src="~/Scripts/KenodUI2017.1.223/js/pako_deflate.min.js"></script>
     <script>
-        var summaryGrid, tendersGrid;
+        var summaryGrid, tendersGrid, itemsPerPage;
 
         function printReport() {
             //check this link
@@ -153,6 +176,7 @@
 
         function getPDF(selector) {
             $('.pdfExportLoading').show();
+            itemsPerPage = parseInt($('#itemsPerPage').val());
             var grid = $("#grid").data("kendoGrid");
             grid.hideColumn(0);
             grid.hideColumn(3);
@@ -275,12 +299,12 @@
                         headerTemplate: "<input type='checkbox' id='checkAll' class='margin_10'/>"
                     },
                     { field: "ReceiptNumber", title: "Receipt#", width: 70 },
-                    { field: "DepartmentName", title: "Department Name", width: 280 },
+                    { field: "DepartmentName", title: "Department Name", width: 290 },
                     { width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
-                        width: 190,
+                        width: 180,
                         aggregates: ["sum"],
                         footerTemplate: "#=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
@@ -351,13 +375,16 @@
                         }),
                         columns: columns,
                         dataBound: function (e) {
+                            itemsPerPage = parseInt($('#itemsPerPage').val());
                             $('.selectedStartDate').text(getSelectedStartDate());
                             $('.selectedEndDate').text(getSelectedEndDate());
                             $('#checkAll').prop("checked", false);
                             checkedIds = {};
                             var items = e.sender.items();
                             items.each(function (index) {
-                                if (index % 16 == 15) {
+                                if (index == itemsPerPage - 4)
+                                    this.className += " page-break";
+                                else if ((index - (itemsPerPage - 4)) % itemsPerPage == (itemsPerPage - 1)) {
                                     this.className += " page-break";
                                 }
                             })
@@ -431,7 +458,7 @@
                         dataBound: function (e) {
                             var items = e.sender.items();
                             items.each(function (index) {
-                                if (index % 16 == 15) {
+                                if (index % itemsPerPage == (itemsPerPage - 1)) {
                                     this.className += " page-break";
                                 }
                             })
