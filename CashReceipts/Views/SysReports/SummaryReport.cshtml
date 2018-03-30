@@ -72,9 +72,41 @@
                     <option value="27">26</option>
                     <option value="28">27</option>
                     <option value="29">28</option>
+                    <option value="28">29</option>
+                    <option value="29">30</option>
+                    <option value="30">31</option>
+                    <option value="31">32</option>
+                    <option value="32">33</option>
+                    <option value="33">34</option>
+                    <option value="34">35</option>
+                    <option value="35">36</option>
+                    <option value="36">37</option>
+                    <option value="37">38</option>
+                    <option value="38">39</option>
+                    <option value="39">40</option>
+                    <option value="40">41</option>
+                    <option value="41">42</option>
+                    <option value="42">43</option>
+                    <option value="43">44</option>
+                    <option value="44">45</option>
+                    <option value="45">46</option>
+                    <option value="46">47</option>
+                    <option value="47">48</option>
+                    <option value="48">49</option>
+                    <option value="49">50</option>
                 </select>
             </div>
-
+            <div class="box-col">
+                <h4>Font Size</h4>
+                <select id="fontSize">
+                    <option value="6">xx-small</option>
+                    <option value="8">x-small</option>
+                    <option value="10" selected="selected">small</option>
+                    <option value="12">medium</option>
+                    <option value="14">large</option>
+                    <option value="16">x-large</option>
+                </select>
+            </div>
             <div class="box-col">
                 <h4>Get PDF</h4>
                 <button class="export-pdf k-button" onclick="getPDF('.pdf-body')">Export</button>
@@ -175,14 +207,16 @@
         }
 
         function getPDF(selector) {
+            var elem = $(selector);
             $('.pdfExportLoading').show();
+            elem.css('font-size', $('#fontSize').val() + "px");
             itemsPerPage = parseInt($('#itemsPerPage').val());
             var grid = $("#grid").data("kendoGrid");
             grid.hideColumn(0);
             grid.hideColumn(3);
             $('#grid .k-grid-footer').css('padding-right', '0');
 
-            kendo.drawing.drawDOM($(selector), {
+            kendo.drawing.drawDOM(elem, {
                 forcePageBreak: ".page-break",
                 paperSize: "A4",
                 margin: { left: "1pt", top: "1pt", right: "1pt", bottom: "1pt" },
@@ -201,6 +235,7 @@
                     if(@(((bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower()))
                         grid.showColumn(3);
                     $('#grid .k-grid-footer').css('padding-right', '17px');
+                    elem.css('font-size', "14px");
                     $('.pdfExportLoading').hide();
                 });
                 //.then(function (group) {
