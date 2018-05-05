@@ -4,30 +4,22 @@ using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Filters;
 using CashReceipts.Models;
-using Microsoft.AspNet.Identity.EntityFramework;
-using CashReceipts.Helpers;
+using CashReceipts.ViewModels;
 
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class ClerksController : Controller
+    public class ClerksController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        public AccessHelper access;
-        public ClerksController()
-        {
-            access = new AccessHelper();
-        }
-
         // GET: Clerks
         [CanAccess((int)FeaturePermissions.ClerksIndex)]
         public ActionResult Index()
         {
-            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditClerks).FirstOrDefault() == null ? false : true;
-            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateClerks).FirstOrDefault() == null ? false : true;
-            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewClerks).FirstOrDefault() == null ? false : true;
-            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteClerks).FirstOrDefault() == null ? false : true;
-            return View(db.Clerks.Include(x => x.User).ToList());
+            ViewBag.isCreate = HasAccess(FeaturePermissions.EditClerks);
+            ViewBag.isEdit = HasAccess(FeaturePermissions.CreateClerks);
+            ViewBag.isDetails = HasAccess(FeaturePermissions.ViewClerks);
+            ViewBag.isDelete = HasAccess(FeaturePermissions.DeleteClerks);
+            return View(_db.Clerks.Include(x => x.User).ToList());
         }
 
         // GET: Clerks/Details/5
@@ -38,7 +30,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerks.Find(id);
+            Clerk clerk = _db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
@@ -50,8 +42,8 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.CreateClerks)]
         public ActionResult Create()
         {
-            var Users = db.Users.ToList();
-            var Roles = db.Roles.ToList();
+            var Users = _db.Users.ToList();
+            var Roles = _db.Roles.ToList();
             ViewBag.Users = new SelectList(Users, "Id", "UserName");
             ViewBag.Roles = new SelectList(Roles, "Id", "Name");
             return View();
@@ -66,21 +58,21 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = db.Users.Where(u => u.Id == UserID).FirstOrDefault();
+                var user = _db.Users.FirstOrDefault(u => u.Id == UserID);
 
-                if (db.Clerks.Where(c => c.UserId == UserID).FirstOrDefault() != null)
+                if (_db.Clerks.FirstOrDefault(c => c.UserId == UserID) != null)
                 {
                     ModelState.AddModelError("", "The user " + user.UserName + " is already used with another clerk");
-                    var Users = db.Users.ToList();
-                    var Roles = db.Roles.ToList();
-                    ViewBag.Users = new SelectList(Users, "Id", "UserName");
-                    ViewBag.Roles = new SelectList(Roles, "Id", "Name");
+                    var users = _db.Users.ToList();
+                    var roles = _db.Roles.ToList();
+                    ViewBag.Users = new SelectList(users, "Id", "UserName");
+                    ViewBag.Roles = new SelectList(roles, "Id", "Name");
                     return View(clerk);
                 }
 
                 clerk.UserId = UserID;
-                db.Clerks.Add(clerk);
-                db.SaveChanges();
+                _db.Clerks.Add(clerk);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -94,20 +86,20 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerks.Find(id);
+            Clerk clerk = _db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
             }
-            var Users = db.Users.ToList();
-            var Roles = db.Roles.ToList();
+            var users = _db.Users.ToList();
+            var roles = _db.Roles.ToList();
             string roleId = "";
             if (clerk.User != null && clerk.User.Roles.Count > 0)
             {
                 roleId = clerk.User.Roles.FirstOrDefault().RoleId;
             }
-            ViewBag.Users = new SelectList(Users, "Id", "UserName", clerk.UserId);
-            ViewBag.Roles = new SelectList(Roles, "Id", "Name", roleId);
+            ViewBag.Users = new SelectList(users, "Id", "UserName", clerk.UserId);
+            ViewBag.Roles = new SelectList(roles, "Id", "Name", roleId);
             return View(clerk);
         }
 
@@ -121,23 +113,23 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = db.Users.Where(u => u.Id == clerk.UserId).FirstOrDefault();
+                var user = _db.Users.FirstOrDefault(u => u.Id == clerk.UserId);
 
                 if (clerk.UserId != OldUserId)
                 {
-                    if (db.Clerks.Where(c => c.UserId == clerk.UserId).FirstOrDefault() != null)
+                    if (_db.Clerks.FirstOrDefault(c => c.UserId == clerk.UserId) != null)
                     {
                         ModelState.AddModelError("", "The user " + user.UserName + " is already used with another clerk");
-                        var Users = db.Users.ToList();
-                        var Roles = db.Roles.ToList();
-                        ViewBag.Users = new SelectList(Users, "Id", "UserName");
-                        ViewBag.Roles = new SelectList(Roles, "Id", "Name");
+                        var users = _db.Users.ToList();
+                        var roles = _db.Roles.ToList();
+                        ViewBag.Users = new SelectList(users, "Id", "UserName");
+                        ViewBag.Roles = new SelectList(roles, "Id", "Name");
                         return View(clerk);
                     }
                 }
 
-                db.Entry(clerk).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(clerk).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(clerk);
@@ -151,7 +143,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Clerk clerk = db.Clerks.Find(id);
+            Clerk clerk = _db.Clerks.Find(id);
             if (clerk == null)
             {
                 return HttpNotFound();
@@ -164,73 +156,10 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Clerk clerk = db.Clerks.Find(id);
-            db.Clerks.Remove(clerk);
-            db.SaveChanges();
+            Clerk clerk = _db.Clerks.Find(id);
+            if (clerk != null) _db.Clerks.Remove(clerk);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-    }
-
-    public enum FeaturePermissions
-    {
-        UsersIndex = 1,
-        EditUserRole = 2,
-        ClerksIndex = 3,
-        CreateClerks = 4,
-        EditClerks = 5,
-        ViewClerks = 6,
-        DeleteClerks = 7,
-        EntitiesIndex = 8,
-        CreateEntity = 9,
-        EditEntity = 10,
-        ViewEntity = 11,
-        DeleteEntity = 12,
-        DepartmentIndex = 13,
-        CreateDepartment = 14,
-        EditDepartment = 15,
-        ViewDepartment = 16,
-        DeleteDepartment = 17,
-        SystemAccountIndex = 18,
-        EditSystemAccount = 19,
-        ViewSystemAccount = 20,
-        DeleteSystemAccount = 21,
-        ManageReceiptsIndex = 22,
-        AddNewReceipt = 23,
-        DownloadReceipt = 24,
-        PostReceipt = 25,
-        AddReceiptItem = 26,
-        EditReceiptItem = 27,
-        DeleteReceiptItem = 28,
-        AddTenderItem = 44,
-        EditTenderItem = 45,
-        DeleteTenderItem = 46,
-        AddReceiptBody = 48,
-        EditReceiptBody = 49,
-        DeleteReceiptBody = 50,
-        SearchLineItemIndex = 29,
-        ExportLineItem = 30,
-        ShowReceipt = 31,
-        ReceiptsExportIndex = 32,
-        ReceiptsExport = 33,
-        LineItemsExport = 34,
-        TendersExport = 35,
-        ReceiptsDetailsExport = 36,
-        DaySummaryReportIndex = 37,
-        ExportAndPrintSummary = 38,
-        AuditsIndex = 39,
-        GrantCountyAccountIndex = 40,
-        DistrictsAccountIndex = 41,
-        PrintReceipt = 42,
-        LockReceipt = 51,
-        LockReceipts = 52
     }
 }

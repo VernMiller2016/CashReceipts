@@ -25,6 +25,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -249,6 +250,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="ViewModels\FeaturePermissions.cs" />
     <Compile Include="Filters\CanAccess.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Filters\IsAdminAttribute.cs" />
@@ -285,6 +288,10 @@
     <Compile Include="Migrations\201704210717140_Add_NewRoles.cs" />
     <Compile Include="Migrations\201704210717140_Add_NewRoles.Designer.cs">
       <DependentUpon>201704210717140_Add_NewRoles.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805020107486_AddNew_TendersSearch_Screen.cs" />
+    <Compile Include="Migrations\201805020107486_AddNew_TendersSearch_Screen.Designer.cs">
+      <DependentUpon>201805020107486_AddNew_TendersSearch_Screen.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ApplicationDbContextConfiguration.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -415,10 +422,12 @@
     <Content Include="fonts\DejaVuSans\DejaVuSans-Bold.ttf" />
     <Content Include="fonts\DejaVuSans\DejaVuSans-Oblique.ttf" />
     <Content Include="fonts\DejaVuSans\DejaVuSans.ttf" />
+    <Content Include="App_Code\Helpers.cshtml" />
     <None Include="Properties\PublishProfiles\CashReceipting - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\Local.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap3.3.5.min.js" />
+    <Content Include="Scripts\Helpers.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -2166,9 +2175,11 @@
     <Content Include="Scripts\KenodUI2017.1.223\styles\kendo.uniform.min.css.map" />
     <Content Include="Scripts\KenodUI2017.1.223\styles\kendo.uniform.mobile.min.css.map" />
     <Content Include="Views\Error\NotAuthorized.cshtml" />
+    <Content Include="Views\Tenders\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -2223,6 +2234,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201704210717140_Add_NewRoles.resx">
       <DependentUpon>201704210717140_Add_NewRoles.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805020107486_AddNew_TendersSearch_Screen.resx">
+      <DependentUpon>201805020107486_AddNew_TendersSearch_Screen.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

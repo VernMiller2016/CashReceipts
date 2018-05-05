@@ -1,12 +1,5 @@
 ﻿@model int
 
-@functions {
-    private string ClientBool(bool hasAccess)
-    {
-        return hasAccess.ToString().ToLower();
-    }
-}
-
 @{
     var permissions = (Dictionary<string, bool>) ViewBag.Permissions;
     var hasEditReceiptsPermission = permissions["hasEditReceiptsPermission"];
@@ -173,7 +166,7 @@
                 $.getJSON('@Url.Action("GetDepartmentsList", "ReceiptHeaders")')
             )
             .done(function (result1, result2) {
-                if (result1[1] == "success") clerksList = result1[0].filter(function(item){return @ClientBool((bool)ViewBag.IsAdmin) || item.value == '@(ViewBag.UserClerkId)'});
+                if (result1[1] == "success") clerksList = result1[0].filter(function(item){return @Helpers.ClientBool((bool)ViewBag.IsAdmin) || item.value == '@(ViewBag.UserClerkId)'});
                 if (result2[1] == "success") departmentsList = result2[0];
                 receiptsHeaderGridInit();
             });
@@ -385,11 +378,11 @@
                         command: [
                             {
                                 name: "edit",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasEditReceiptsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @Helpers.ClientBool(hasEditReceiptsPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             },
                             {
                                 name: "destroy",
-                                visible: function(dataItem) { return !dataItem.IsPosted && @ClientBool(hasDeleteReceiptsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
+                                visible: function(dataItem) { return !dataItem.IsPosted && @Helpers.ClientBool(hasDeleteReceiptsPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             }
                         ],
                         title: "&nbsp;",
@@ -519,7 +512,7 @@
                                     .done(function(data) {
                                         if (data) {
                                             if (data.Result) {
-                                                if (@ClientBool(hasLockPermission))
+                                                if (@Helpers.ClientBool(hasLockPermission))
                                                 {
                                                     notify.postConfirm(data.Message, lockReceipt(receipt));
                                                 }
@@ -707,7 +700,7 @@
                 },
                 {
                     command: [{
-                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteTenderItemsPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
+                        name: "destroy", visible: function (dataItem) { return !dataItem.IsReceiptPosted && @Helpers.ClientBool(hasDeleteTenderItemsPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
                     }],
                     title: "&nbsp;", width: "140px"
                 }
@@ -919,7 +912,7 @@
                         },
                         text: "Delete",
                         className: "btn-destroy",
-                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @ClientBool(hasDeleteReceiptsBodyPermission) && (@ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
+                        visible: function (dataItem) { return !dataItem.IsReceiptPosted && @Helpers.ClientBool(hasDeleteReceiptsBodyPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ReceiptClerkId =='@(ViewBag.UserClerkId)'); }
                     }], title: "&nbsp;", width: "60px"
                 }
             ],
@@ -975,10 +968,10 @@
 
     function getBodyToolbarActions(receipt) {
         var actions = [];
-        if (!receipt.IsPosted && (@ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
-            if (@ClientBool(hasCreateReceiptsBodyPermission))
+        if (!receipt.IsPosted && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
+            if (@Helpers.ClientBool(hasCreateReceiptsBodyPermission))
                 actions.push("create");
-            if (@ClientBool(hasEditReceiptsBodyPermission))
+            if (@Helpers.ClientBool(hasEditReceiptsBodyPermission))
                 actions.push("save", "cancel");
         }
         actions.push({
@@ -990,10 +983,10 @@
 
     function getTenderToolbarActions(receipt) {
         var actions = [];
-        if (!receipt.IsPosted && (@ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
-            if (@ClientBool(hasAddTenderItemsPermission))
+        if (!receipt.IsPosted && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || receipt.ClerkID == '@ViewBag.UserClerkId')) {
+            if (@Helpers.ClientBool(hasAddTenderItemsPermission))
                 actions.push("create");
-            if (@ClientBool(hasEditTenderItemsPermission))
+            if (@Helpers.ClientBool(hasEditTenderItemsPermission))
                 actions.push("save", "cancel");
         }
         return actions;
@@ -1001,17 +994,17 @@
 
     function getHeaderToolbarActions() {
         var actions = [];
-        if (@ClientBool(hasCreateReceiptItemsPermission))
+        if (@Helpers.ClientBool(hasCreateReceiptItemsPermission))
             actions.push("create");
 
-        if (@ClientBool(true))
+        if (@Helpers.ClientBool(true))
             actions.push({
                 text: "",
                 template:
                     "<a class='k-button k-grid-PrintReceipt'><span class='k-icon k-i-pdf'></span>Download Receipt</a>"
             });
 
-        if (@ClientBool(hasPostPermission))
+        if (@Helpers.ClientBool(hasPostPermission))
             actions.push({
                 text: "",
                 template: "<a class='k-button k-grid-PostCheck'><span class='k-icon k-i-group'></span>Post</a>"

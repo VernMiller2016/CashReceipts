@@ -49,6 +49,7 @@
                 <input type="hidden" id="CheckedNodes" />
             </div>
         </div>
+        
         <div id="SuccessMessage" style="color:green;display:none">
             <p>Permissions Saved Sucessfully</p>
         </div>
@@ -119,15 +120,12 @@
 
             var roleId = $("[name=RoleId]").val();
             if (roleId == "" || roleId == null) {
-                $("#NoRoleErrorMessage").show();
+                notify.showError($("#NoRoleErrorMessage").text());
             }
             else if (nodeIds == "") {
-                $("#NoSelectErrorMessage").show();
+                notify.showError($("#NoSelectErrorMessage").text());
             }
             else {
-                $("#NoSelectErrorMessage").hide();
-                $("#NoRoleErrorMessage").hide();
-
                 var data = JSON.stringify({ 'nodeIds': nodeIds, 'roleId': roleId });
 
                 $.ajax({
@@ -138,12 +136,10 @@
                     contentType: "application/json; charset=utf-8"
                 }).done(function (data) {
                     if (data.Success) {
-                        $("#SuccessMessage").show();
-                        $("#ErrorMessage").hide();
+                        notify.showSuccess($("#SuccessMessage").text());
                     }
                     else {
-                        $("#SuccessMessage").hide();
-                        $("#ErrorMessage").show();
+                        notify.showError($("#ErrorMessage").text());
                     }
                 });
             }

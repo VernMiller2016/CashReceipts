@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
+using CashReceipts.Filters;
 using CashReceipts.Models;
+using CashReceipts.ViewModels;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class TendersController : Controller
+    public class TendersController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
         // GET: Tenders
         public ActionResult Index()
         {
-            return View(db.Tenders.ToList());
+            return View(_db.Tenders.ToList());
         }
 
         // GET: Tenders/Details/5
@@ -28,7 +29,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tenders.Find(id);
+            Tender tender = _db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -51,8 +52,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Tenders.Add(tender);
-                db.SaveChanges();
+                _db.Tenders.Add(tender);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -66,7 +67,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tenders.Find(id);
+            Tender tender = _db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -83,8 +84,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(tender).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(tender).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(tender);
@@ -97,7 +98,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Tender tender = db.Tenders.Find(id);
+            Tender tender = _db.Tenders.Find(id);
             if (tender == null)
             {
                 return HttpNotFound();
@@ -110,19 +111,46 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Tender tender = db.Tenders.Find(id);
-            db.Tenders.Remove(tender);
-            db.SaveChanges();
+            Tender tender = _db.Tenders.Find(id);
+            _db.Tenders.Remove(tender);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
-        protected override void Dispose(bool disposing)
+        [CanAccess((int)FeaturePermissions.SearchTenders)]
+        public ActionResult Search()
         {
-            if (disposing)
+            var permissions = new Dictionary<string, bool>
             {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
+                {"hasExportPermission", HasAccess(FeaturePermissions.ExportTenders)},
+            };
+            ViewBag.Permissions = permissions;
+            return View();
+        }
+
+        [NoCache]
+        public ActionResult Tenders_Read([DataSourceRequest] DataSourceRequest request, DateTime? fromDate = null, DateTime? toDate = null, decimal? amount = null, int? tenderType = null)
+        {
+            var receiptBodies = _db.Tenders
+                .Include(x => x.ReceiptHeader)
+                .Include(x => x.ReceiptHeader.Department)
+                .Where(x => !amount.HasValue || x.Amount == amount)
+                .Where(x => !tenderType.HasValue || x.PaymentMethodId == tenderType)
+                .Where(x => !fromDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, fromDate) <= 0)
+                .Where(x => !toDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptHeader.ReceiptDate, toDate) >= 0)
+                .ToList()
+                .Select(x => new
+                {
+                    x.ReceiptHeaderID,
+                    x.ReceiptHeader.ReceiptDate,
+                    ReceiptHeaderNumber = x.ReceiptHeader.ReceiptNumber,
+                    ReceiptDepartment = x.ReceiptHeader.Department.Name,
+                    x.PaymentMethodId,
+                    x.Amount,
+                    x.Description,
+                    x.TenderID
+                }).ToList();
+            return Json(receiptBodies.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
     }
 }

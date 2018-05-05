@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using CashReceipts.Filters;
 using CashReceipts.Models;
@@ -20,22 +17,13 @@ using CashReceipts.Helpers;
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class SysReportsController : Controller
+    public class SysReportsController : BaseController
     {
-        private readonly ApplicationDbContext _db = new ApplicationDbContext();
-
-        private readonly AccessHelper _access;
-
-        public SysReportsController()
-        {
-            _access = new AccessHelper();
-        }
-
         [CanAccess((int)FeaturePermissions.DaySummaryReportIndex)]
         public ActionResult SummaryReport()
         {
-            ViewBag.HasExportAccess = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ExportAndPrintSummary) != null;
-            ViewBag.HasLockReceiptsAccess = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.LockReceipts) != null;
+            ViewBag.HasExportAccess = HasAccess(FeaturePermissions.ExportAndPrintSummary);
+            ViewBag.HasLockReceiptsAccess = HasAccess(FeaturePermissions.LockReceipts);
             return View();
         }
 
@@ -86,10 +74,10 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.ReceiptsExportIndex)]
         public ActionResult ReceiptsExport()
         {
-            ViewBag.isExport = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ReceiptsExport) != null;
-            ViewBag.isExportLineItems = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.LineItemsExport) != null;
-            ViewBag.isExportTenders = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.TendersExport) != null;
-            ViewBag.isExportAll = _access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ReceiptsDetailsExport) != null;
+            ViewBag.isExport = HasAccess(FeaturePermissions.ReceiptsExport);;
+            ViewBag.isExportLineItems = HasAccess(FeaturePermissions.LineItemsExport);
+            ViewBag.isExportTenders = HasAccess(FeaturePermissions.TendersExport);
+            ViewBag.isExportAll = HasAccess(FeaturePermissions.ReceiptsDetailsExport);
             return View();
         }
 

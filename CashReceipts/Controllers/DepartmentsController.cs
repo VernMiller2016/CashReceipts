@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Filters;
-using CashReceipts.Helpers;
 using CashReceipts.Models;
 using CashReceipts.ViewModels;
 using Kendo.Mvc.Extensions;
@@ -14,23 +13,17 @@ using Kendo.Mvc.UI;
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class DepartmentsController : Controller
+    public class DepartmentsController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        public AccessHelper access;
-        public DepartmentsController()
-        {
-            access = new AccessHelper();
-        }
         // GET: Dpartments
         [CanAccess((int)FeaturePermissions.DepartmentIndex)]
         public ActionResult Index()
         {
-            ViewBag.isCreate = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.CreateDepartment) != null;
-            ViewBag.isEdit = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.EditDepartment) != null;
-            ViewBag.isDetails = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.ViewDepartment) != null;
-            ViewBag.isDelete = access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)FeaturePermissions.DeleteDepartment) != null;
-            return View(db.Departments.OrderBy(x=>x.Name).ToList());
+            ViewBag.isCreate = HasAccess(FeaturePermissions.CreateDepartment);
+            ViewBag.isEdit = HasAccess(FeaturePermissions.EditDepartment);
+            ViewBag.isDetails = HasAccess(FeaturePermissions.ViewDepartment);
+            ViewBag.isDelete = HasAccess(FeaturePermissions.DeleteDepartment);
+            return View(_db.Departments.OrderBy(x=>x.Name).ToList());
         }
 
         // GET: Dpartments/Details/5
@@ -41,7 +34,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.Single(m => m.DepartmentID == id);
+            Department department = _db.Departments.Single(m => m.DepartmentID == id);
 
             if (department == null)
             {
@@ -66,8 +59,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Departments.Add(department);
-                db.SaveChanges();
+                _db.Departments.Add(department);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -82,7 +75,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.Include(x => x.Templates).Single(m => m.DepartmentID == id);
+            Department department = _db.Departments.Include(x => x.Templates).Single(m => m.DepartmentID == id);
 
             if (department == null)
             {
@@ -100,8 +93,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(department).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(department).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(department);
@@ -115,7 +108,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = db.Departments.Single(m => m.DepartmentID == id);
+            Department department = _db.Departments.Single(m => m.DepartmentID == id);
             if (department == null)
             {
                 return HttpNotFound();
@@ -128,11 +121,11 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Department department = db.Departments.Single(m => m.DepartmentID == id);
-            db.Departments.Remove(department);
+            Department department = _db.Departments.Single(m => m.DepartmentID == id);
+            _db.Departments.Remove(department);
             try
             {
-                db.SaveChanges();
+                _db.SaveChanges();
             return RedirectToAction("Index");
             }
             catch (Exception e)
@@ -144,7 +137,7 @@ namespace CashReceipts.Controllers
 
         public ActionResult AddTemplate(int id)
         {
-            var department = db.Departments.SingleOrDefault(m => m.DepartmentID == id);
+            var department = _db.Departments.SingleOrDefault(m => m.DepartmentID == id);
             if (department != null)
             {
                 ViewBag.DepartmentName = department.Name;
@@ -160,28 +153,19 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Templates.Add(template);
-                db.SaveChanges();
+                _db.Templates.Add(template);
+                _db.SaveChanges();
                 return RedirectToAction("Edit", new { id = template.DepartmentID });
             }
             return View(template);
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
+        
         #region Template Grid Actions
         [NoCache]
         public ActionResult ProjectTemplates_Read([DataSourceRequest] DataSourceRequest request, int departmentId)
         {
             var templates =
-           db.Templates.Where(x => x.DepartmentID == departmentId).Select(
+           _db.Templates.Where(x => x.DepartmentID == departmentId).Select(
                p => new { p.DepartmentID, p.BaseElementObjectDetail, p.Dept, p.Description, p.Fund, p.Order, p.Program, p.Project, p.TemplateID, p.DataSource }).ToList();
 
             return Json(templates.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
@@ -195,18 +179,18 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    if ((template.DataSource==AccountDataSource.GrantCounty && !db.IsValidGCAccount(template))
-                        || (template.DataSource == AccountDataSource.District && !db.IsValidDistAccount(template)))
+                    if ((template.DataSource==AccountDataSource.GrantCounty && !_db.IsValidGCAccount(template))
+                        || (template.DataSource == AccountDataSource.District && !_db.IsValidDistAccount(template)))
                     {
                         ModelState.AddModelError("_addKey", "Invalid account, Please check GC Accounts page for a valid data!");
                     }
                     else
                     {
                         template.DepartmentID = departmentId;
-                        db.Templates.Add(template);
+                        _db.Templates.Add(template);
                         try
                         {
-                            if (db.SaveChanges() <= 0)
+                            if (_db.SaveChanges() <= 0)
                             {
                                 //todo supports localization
                                 ModelState.AddModelError("_addKey", "Can't add this template to database");
@@ -232,18 +216,18 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    if ((template.DataSource == AccountDataSource.GrantCounty && !db.IsValidGCAccount(template))
-                        || (template.DataSource == AccountDataSource.District && !db.IsValidDistAccount(template)))
+                    if ((template.DataSource == AccountDataSource.GrantCounty && !_db.IsValidGCAccount(template))
+                        || (template.DataSource == AccountDataSource.District && !_db.IsValidDistAccount(template)))
                     {
                         ModelState.AddModelError("_addKey",
                             "Invalid account, Please check GC/DIST Accounts page for a valid data!");
                     }
                     else
                     {
-                        db.Entry(template).State = EntityState.Modified;
+                        _db.Entry(template).State = EntityState.Modified;
                         try
                         {
-                            if (db.SaveChanges() <= 0)
+                            if (_db.SaveChanges() <= 0)
                             {
                                 ModelState.AddModelError("_updateKey", "Can't update this template to database");
                             }
@@ -266,13 +250,13 @@ namespace CashReceipts.Controllers
             {
                 foreach (var template in templateList)
                 {
-                    var templateInDb = db.Templates.SingleOrDefault(x => x.TemplateID == template.TemplateID);
+                    var templateInDb = _db.Templates.SingleOrDefault(x => x.TemplateID == template.TemplateID);
                     if (templateInDb != null)
                     {
                         templateInDb.DepartmentID = null;
                         try
                         {
-                            if (db.SaveChanges() <= 0)
+                            if (_db.SaveChanges() <= 0)
                             {
                                 ModelState.AddModelError("_deleteKey", "Can't remove this template from database");
                             }
@@ -291,14 +275,14 @@ namespace CashReceipts.Controllers
         public ActionResult ReorderTemplates(int currOrderId, int newOrderid)
         {
             var result = false;
-            var firstTemplate = db.Templates.SingleOrDefault(x => x.TemplateID == currOrderId);
-            var secondTemplate = db.Templates.SingleOrDefault(x => x.TemplateID == newOrderid);
+            var firstTemplate = _db.Templates.SingleOrDefault(x => x.TemplateID == currOrderId);
+            var secondTemplate = _db.Templates.SingleOrDefault(x => x.TemplateID == newOrderid);
             if (firstTemplate != null && secondTemplate != null)
             {
                 var temp = firstTemplate.Order;
                 firstTemplate.Order = secondTemplate.Order;
                 secondTemplate.Order = temp;
-                db.SaveChanges();
+                _db.SaveChanges();
                 result = true;
             }
             return Json(new { Result = result });
@@ -340,7 +324,7 @@ namespace CashReceipts.Controllers
                         columnOrder = ColumnOrders.Description;
                         break;
                 }
-                results = db.GetGCAccounts(columnOrder, model.value, rowsNum, model.skip);
+                results = _db.GetGCAccounts(columnOrder, model.value, rowsNum, model.skip);
             }
             return Json(results, JsonRequestBehavior.AllowGet);
         }
@@ -348,7 +332,7 @@ namespace CashReceipts.Controllers
         public ActionResult GetGcAccountDescription(Template template)
         {
             int resultsCount = 0;
-            var result = db.FilterGlAccounts(0, 1, SearchAccountDataSource.Both, template.Fund, template.Dept, template.Program, template.Project,
+            var result = _db.FilterGlAccounts(0, 1, SearchAccountDataSource.Both, template.Fund, template.Dept, template.Program, template.Project,
                 template.BaseElementObjectDetail, "", null, ref resultsCount);
             return Json(result, JsonRequestBehavior.AllowGet);
         }

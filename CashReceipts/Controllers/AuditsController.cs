@@ -1,5 +1,4 @@
-﻿using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Web.Mvc;
 using CashReceipts.Filters;
 using CashReceipts.Models;
@@ -11,9 +10,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace CashReceipts.Controllers
 {
-    public class AuditsController : Controller
+    public class AuditsController : BaseController
     {
-        private readonly ApplicationDbContext _db = new ApplicationDbContext();
         protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public AuditsController()

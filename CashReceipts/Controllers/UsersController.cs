@@ -1,32 +1,23 @@
 ﻿using CashReceipts.Helpers;
 using CashReceipts.Models;
 using CashReceipts.ViewModels;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using CashReceipts.Filters;
 
 namespace CashReceipts.Controllers
 {
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        public AccessHelper access;
-        public UsersController()
-        {
-            access = new AccessHelper();
-        }
         // GET: Users
         [CanAccess((int)FeaturePermissions.UsersIndex)]
         public ActionResult Index()
         {
             List<UsersVM> usersList = new List<UsersVM>();
-            var users = db.Users.Include(x=>x.Role).ToList();
+            var users = _db.Users.Include(x=>x.Role).ToList();
             foreach (var item in users)
             {
                 UsersVM userItem = new UsersVM();
@@ -39,7 +30,7 @@ namespace CashReceipts.Controllers
 
                 usersList.Add(userItem);
             }
-            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditUserRole).FirstOrDefault()==null? false:true;
+            ViewBag.isEdit = HasAccess(FeaturePermissions.EditUserRole);
             return View(usersList);
         }
 
@@ -79,13 +70,13 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ApplicationUser user = db.Users.Where(u=>u.Id==id).FirstOrDefault();
+            ApplicationUser user = _db.Users.FirstOrDefault(u => u.Id==id);
 
             if (user == null)
             {
                 return HttpNotFound();
             }
-            var Roles = db.Roles.ToList();
+            var Roles = _db.Roles.ToList();
             string roleId = "";
             if (user.Role != null)
             {
@@ -102,10 +93,10 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userItem = db.Users.Where(u => u.Id == user.Id).FirstOrDefault();
+                var userItem = _db.Users.FirstOrDefault(u => u.Id == user.Id);
                 userItem.RoleId = RoleId;
-                db.Entry(userItem).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(userItem).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(user);

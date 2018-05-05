@@ -12,7 +12,7 @@ using CashReceipts.Helpers;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.SqlServer;
 using System.IO;
-using System.Web;
+using CashReceipts.ViewModels;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.AspNet.Identity;
@@ -21,11 +21,9 @@ using Microsoft.AspNet.Identity.EntityFramework;
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class ReceiptHeadersController : Controller
+    public class ReceiptHeadersController : BaseController
     {
-        private readonly ApplicationDbContext _db = new ApplicationDbContext();
         private readonly LookupHelper _lookupHelper;
-        public AccessHelper access;
 
         /// <summary>
         /// User manager - attached to application DB context
@@ -34,7 +32,6 @@ namespace CashReceipts.Controllers
 
         public ReceiptHeadersController()
         {
-            access = new AccessHelper();
             _lookupHelper = new LookupHelper(_db);
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
@@ -81,11 +78,6 @@ namespace CashReceipts.Controllers
         private bool IsAdminUser(ApplicationUser currentUser)
         {
             return currentUser?.RoleId == AccessHelper.AdminRoleId;
-        }
-
-        private bool HasAccess(FeaturePermissions feature)
-        {
-            return access.UserFeatures.FirstOrDefault(f => f.FeatureId == (int)feature) != null;
         }
 
         // GET: ReceiptHeaders/Details/5
@@ -1252,16 +1244,7 @@ namespace CashReceipts.Controllers
             filestream.Close();
             return File(filestream.ToArray(), "pdf", $"Receipt_{receipt.ReceiptNumber}.pdf");
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _db.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
+        
         [HttpPost]
         public ActionResult CheckReciptHeaderTotals(int receiptHeaderId)
         {
@@ -1294,7 +1277,7 @@ namespace CashReceipts.Controllers
         [CanAccess((int)FeaturePermissions.SearchLineItemIndex)]
         public ActionResult Search()
         {
-            Dictionary<string, bool> permissions = new Dictionary<string, bool>
+            var permissions = new Dictionary<string, bool>
             {
                 {"hasExportPermission", HasAccess(FeaturePermissions.ExportLineItem)},
                 {"hasDownloadReceiptPermission", HasAccess(FeaturePermissions.DownloadReceipt)},

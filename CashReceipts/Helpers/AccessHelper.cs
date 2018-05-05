@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using CashReceipts.Controllers;
 using CashReceipts.Models;
+using CashReceipts.ViewModels;
 
 namespace CashReceipts.Helpers
 {
     public class AccessHelper
     {
-        private readonly ApplicationDbContext _db = new ApplicationDbContext();
-
+        private readonly ApplicationDbContext _db;
         public List<RoleFeaturePermission> UserFeatures { get; set; }
 
-        public AccessHelper()
+        public AccessHelper(ApplicationDbContext db)
         {
+            _db = db;
             if (HttpContext.Current.User.Identity.IsAuthenticated)
             {
                 if (HttpContext.Current.Session["AccessFeatures"] == null)
@@ -37,7 +37,7 @@ namespace CashReceipts.Helpers
         public bool IsAdminUser()
         {
             var user = GetCurrentUser();
-            return user?.RoleId == AccessHelper.AdminRoleId;
+            return user?.RoleId == AdminRoleId;
         }
 
         public bool HasUsersIndexAccess

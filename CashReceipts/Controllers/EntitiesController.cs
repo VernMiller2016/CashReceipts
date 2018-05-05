@@ -4,38 +4,22 @@ using System.Net;
 using System.Web.Mvc;
 using CashReceipts.Filters;
 using CashReceipts.Models;
-using CashReceipts.Helpers;
+using CashReceipts.ViewModels;
 
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class EntitiesController : Controller
+    public class EntitiesController : BaseController
     {
-        private ApplicationDbContext db;
-        public AccessHelper access;
-        public EntitiesController()
-        {
-            db = new ApplicationDbContext();
-            access = new AccessHelper();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (db != null)
-                db.Dispose();
-            db = null;
-            base.Dispose(disposing);
-        }
-
         // GET: Entities
         [CanAccess((int)FeaturePermissions.EntitiesIndex)]
         public ActionResult Index()
         {
-            ViewBag.isCreate = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.CreateEntity).FirstOrDefault() == null ? false : true;
-            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditEntity).FirstOrDefault() == null ? false : true;
-            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewEntity).FirstOrDefault() == null ? false : true;
-            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteEntity).FirstOrDefault() == null ? false : true;
-            return View(db.Entities.ToList());
+            ViewBag.isCreate = HasAccess(FeaturePermissions.CreateEntity);
+            ViewBag.isEdit = HasAccess(FeaturePermissions.EditEntity);
+            ViewBag.isDetails = HasAccess(FeaturePermissions.ViewEntity);
+            ViewBag.isDelete = HasAccess(FeaturePermissions.DeleteEntity);
+            return View(_db.Entities.ToList());
         }
 
         // GET: Entities/Details/5
@@ -46,7 +30,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entities.Find(id);
+            Entity entity = _db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -70,8 +54,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entities.Add(entity);
-                db.SaveChanges();
+                _db.Entities.Add(entity);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -86,7 +70,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entities.Find(id);
+            Entity entity = _db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -103,8 +87,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(entity).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(entity).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(entity);
@@ -118,7 +102,7 @@ namespace CashReceipts.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Entity entity = db.Entities.Find(id);
+            Entity entity = _db.Entities.Find(id);
             if (entity == null)
             {
                 return HttpNotFound();
@@ -131,19 +115,10 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Entity entity = db.Entities.Find(id);
-            db.Entities.Remove(entity);
-            db.SaveChanges();
+            Entity entity = _db.Entities.Find(id);
+            _db.Entities.Remove(entity);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
-
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        db.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
     }
 }

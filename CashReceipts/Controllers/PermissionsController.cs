@@ -8,14 +8,12 @@ using CashReceipts.Filters;
 namespace CashReceipts.Controllers
 {
     [IsAdmin]
-    public class PermissionsController : Controller
+    public class PermissionsController : BaseController
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
         // GET: Permissions
         public ActionResult Index()
         {
-            var roles = db.Roles.ToList();
+            var roles = _db.Roles.ToList();
             ViewBag.Roles = new SelectList(roles, "Id", "Name");
             return View();
         }
@@ -23,7 +21,7 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult GetScreens(string roleId)
         {
-            var screens = db.Screens.Include(s => s.Features).Include(x => x.Features.Select(y => y.Roles)).ToList();
+            var screens = _db.Screens.Include(s => s.Features).Include(x => x.Features.Select(y => y.Roles)).ToList();
 
             List<TreeViewModel> tvList = new List<TreeViewModel>();
             foreach (var item in screens)
@@ -64,8 +62,8 @@ namespace CashReceipts.Controllers
         {
             var result = false;
             string[] featureIds = nodeIds.Split(',').Distinct().ToArray();
-            var existingFeatures = db.ScreenFeatures.Include(r => r.Roles).Where(r => r.Roles.Any(ro => ro.RoleId == roleId)).ToList();
-            var allScreenFeatures = db.ScreenFeatures.ToList();
+            var existingFeatures = _db.ScreenFeatures.Include(r => r.Roles).Where(r => r.Roles.Any(ro => ro.RoleId == roleId)).ToList();
+            var allScreenFeatures = _db.ScreenFeatures.ToList();
             RoleFeaturePermission rfp = new RoleFeaturePermission();
             rfp.RoleId = roleId;
             try
@@ -81,15 +79,15 @@ namespace CashReceipts.Controllers
                             if (item.Roles == null)
                                 item.Roles = new List<RoleFeaturePermission>();
                             item.Roles.Add(rfp);
-                            db.SaveChanges();
+                            _db.SaveChanges();
                         }
                     }
                     else if (feature != null)
                     {
-                        rfp = db.RolesPermissions.FirstOrDefault(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId);
+                        rfp = _db.RolesPermissions.FirstOrDefault(rp => rp.FeatureId == feature.Id && rp.RoleId == roleId);
                         // rfp.FeatureId = feature.Id;
-                        db.RolesPermissions.Remove(rfp);
-                        db.SaveChanges();
+                        _db.RolesPermissions.Remove(rfp);
+                        _db.SaveChanges();
                     }
                     rfp = new RoleFeaturePermission { RoleId = roleId };
                 }
@@ -104,6 +102,5 @@ namespace CashReceipts.Controllers
 
             return Json(new {Success = result});
         }
-
     }
 }

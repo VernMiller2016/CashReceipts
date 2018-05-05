@@ -1,0 +1,252 @@
+﻿@model dynamic
+
+@{
+    var permissions = ((Dictionary<string, bool>) ViewBag.Permissions);
+    var hasExportPermission = permissions["hasExportPermission"];
+}
+<style type="text/css">
+    /*.k-filter-row th>span:first-child>span:first-child {
+        width: 85% !important;
+    }*/
+    .box {
+        margin: 10px 0px 2px 0px;
+    }
+
+    .form-control {
+        width: 100% !important;
+        height: 30px !important;
+    }
+</style>
+@section styles{
+    <link href="~/Content/KendoBoxStyles.css" rel="stylesheet" />
+    <link href="~/Content/DaySummaryReport.css" rel="stylesheet" />
+}
+
+<div id="templates" class="">
+    <div class="">
+        <div class="title-section">
+            <h4>Tenders List</h4>
+            <hr />
+        </div>
+        <div class="MainDivToScroll MainDiv">
+            <div id="SystemRolesLst" class="k-content my-k-content">
+                <div class="box wide hidden-on-narrow">
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col">
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>Amount</h4>
+                        <input id="amount" type="number" style="width: 100%" class="form-control" />
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>Type</h4>
+                        <select id="tenderType" class="form-control"></select>
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>From Date</h4>
+                        <input id="fromDate" style="width: 100%" />
+                    </div>
+                    <div class="box-col" style="padding-right: 10px;">
+                        <h4>To Date</h4>
+                        <input id="toDate" style="width: 100%" />
+                    </div>
+                    <div class="box-col">
+                        <img src="/Images/ajax-loader.gif" class="summaryLoading" style="display: none; padding-top: 40px">
+                    </div>
+                    <div class="box-col">
+                        <h4>&nbsp;</h4>
+                        <button class="k-button" onclick="search()">Search</button>
+                    </div>
+                </div>
+                <div id="templateGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var selectedRows = undefined,
+        currentGrid = null,
+        tendersDs,
+        paymentMethods = [],
+        apiUrl = '@Url.Action("Tenders_Read", "Tenders")';
+
+    $(document).ready(function () {
+        // create DatePicker from input HTML element
+        $("#fromDate").kendoDatePicker();
+        $("#toDate").kendoDatePicker();
+
+        $.when($.getJSON('@Url.Action("GetPaymentMethods", "ReceiptHeaders")'))
+            .done(function (result) {
+                paymentMethods = result;
+                $('#tenderType').append('<option></option>');
+                $.each(paymentMethods, function (i, pm) {
+                    $('#tenderType').append('<option value="' + pm.value + '">' + pm.text + '</option>');
+                });
+
+                initGrid();
+            });
+    });
+
+    function search() {
+        var fromDateVal = $("#fromDate").data("kendoDatePicker").value(),
+            toDateVal = $("#toDate").data("kendoDatePicker").value(),
+            tenderType = $('#tenderType').val(),
+            amount = $('#amount').val();
+        tendersDs.transport.options.read.url = apiUrl +
+            "?fromDate=" + kendo.toString(fromDateVal, "d") +
+            "&toDate=" + kendo.toString(toDateVal, "d") +
+            "&tenderType=" + tenderType + 
+            '&amount=' + amount;
+        tendersDs.read();
+    }
+
+    function initGrid() {
+        tendersDs = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: apiUrl,
+                    dataType: "json"
+                },
+                parameterMap: function (options) {
+                    return serialize(options); //contains take, skip, sort, and filters
+                }
+            },
+            batch: true,
+            serverPaging: false,
+            serverFiltering: false,
+            serverSorting: false,
+            pageSize: 20,
+            sort: [{ field: "ReceiptHeaderID", dir: "asc" }],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "TenderID",
+                    fields: {
+                        ReceiptHeaderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        ReceiptHeaderNumber: { validation: { required: false }, type: "number" },
+                        ReceiptDate: { validation: { required: false }, type: "date" },
+                        TenderID: { type: "number", editable: false, nullable: false, defaultValue: 0 },
+                        Description: { validation: { required: false }, type: "string" },
+                        Amount: { validation: { required: true }, type: "number" },
+                        PaymentMethodId: { validation: { required: true }, type: "number", nullable: false }
+                    }
+                },
+                errors: "Errors"
+            },
+            error: function (e) {
+            }
+        });
+
+        $("#templateGrid")
+            .kendoGrid({
+                dataSource: tendersDs,
+                //width: 600,
+                selectable: "row",
+                resizable: true,
+                scrollable: true,
+                sortable: true,
+                filterable: {
+                    extra: false,
+                    operators: {
+                        string: {
+                            contains: "Contains",
+                            startswith: "Starts With"
+                        }
+                    },
+                    mode: "row"
+                },
+                groupable: true,
+                reorderable: true,
+                columnMenu: true,
+                pageable: {
+                    refresh: true,
+                    input: true,
+                    numeric: false,
+                    pageSizes: [10, 20, 30, 50, 75, 100, 500, 1000]
+                },
+                columns: [
+                    {
+                        field: "ReceiptHeaderNumber",
+                        title: "Receipt #",
+                        width: 60
+                    },
+                    {
+                        field: "ReceiptDate",
+                        title: "Receipt Date",
+                        format: "{0:MM/dd/yyyy}",
+                        width: 60
+                    },
+                    {
+                        field: "PaymentMethodId",
+                        title: "Payment Method",
+                        values: paymentMethods,
+                        width: 90
+                    },
+                    {
+                        field: "Description",
+                        title: "Description",
+                        width: 100
+                    },
+                    {
+                        field: "Amount",
+                        title: "Amount",
+                        format: "{0:n2}",
+                        width: 69
+                    },
+                    {
+                        field: "ReceiptDepartment",
+                        title: "Department",
+                        width: 100
+                    }
+                ],
+                editable: false,
+                toolbar: getPossibleActions(),
+                pdf: {
+                    allPages: false/*true*/,
+                    paperSize: "A4",
+                    landscape: true,
+                    //scale: 0.75,
+                    fileName: "line_Items.pdf"
+                },
+                excel: {
+                    fileName: "Line_Items.xlsx",
+                    filterable: true
+                },
+                dataBound: function (e) {
+                    if (!currentGrid)
+                        currentGrid = $("#templateGrid").data("kendoGrid");
+                    enableDisableToolbarButtons(false);
+                },
+                edit: function (e) {
+                },
+                change: function () {
+                    enableDisableToolbarButtons(true);
+                },
+                save: function (e) {
+                },
+                destroy: function () {
+                    enableDisableToolbarButtons(false);
+                }
+            });
+    }
+    
+    function getPossibleActions() {
+        var actions = [];
+        if (@Helpers.ClientBool(hasExportPermission))
+            actions.push("pdf", "excel");
+        return actions;
+    }
+
+    function enableDisableToolbarButtons(isEnable) {
+        if (!isEnable) {
+        } else {
+            
+        }
+    }
+    
+</script>
+@Html.Partial("_HighlightMenu", "Receipts")

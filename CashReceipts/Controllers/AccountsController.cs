@@ -1,52 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Linq;
 using System.Web.Mvc;
 using CashReceipts.Models;
 using System.Data.Entity;
-using System.Data.Entity.Core.Objects;
-using System.Data.Entity.Infrastructure;
-using System.Data.SqlClient;
 using CashReceipts.Filters;
-using CashReceipts.Helpers;
-using Kendo.Mvc.Extensions;
+using CashReceipts.ViewModels;
 using Kendo.Mvc.UI;
 
 namespace CashReceipts.Controllers
 {
     [Authorize]
-    public class AccountsController : Controller
+    public class AccountsController : BaseController
     {
-        private ApplicationDbContext db;
-        public AccessHelper access;
-       
-        public AccountsController() : this(new ApplicationDbContext())
-        {
-            access = new AccessHelper();
-        }
-        public AccountsController(ApplicationDbContext context)
-        {
-            db = context;
-        }
-
         // GET: Templates
         [CanAccess((int)FeaturePermissions.SystemAccountIndex)]
         public ActionResult Index(int? SelectedDepartment)
         {
-            var departments = db.Departments.OrderBy(q => q.Name).ToList();
+            var departments = _db.Departments.OrderBy(q => q.Name).ToList();
             ViewBag.SelectedDepartment = new SelectList(departments, "DepartmentID", "Name", SelectedDepartment);
-            int departmentID = SelectedDepartment.GetValueOrDefault();
-
-            IQueryable<Template> templates = db.Templates
-                .Where(c => !SelectedDepartment.HasValue || c.DepartmentID == departmentID)
+            int departmentId = SelectedDepartment.GetValueOrDefault();
+            var templates = _db.Templates
+                .Where(c => !SelectedDepartment.HasValue || c.DepartmentID == departmentId)
                 .OrderBy(d => d.TemplateID)
                 .Include(d => d.Department);
-            var sql = templates.ToString();
-            ViewBag.isEdit = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.EditSystemAccount).FirstOrDefault() == null ? false : true;
-            ViewBag.isDetails = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.ViewSystemAccount).FirstOrDefault() == null ? false : true;
-            ViewBag.isDelete = access.UserFeatures.Where(f => f.FeatureId == (int)FeaturePermissions.DeleteSystemAccount).FirstOrDefault() == null ? false : true;
+            ViewBag.isEdit = HasAccess(FeaturePermissions.EditSystemAccount);
+            ViewBag.isDetails = HasAccess(FeaturePermissions.ViewSystemAccount);
+            ViewBag.isDelete = HasAccess(FeaturePermissions.DeleteSystemAccount);
             return View(templates.ToList());
         }
 
@@ -58,7 +36,7 @@ namespace CashReceipts.Controllers
             {
                 return HttpNotFound();
             }
-            Template template = db.Templates.Include(x => x.Department).Single(m => m.TemplateID == id);
+            Template template = _db.Templates.Include(x => x.Department).Single(m => m.TemplateID == id);
 
             if (template == null)
             {
@@ -81,8 +59,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Templates.Add(template);
-                db.SaveChanges();
+                _db.Templates.Add(template);
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             PopulateDepartmentsDropDownList();
@@ -98,7 +76,7 @@ namespace CashReceipts.Controllers
                 return HttpNotFound();
             }
 
-            Template template = db.Templates.Single(m => m.TemplateID == id);
+            Template template = _db.Templates.Single(m => m.TemplateID == id);
             if (template == null)
             {
                 return HttpNotFound();
@@ -114,8 +92,8 @@ namespace CashReceipts.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(template).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(template).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             PopulateDepartmentsDropDownList();
@@ -124,7 +102,7 @@ namespace CashReceipts.Controllers
 
         private void PopulateDepartmentsDropDownList(object selectedDepartment = null)
         {
-            var departmentsQuery = from d in db.Departments
+            var departmentsQuery = from d in _db.Departments
                                    orderby d.Name
                                    select d;
             ViewBag.DepartmentID = new SelectList(departmentsQuery, "DepartmentID", "Name", selectedDepartment);
@@ -140,7 +118,7 @@ namespace CashReceipts.Controllers
                 return HttpNotFound();
             }
 
-            Template template = db.Templates.Single(m => m.TemplateID == id);
+            Template template = _db.Templates.Single(m => m.TemplateID == id);
             if (template == null)
             {
                 return HttpNotFound();
@@ -154,9 +132,9 @@ namespace CashReceipts.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Template template = db.Templates.Single(m => m.TemplateID == id);
-            db.Templates.Remove(template);
-            db.SaveChanges();
+            Template template = _db.Templates.Single(m => m.TemplateID == id);
+            _db.Templates.Remove(template);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -171,7 +149,7 @@ namespace CashReceipts.Controllers
             string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
             int accountsValidResultsCount = 0;
-            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.GrantCounty, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
+            var accounts = _db.FilterGlAccounts(skip, take, SearchAccountDataSource.GrantCounty, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
 
@@ -186,9 +164,8 @@ namespace CashReceipts.Controllers
             string fund, string dept, string program, string project, string baseElementObjectDetail, string description)
         {
             int accountsValidResultsCount = 0;
-            var accounts = db.FilterGlAccounts(skip, take, SearchAccountDataSource.District, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
+            var accounts = _db.FilterGlAccounts(skip, take, SearchAccountDataSource.District, fund, dept, program, project, baseElementObjectDetail, description, null, ref accountsValidResultsCount);
             return Json(new { Data = accounts, Total = accountsValidResultsCount }, JsonRequestBehavior.AllowGet);
         }
-        
     }
 }

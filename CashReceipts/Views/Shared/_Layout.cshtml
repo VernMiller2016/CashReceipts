@@ -1,10 +1,10 @@
 ﻿@using CashReceipts.Helpers
 @using System.Linq
-@using System.Data
-@using CashReceipts.Controllers
+@using CashReceipts.Models
+@using CashReceipts.ViewModels
 
 @{
-    AccessHelper access = new AccessHelper();
+    AccessHelper access = new AccessHelper(new ApplicationDbContext());
     var isAdminUser = access.IsAdminUser();
 }
 <!DOCTYPE html>
@@ -99,6 +99,10 @@
                                     @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.SearchLineItemIndex))
                                     {
                                         <li>@Html.ActionLink("Search Line Items", "Search", "ReceiptHeaders")</li>
+                                    }
+                                    @if (access.UserFeatures.Any(x => x.FeatureId == (int)FeaturePermissions.SearchTenders))
+                                    {
+                                        <li>@Html.ActionLink("Search Tenders", "Search", "Tenders")</li>
                                     }
                                 </ul>
                             </li>
