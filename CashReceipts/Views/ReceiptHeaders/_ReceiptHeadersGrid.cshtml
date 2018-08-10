@@ -934,33 +934,33 @@
 
             },
             save: function (e) {
-                if (!e.values.LineTotal)
-                    return;
-                var oldModel = e.model,
-                    receiptsLineTotal = 0,
-                    currentDataSource = this.dataSource,
-                    oldModelAmount = currentDataSource.get(oldModel.ReceiptBodyID).LineTotal;
-                $(currentDataSource.data())
-                    .map(function (i, item) {
-                        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
-                            if (!e.values.LineTotal || item.ReceiptBodyID != e.model.ReceiptBodyID)
-                                receiptsLineTotal += item.LineTotal;
-                            else {
-                                receiptsLineTotal += e.values.LineTotal;
-                            }
-                    });
-                var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
-                if (receiptsLineTotal > receiptHeaderTotal) {
-                    notify.confirm("Receipt body total line sum(" +
-                        receiptsLineTotal + ") is greater than receipt total(" +
-                        receiptHeaderTotal + ")",
-                        "Are you sure you want to continue?",
-                        function (isConfirmed) {
-                            if (!isConfirmed) {
-                                currentDataSource.get(oldModel.ReceiptBodyID).set("LineTotal", oldModelAmount);
-                            }
-                        });
-                }
+                //if (!e.values.LineTotal)
+                //    return;
+                //var oldModel = e.model,
+                //    receiptsLineTotal = 0,
+                //    currentDataSource = this.dataSource,
+                //    oldModelAmount = currentDataSource.get(oldModel.ReceiptBodyID).LineTotal;
+                //$(currentDataSource.data())
+                //    .map(function (i, item) {
+                //        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
+                //            if (!e.values.LineTotal || item.ReceiptBodyID != e.model.ReceiptBodyID)
+                //                receiptsLineTotal += item.LineTotal;
+                //            else {
+                //                receiptsLineTotal += e.values.LineTotal;
+                //            }
+                //    });
+                //var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
+                //if (receiptsLineTotal > receiptHeaderTotal) {
+                //    notify.confirm("Receipt body total line sum(" +
+                //        receiptsLineTotal + ") is greater than receipt total(" +
+                //        receiptHeaderTotal + ")",
+                //        "Are you sure you want to continue?",
+                //        function (isConfirmed) {
+                //            if (!isConfirmed) {
+                //                currentDataSource.get(oldModel.ReceiptBodyID).set("LineTotal", oldModelAmount);
+                //            }
+                //        });
+                //}
             }
         })
             .find("table").on("keydown", onBodyGridKeydown);
