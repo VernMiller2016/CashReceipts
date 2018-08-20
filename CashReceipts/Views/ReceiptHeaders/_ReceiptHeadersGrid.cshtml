@@ -717,34 +717,34 @@
                 //});
             },
             save: function (e) {
-                if (!e.values.Amount)
-                    return;
-                var oldModel = e.model,
-                    receiptsTenderTotal = 0,
-                    currentDataSource = this.dataSource,
-                    oldModelAmount = currentDataSource.get(oldModel.TenderID).Amount;
+                //if (!e.values.Amount)
+                //    return;
+                //var oldModel = e.model,
+                //    receiptsTenderTotal = 0,
+                //    currentDataSource = this.dataSource,
+                //    oldModelAmount = currentDataSource.get(oldModel.TenderID).Amount;
 
-                $(currentDataSource.data())
-                    .map(function (i, item) {
-                        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
-                            if (!e.values.Amount || item.TenderID != e.model.TenderID)
-                                receiptsTenderTotal += item.Amount;
-                            else {
-                                receiptsTenderTotal += e.values.Amount;
-                            }
-                    });
-                var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
-                if (receiptsTenderTotal > receiptHeaderTotal) {
-                    notify.confirm("Tenders total amount(" +
-                        receiptsTenderTotal + ") is greater than receipt total(" +
-                        receiptHeaderTotal + ")",
-                        "Are you sure you want to continue?",
-                        function (isConfirmed) {
-                            if (!isConfirmed) {
-                                currentDataSource.get(oldModel.TenderID).set("Amount", oldModelAmount);
-                            }
-                        });
-                }
+                //$(currentDataSource.data())
+                //    .map(function (i, item) {
+                //        if (item.ReceiptHeaderID == e.model.ReceiptHeaderID)
+                //            if (!e.values.Amount || item.TenderID != e.model.TenderID)
+                //                receiptsTenderTotal += item.Amount;
+                //            else {
+                //                receiptsTenderTotal += e.values.Amount;
+                //            }
+                //    });
+                //var receiptHeaderTotal = headersDataSources.get(e.model.ReceiptHeaderID).ReceiptTotal;
+                //if (receiptsTenderTotal > receiptHeaderTotal) {
+                //    notify.confirm("Tenders total amount(" +
+                //        receiptsTenderTotal + ") is greater than receipt total(" +
+                //        receiptHeaderTotal + ")",
+                //        "Are you sure you want to continue?",
+                //        function (isConfirmed) {
+                //            if (!isConfirmed) {
+                //                currentDataSource.get(oldModel.TenderID).set("Amount", oldModelAmount);
+                //            }
+                //        });
+                //}
             }
         });
     }
