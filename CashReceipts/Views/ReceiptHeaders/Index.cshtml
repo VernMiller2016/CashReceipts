@@ -3,5 +3,9 @@
 @{
     ViewBag.Title = "Receipts";
 }
+
+
 @Html.Partial("_ReceiptHeadersGrid", Model)
 @Html.Partial("_HighlightMenu", "Receipts")
+
+@Scripts.Render("~/bundles/receipt-headers")

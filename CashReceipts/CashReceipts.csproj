@@ -436,6 +436,7 @@
     <None Include="Properties\PublishProfiles\Local.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap3.3.5.min.js" />
+    <Content Include="Scripts\CashReceipts\ReceiptHeaders.js" />
     <Content Include="Scripts\Helpers.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
