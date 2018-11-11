@@ -71,7 +71,7 @@
 
                         $("#templateGrid").kendoGrid({
                             dataSource: accountsDs,
-
+                            toolbar: ["excel", "pdf"],
                             //width: 600,
                             selectable: "row",
                             resizable: true,
@@ -170,7 +170,6 @@
                                 }
                             ],
                             editable: "inline",
-                            toolbar: [],
                             dataBound: function (e) {
                                 //enableDisableActions(false);
                                 if (!currentGrid)

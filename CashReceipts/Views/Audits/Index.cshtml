@@ -76,6 +76,7 @@
                                 groupable: true,
                                 reorderable: true,
                                 columnMenu: true,
+                                toolbar: ["excel", "pdf"],
                                 pageable: {
                                     refresh: true,
                                     input: true,
@@ -114,7 +115,6 @@
                                     }
                                 ],
                                 editable: false,
-                                toolbar: [],
                                 dataBound: function(e) {
                                     if (!currentGrid)
                                         currentGrid = $("#templateGrid").data("kendoGrid");
