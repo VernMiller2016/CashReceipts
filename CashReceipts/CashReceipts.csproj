@@ -251,6 +251,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Migrations\201811110206541_Add_ReceiptHeader_DeleteReason.cs" />
+    <Compile Include="Migrations\201811110206541_Add_ReceiptHeader_DeleteReason.Designer.cs">
+      <DependentUpon>201811110206541_Add_ReceiptHeader_DeleteReason.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201811110334268_Add_Audits_Notes.cs" />
+    <Compile Include="Migrations\201811110334268_Add_Audits_Notes.Designer.cs">
+      <DependentUpon>201811110334268_Add_Audits_Notes.cs</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\FeaturePermissions.cs" />
     <Compile Include="Filters\CanAccess.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -380,6 +388,7 @@
     <Compile Include="ViewModels\LineItemCsv.cs" />
     <Compile Include="ViewModels\ReceiptCsv.cs" />
     <Compile Include="ViewModels\ReceiptDetailsCsv.cs" />
+    <Compile Include="ViewModels\ReceiptHeaderDeleteModel.cs" />
     <Compile Include="ViewModels\TenderCsv.cs" />
     <Compile Include="ViewModels\UsersVM.cs" />
   </ItemGroup>
@@ -2176,6 +2185,7 @@
     <Content Include="Scripts\KenodUI2017.1.223\styles\kendo.uniform.mobile.min.css.map" />
     <Content Include="Views\Error\NotAuthorized.cshtml" />
     <Content Include="Views\Tenders\Search.cshtml" />
+    <Content Include="Views\Audits\Detail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2237,6 +2247,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201805020107486_AddNew_TendersSearch_Screen.resx">
       <DependentUpon>201805020107486_AddNew_TendersSearch_Screen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811110206541_Add_ReceiptHeader_DeleteReason.resx">
+      <DependentUpon>201811110206541_Add_ReceiptHeader_DeleteReason.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201811110334268_Add_Audits_Notes.resx">
+      <DependentUpon>201811110334268_Add_Audits_Notes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

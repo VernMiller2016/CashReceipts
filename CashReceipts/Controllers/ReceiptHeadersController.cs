@@ -358,6 +358,7 @@ namespace CashReceipts.Controllers
         }
 
         [HttpPost]
+        [Obsolete("No longer Used")]
         public ActionResult ReceiptHeaders_Destroy([DataSourceRequest] DataSourceRequest request, IEnumerable<ReceiptHeader> receiptHeaders)
         {
             var receiptHeadersList = receiptHeaders as List<ReceiptHeader> ?? receiptHeaders.ToList();
@@ -365,40 +366,60 @@ namespace CashReceipts.Controllers
             {
                 foreach (var receiptHeader in receiptHeadersList)
                 {
-                    var receiptHeaderInDb = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeader.ReceiptHeaderID);
-                    if (receiptHeaderInDb != null && !receiptHeaderInDb.IsPosted)
+                    var errorMessage = DeleteReceiptHeader(receiptHeader.ReceiptHeaderID, "");
+                    if (!string.IsNullOrEmpty(errorMessage))
                     {
-                        var userId = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                        receiptHeaderInDb.IsDeleted = true;
-                        _db.Audits.Add(new Audit
-                        {
-                            EntityId = receiptHeaderInDb.ReceiptHeaderID.ToString(),
-                            EntityType = SysEntityType.ReceiptHeader,
-                            OperationType = OperationType.Delete,
-                            UserId = userId,
-                            ActionDate = DateTime.Now
-                        });
-                        try
-                        {
-                            if (_db.SaveChanges() <= 0)
-                            {
-                                ModelState.AddModelError("_deleteKey", "Can't remove this receipt header from database");
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            ModelState.AddModelError("_deleteKey", "Can't remove this receipt header from database");
-                        }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("_deleteKey",
-                            "Receipt is not removed. Either receipt doesn't exist or it's locked");
+                        ModelState.AddModelError("_deleteKey", errorMessage);
                     }
                 }
             }
             return Json(receiptHeadersList.ToDataSourceResult(request, ModelState));
         }
+
+        [HttpPost]
+        public ActionResult ReceiptHeaders_Delete(ReceiptHeaderDeleteModel model)
+        {
+            var errorMessage = DeleteReceiptHeader(model.Id, model.Reason);
+            return Json(new { Success = string.IsNullOrEmpty(errorMessage), Message = errorMessage });
+        }
+
+        private string DeleteReceiptHeader(int receiptHeaderID, string reason)
+        {
+            string errorMessage = "";
+            var receiptHeaderInDb = _db.ReceiptHeaders.SingleOrDefault(x => x.ReceiptHeaderID == receiptHeaderID);
+            if (receiptHeaderInDb != null && !receiptHeaderInDb.IsPosted)
+            {
+                var userId = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                receiptHeaderInDb.IsDeleted = true;
+                _db.Audits.Add(new Audit
+                {
+                    EntityId = receiptHeaderInDb.ReceiptHeaderID.ToString(),
+                    EntityType = SysEntityType.ReceiptHeader,
+                    OperationType = OperationType.Delete,
+                    UserId = userId,
+                    ActionDate = DateTime.Now,
+                    Notes = reason
+                });
+                try
+                {
+                    if (_db.SaveChanges() <= 0)
+                    {
+                        errorMessage = "Can't remove this receipt header from database";
+                    }
+                }
+                catch (Exception)
+                {
+                    errorMessage = "Can't remove this receipt header from database";
+                }
+            }
+            else
+            {
+                errorMessage = "Receipt is not removed. Either receipt doesn't exist or it's locked";
+            }
+
+            return errorMessage;
+        }
+
         #endregion
 
         #region Receipt Body Grid Actions
@@ -1244,7 +1265,7 @@ namespace CashReceipts.Controllers
             filestream.Close();
             return File(filestream.ToArray(), "pdf", $"Receipt_{receipt.ReceiptNumber}.pdf");
         }
-        
+
         [HttpPost]
         public ActionResult CheckReciptHeaderTotals(int receiptHeaderId)
         {
@@ -1366,8 +1387,8 @@ namespace CashReceipts.Controllers
             else
             {
                 var receipts = _db.ReceiptHeaders.Where(x => receiptsIds.Contains(x.ReceiptHeaderID))
-                    .Include(x=>x.Tenders)
-                    .Include(x=>x.ReceiptBodyRecords)
+                    .Include(x => x.Tenders)
+                    .Include(x => x.ReceiptBodyRecords)
                     .ToList();
                 foreach (var receiptHeader in receipts)
                 {

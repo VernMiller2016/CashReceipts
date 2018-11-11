@@ -21,5 +21,7 @@ namespace CashReceipts.Models
 
         [Required]
         public DateTime ActionDate { get; set; }
+
+        public string Notes { get; set; }
     }
 }

@@ -144,6 +144,25 @@
     </div>
 </script>
 
+<div id="deleteReceiptHeaderWnd">
+    <table width="90%">
+        <tr>
+            <td>
+                <div class="col-md-12" style="padding-left: 0">
+                    <input type="hidden" value="" id="deletedreceiptheaderid"/>
+                    <label>Please enter deletion reason *</label>
+                    <textarea id="deletereason" type="text" cols="12" rows="6" style="min-width: 350px;" class="form-control input-sm" required></textarea>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center;padding-top: 5px">
+                <button type="submit" class="btn btn-primary" onclick="confirmReceiptHeaderDelete(this)"><i class="fa fa-close"></i> Confirm Delete</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
 <script>
     var selectedRows = undefined,
         currentGrid = null,
@@ -312,7 +331,7 @@
                 this.cancelChanges();
             }
         });
-
+        
         $("#headersGrid")
             .kendoGrid({
                 dataSource: headersDataSources,
@@ -381,9 +400,12 @@
                                 visible: function(dataItem) { return !dataItem.IsPosted && @Helpers.ClientBool(hasEditReceiptsPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
                             },
                             {
+                                name: "remove", template: "<a role='button' class='k-button k-button-icontext k-grid-delete-header' onclick='deleteReceiptHeader(event, this)'><span class='k-icon k-i-close'></span>Delete</a>"
+                            },
+                            @*{
                                 name: "destroy",
                                 visible: function(dataItem) { return !dataItem.IsPosted && @Helpers.ClientBool(hasDeleteReceiptsPermission) && (@Helpers.ClientBool((bool)ViewBag.IsAdmin) || dataItem.ClerkID == '@(ViewBag.UserClerkId)') }
-                            }
+                            }*@
                         ],
                         title: "&nbsp;",
                         width: "90px"
@@ -444,6 +466,59 @@
             });
     }
 
+    
+    var deleteReceiptHeader = function (e, elem) {
+        e.preventDefault();
+        var grid = $("#headersGrid").data("kendoGrid");
+        var uid = $(elem).parents('tr:first').data('uid');
+        var receiptHeaderId = grid.dataSource.getByUid(uid).ReceiptHeaderID;
+        $('#deletedreceiptheaderid').val(receiptHeaderId);
+        deleteReceiptHeaderWnd.center().open();
+    };
+
+    var deleteReceiptHeaderWnd = $("#deleteReceiptHeaderWnd")
+        .kendoWindow({
+            title: "Receipt Header Delete Confirmation",
+            modal: true,
+            visible: false,
+            resizable: true,
+            width: 400,
+            close: function(e) {
+                
+            }
+        }).data("kendoWindow");
+
+    function confirmReceiptHeaderDelete() {
+        var reason = $('#deletereason').val();
+        if (!reason) {
+            alert('Please enter a delete reason.');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("ReceiptHeaders_Delete")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ Id: $('#deletedreceiptheaderid').val(), Reason: reason })
+        }).done(function (data) {
+            if (!data.Success) {
+                alert(data.Message);
+            }
+            deleteReceiptHeaderWnd.close();
+            //refresh the original grid
+            var grid = $("#headersGrid").data("kendoGrid");
+            if (grid) {
+                grid.dataSource.read();
+                grid.refresh();
+            }
+
+            //clear modal values
+            $('#deletedreceiptheaderid').val('');
+            $('#deletereason').val('');
+
+        });
+    }
+    
     function receiptHeaderOnDataBound(e) {
         var grid = $("#headersGrid").data("kendoGrid");
         var gridData = grid.dataSource.view();

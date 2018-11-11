@@ -45,7 +45,8 @@ namespace CashReceipts.Controllers
                     UserId = x.UserId,
                     EntityType = x.EntityType,
                     OperationType = x.OperationType,
-                    EntityId = x.EntityId
+                    EntityId = x.EntityId,
+                    Notes = x.Notes
                 }).ToList();
             foreach (var receiptHeader in receiptHeaders)
             {
@@ -62,6 +63,13 @@ namespace CashReceipts.Controllers
         {
             var users = UserManager.Users.Select(x => new { text = x.UserName, value = x.Id }).ToList();
             return Json(users, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetReceiptDetailByNumber(int id)
+        {
+            var receipt = _db.ReceiptHeaders.FirstOrDefault(r => r.ReceiptNumber == id);
+            return View("Detail", receipt);
         }
     }
 }

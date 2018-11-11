@@ -12,5 +12,6 @@ namespace CashReceipts.ViewModels
         public OperationType OperationType { get; set; }
         public string EntityId { get; set; }
         public int? ReceiptNumber { get; set; }
+        public string Notes { get; set; }
     }
 }

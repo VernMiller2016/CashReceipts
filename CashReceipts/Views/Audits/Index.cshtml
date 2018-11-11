@@ -1,145 +1,184 @@
-﻿
-
-<div id="templates" class="">
+﻿<div id="templates" class="">
     <div class="">
         <div class="title-section">
             <h4>Audits Info</h4>
-            <hr/>
+            <hr />
         </div>
         <div class="MainDivToScroll MainDiv">
             <div id="SystemRolesLst" class="k-content my-k-content">
                 <div id="templateGrid"></div>
-                <script>
-                    var selectedRows = undefined,
-                        templatesDataSources,
-                        currentGrid = null;
-                    var entityTypesList = [{ text: 'Receipt', value: 0 }],
-                        operationTypesList = [{ text: 'Delete', value: 0 }],
-                        usersList = [];
-
-                    function initAuditInfoGrid() {
-
-                        templatesDataSources = new kendo.data.DataSource({
-                            transport: {
-                                read: {
-                                    url: '@Url.Action("Audits_Read", "Audits")',
-                                    dataType: "json"
-                                }
-                            },
-                            batch: true,
-                            pageSize: 20,
-                            serverPaging: false,
-                            sort: [{ field: "ActionDate", dir: "desc" }],
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                model: {
-                                    id: "Id",
-                                    fields: {
-                                        Id: { editable: false, nullable: false, defaultValue: 0 },
-                                        ActionDate: {
-                                            type: "date"
-                                        },
-                                        EntityType: {
-                                            type: "number"
-                                        },
-                                        OperationType: { type: "number" },
-                                        ReceiptNumber: { type: "string" },
-                                        UserId: { type: "string" }
-                                    }
-                                },
-                                errors: "Errors"
-                            },
-                            error: function(e) {
-                                if (e.errors && e.errors["_addKey"]) {
-                                    notify.showError(e.errors["_addKey"].errors[0]);
-                                } else if (e.errors && e.errors["_deleteKey"]) {
-                                    notify.showError(e.errors["_deleteKey"].errors[0]);
-                                } else if (e.errors && e.errors["_updateKey"]) {
-                                    notify.showError(e.errors["_updateKey"].errors[0]);
-                                } else {
-                                    notify.showError('An error has been occurred, please contact system admin.');
-                                }
-                                this.cancelChanges();
-                            }
-                        });
-
-                        $("#templateGrid")
-                            .kendoGrid({
-                                dataSource: templatesDataSources,
-                                //width: 600,
-                                selectable: "row",
-                                resizable: true,
-                                scrollable: true,
-                                sortable: true,
-                                filterable: true,
-                                groupable: true,
-                                reorderable: true,
-                                columnMenu: true,
-                                toolbar: ["excel", "pdf"],
-                                pageable: {
-                                    refresh: true,
-                                    input: true,
-                                    numeric: false,
-                                    pageSizes: [10, 20, 30, 50, 75, 100]
-                                },
-                                columns: [
-                                    {
-                                        field: "ActionDate",
-                                        title: "Action Date",
-                                        format: "{0:MM/dd/yyyy HH:MM}",
-                                        width: 65
-                                    },
-                                    {
-                                        field: "UserId",
-                                        title: "User Name",
-                                        values: usersList,
-                                        width: 100
-                                    },
-                                    {
-                                        field: "EntityType",
-                                        title: "Entity Type",
-                                        values: entityTypesList,
-                                        width: 45
-                                    },
-                                    {
-                                        field: "OperationType",
-                                        title: "Operation Type",
-                                        values: operationTypesList,
-                                        width: 45
-                                    },
-                                    {
-                                        field: "ReceiptNumber",
-                                        title: "Receipt Number",
-                                        width: 50
-                                    }
-                                ],
-                                editable: false,
-                                dataBound: function(e) {
-                                    if (!currentGrid)
-                                        currentGrid = $("#templateGrid").data("kendoGrid");
-                                },
-                                edit: function(e) {
-                                },
-                                change: function() {
-                                },
-                                save: function(e) {
-                                }
-                            });
-                    }
-
-                    $(document)
-                        .ready(function() {
-                            $.getJSON('@Url.Action("GetSysUsersList")',
-                                function(data) {
-                                    usersList = data;
-                                    initAuditInfoGrid();
-                                });
-                        });
-
-                </script>
             </div>
         </div>
     </div>
 </div>
+<div id="viewReceiptHeaderDetailWnd">
+</div>
+<script>
+    var selectedRows = undefined,
+        templatesDataSources,
+        currentGrid = null;
+    var entityTypesList = [{ text: 'Receipt', value: 0 }],
+        operationTypesList = [{ text: 'Delete', value: 0 }],
+        usersList = [];
+
+    function initAuditInfoGrid() {
+
+        templatesDataSources = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: '@Url.Action("Audits_Read", "Audits")',
+                    dataType: "json"
+                }
+            },
+            batch: true,
+            pageSize: 20,
+            serverPaging: false,
+            sort: [{ field: "ActionDate", dir: "desc" }],
+            schema: {
+                data: "Data",
+                total: "Total",
+                model: {
+                    id: "Id",
+                    fields: {
+                        Id: { editable: false, nullable: false, defaultValue: 0 },
+                        ActionDate: {
+                            type: "date"
+                        },
+                        EntityType: {
+                            type: "number"
+                        },
+                        OperationType: { type: "number" },
+                        ReceiptNumber: { type: "string" },
+                        UserId: { type: "string" },
+                        Notes: { type: "string" },
+                    }
+                },
+                errors: "Errors"
+            },
+            error: function(e) {
+                if (e.errors && e.errors["_addKey"]) {
+                    notify.showError(e.errors["_addKey"].errors[0]);
+                } else if (e.errors && e.errors["_deleteKey"]) {
+                    notify.showError(e.errors["_deleteKey"].errors[0]);
+                } else if (e.errors && e.errors["_updateKey"]) {
+                    notify.showError(e.errors["_updateKey"].errors[0]);
+                } else {
+                    notify.showError('An error has been occurred, please contact system admin.');
+                }
+                this.cancelChanges();
+            }
+        });
+
+        $("#templateGrid")
+            .kendoGrid({
+                dataSource: templatesDataSources,
+                //width: 600,
+                selectable: "row",
+                resizable: true,
+                scrollable: true,
+                sortable: true,
+                filterable: true,
+                groupable: true,
+                reorderable: true,
+                columnMenu: true,
+                toolbar: ["excel", "pdf"],
+                pageable: {
+                    refresh: true,
+                    input: true,
+                    numeric: false,
+                    pageSizes: [10, 20, 30, 50, 75, 100]
+                },
+                columns: [
+                    {
+                        field: "ActionDate",
+                        title: "Action Date",
+                        format: "{0:MM/dd/yyyy HH:MM}",
+                        width: 65
+                    },
+                    {
+                        field: "UserId",
+                        title: "User Name",
+                        values: usersList,
+                        width: 90
+                    },
+                    {
+                        field: "EntityType",
+                        title: "Entity Type",
+                        values: entityTypesList,
+                        width: 45
+                    },
+                    {
+                        field: "OperationType",
+                        title: "Operation Type",
+                        values: operationTypesList,
+                        width: 45
+                    },
+                    {
+                        field: "ReceiptNumber",
+                        title: "Receipt Number",
+                        width: 55
+                    },
+                    {
+                        field: "Notes",
+                        title: "Notes",
+                        width: 100
+                    },
+                    {
+                        command: [{
+                            name: "ViewDetails",
+                            template: "<a class='k-button k-button-icontext k-grid-ViewDetails' onclick='viewReceiptHeaderDetail(event, this)'>View Details</a>"
+                        }],
+                        title: "&nbsp;", width: "40px"
+                    }
+                ],
+                editable: false,
+                dataBound: function(e) {
+                    if (!currentGrid)
+                        currentGrid = $("#templateGrid").data("kendoGrid");
+                },
+                edit: function(e) {
+                },
+                change: function() {
+                },
+                save: function(e) {
+                }
+            });
+    }
+
+    var viewReceiptHeaderDetailWnd = $("#viewReceiptHeaderDetailWnd")
+        .kendoWindow({
+            title: "Receipt Details",
+            modal: true,
+            visible: false,
+            resizable: true,
+            width: 800,
+            close: function(e) {
+
+            }
+        }).data("kendoWindow");
+
+    var viewReceiptHeaderDetail = function (e, elem) {
+        e.preventDefault();
+        var grid = $("#templateGrid").data("kendoGrid");
+        var uid = $(elem).parents('tr:first').data('uid');
+        var receiptNumber = grid.dataSource.getByUid(uid).ReceiptNumber;
+
+        $.get('@Url.Action("GetReceiptDetailByNumber")/' + receiptNumber,
+            function(data) {
+                $('#viewReceiptHeaderDetailWnd').html(data);
+                viewReceiptHeaderDetailWnd.center().open();
+            }).fail(function() {
+            alert('An error has occurred fetching receipt detail from server');
+        });
+    };
+
+    $(document).ready(function() {
+            $.getJSON('@Url.Action("GetSysUsersList")',
+                function(data) {
+                    usersList = data;
+                    initAuditInfoGrid();
+                });
+        });
+
+</script>
 @Html.Partial("_HighlightMenu", "Reports")
