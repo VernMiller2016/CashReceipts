@@ -7,6 +7,7 @@ using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data.Entity;
 
 namespace CashReceipts.Controllers
 {
@@ -68,7 +69,12 @@ namespace CashReceipts.Controllers
         [HttpGet]
         public ActionResult GetReceiptDetailByNumber(int id)
         {
-            var receipt = _db.ReceiptHeaders.FirstOrDefault(r => r.ReceiptNumber == id);
+            var receipt = _db.ReceiptHeaders
+                .Include(r=>r.Clerk)
+                .Include(r=>r.Department)
+                .Include(r=>r.ReceiptBodyRecords.Select(b=>b.Template))
+                .Include(r=>r.Tenders.Select(t=>t.PaymentMethod))
+                .FirstOrDefault(r => r.ReceiptNumber == id);
             return View("Detail", receipt);
         }
     }

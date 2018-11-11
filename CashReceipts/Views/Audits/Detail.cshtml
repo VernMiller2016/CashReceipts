@@ -4,4 +4,93 @@
     Layout = null;
 }
 
-Receipt: @Model.ReceiptNumber
+<style type="text/css">
+    .row {
+        padding-top: 20px;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+</style>
+<div id="tabs">
+    <ul>
+        <li><a href="#tabs-1">Receipt Info.</a></li>
+        <li><a href="#tabs-2">Receipt Body</a></li>
+        <li><a href="#tabs-3">Tender</a></li>
+    </ul>
+    <div id="tabs-1">
+        <div class="row">
+            <div class="col-md-1 bold">Receipt Number</div>
+            <div class="col-md-2">@Model.ReceiptNumber</div>
+            <div class="col-md-1 bold">Date</div>
+            <div class="col-md-2">@Model.ReceiptDate.ToString("MM/dd/yyyy")</div>
+            <div class="col-md-1 bold">Total</div>
+            <div class="col-md-2">@Model.ReceiptTotal.ToString("C")</div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-1 bold">Clerk</div>
+            <div class="col-md-2">@(Model.Clerk?.LastName ?? "" + " " + Model.Clerk?.FirstName)</div>
+            <div class="col-md-1 bold">Department</div>
+            <div class="col-md-4">@(Model.Department?.Name)</div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-1 bold">Received From</div>
+            <div class="col-md-2">@Model.Comments</div>
+            <div class="col-md-1 bold">Received For</div>
+            <div class="col-md-4">@Model.ReceivedFor</div>
+        </div>
+    </div>
+    <div id="tabs-2">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Account Number</th>
+                    <th>Line Total</th>
+                    <th>Template</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.ReceiptBodyRecords)
+                {
+                    <tr>
+                        <td>@b.AccountNumber</td>
+                        <td>@b.LineTotal.ToString("C")</td>
+                        <td>@(b.Template?.Description ?? "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div id="tabs-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Payment Method</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var t in Model.Tenders)
+            {
+                <tr>
+                    <td>@(t.PaymentMethod?.Name ?? "")</td>
+                    <td>@t.Description</td>
+                    <td>@(t.Amount.ToString("C"))</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $("#tabs").tabs({
+            collapsible: true
+        });
+    });
+</script>
