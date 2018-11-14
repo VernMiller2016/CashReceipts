@@ -194,13 +194,13 @@ var receiptsHeaderGridInit = function () {
                 }, {
                     field: "ReceiptDate",
                     title: "Receipt Date",
-                    format: "{0: MM/dd/yyyy}",
+                    format: "{0:MM/dd/yyyy}",
                     width: 90
                 }, {
                     field: "ReceiptTotal",
                     title: "Receipt Total",
                     editor: oldNumericBoxEditor,
-                    format: "{0: n2}",
+                    format: "{0:n2}",
                     width: 90
                 },
                 {
@@ -593,7 +593,7 @@ function initTendersGrid(receiptTendersDiv, headersGridRef) {
                 field: "Amount",
                 title: "Amount",
                 editor: oldNumericBoxEditor,
-                format: "{0: n2}",
+                format: "{0:n2}",
                 footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
                 width: 69
             },
@@ -789,7 +789,7 @@ function initReceiptsBodyGrid(receiptBodyDiv, headersGridRef) {
                 field: "LineTotal",
                 title: "Line Total",
                 editor: oldNumericBoxEditor,
-                format: "{0: n2}",
+                format: "{0:n2}",
                 headerAttributes: { style: "text-align:right" },
                 attributes: { class: "text-right editable-cell highlight-cell-text" },
                 footerTemplate: "Total: #=kendo.toString(sum, 'C')#",
