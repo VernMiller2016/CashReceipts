@@ -13,6 +13,7 @@ using System.Text;
 using CashReceipts.ViewModels;
 using ServiceStack;
 using CashReceipts.Helpers;
+using Microsoft.Ajax.Utilities;
 
 namespace CashReceipts.Controllers
 {
@@ -30,6 +31,7 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult DepartmentsSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime? startDate, DateTime? endDate, int? clerkId)
         {
+            
             var summaryData = _db.ReceiptHeaders.Include(x => x.Department)
                 .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
                 .Where(x => !startDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptDate, startDate) <= 0)
@@ -38,15 +40,44 @@ namespace CashReceipts.Controllers
                 .ToList()
                 .Select(
                     x =>
-                        new
+                        new CashReceiptDaySummaryReportModel
                         {
-                            x.ReceiptHeaderID,
+                            ReceiptHeaderID = x.ReceiptHeaderID,
                             DepartmentId = x.DepartmentID,
                             ReceiptNumber = x.ReceiptNumber,
                             DepartmentName = x.Department.Name,
                             Total = x.ReceiptTotal,
                             Locked = x.IsPosted ? "Yes" : "No"
                         }).ToList();
+
+            if (summaryData.Any())
+            {
+                var minReceiptNumber = summaryData.FirstOrDefault()?.ReceiptNumber;
+                var maxReceiptNumber = summaryData.LastOrDefault()?.ReceiptNumber;
+                var differenceBetweenMinAndMax = maxReceiptNumber - minReceiptNumber;
+                if (differenceBetweenMinAndMax > summaryData.Count())
+                {
+                    var missingReceiptNumbers = _db.ReceiptHeaders.Include(x => x.Department)
+                .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
+                .Where(x => x.ReceiptNumber > minReceiptNumber && x.ReceiptNumber < maxReceiptNumber)
+                .OrderBy(x => x.ReceiptNumber)
+                .ToList()
+                .Select(
+                    x =>
+                        new CashReceiptDaySummaryReportModel
+                        {
+                            ReceiptHeaderID = x.ReceiptHeaderID,
+                            DepartmentId = x.DepartmentID,
+                            ReceiptNumber = x.ReceiptNumber,
+                            DepartmentName = x.Department.Name,
+                            Total = 0.00M,
+                            Locked = x.IsPosted ? "Yes" : "No"
+                        }).ToList();
+
+                    summaryData.AddRange(missingReceiptNumbers);// myList.DistinctBy(x => x.prop1).ToList();
+                    summaryData = summaryData.DistinctBy(x=>x.ReceiptNumber).OrderBy(x => x.ReceiptNumber).ToList();
+                }
+            }
 
             return Json(summaryData.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
