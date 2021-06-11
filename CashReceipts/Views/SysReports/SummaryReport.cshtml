@@ -14,6 +14,10 @@
         .margin_10 {
             margin-left: 10px !important;
         }
+        html {
+            font-size: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
     </style>
 }
 
@@ -127,7 +131,7 @@
     </div>
 
     <div class="page-container hidden-on-narrow">
-        <div class="pdf-page size-a4">
+        <div class="pdf-page size-a4" style="width:12in;">
             @*<div class="pdf-header">
                     <span class="company-logo">
                         <img src="~/Images/company_logo.jpg" /> Cash Receipting System
@@ -147,7 +151,7 @@
                 <p>
                     Summary Date From <span class="selectedStartDate"></span> to <span class="selectedEndDate"></span>
                 </p>
-                <div id="grid"></div>
+                <div id="grid" style="font-size: x-small"></div>
                 <br class="page-break" />
                 <h4>Tenders</h4>
                 <div id="tendersGrid"></div>
@@ -213,7 +217,11 @@
             itemsPerPage = parseInt($('#itemsPerPage').val());
             var grid = $("#grid").data("kendoGrid");
             grid.hideColumn(0);
-            grid.hideColumn(3);
+            grid.hideColumn(1);
+            grid.hideColumn(4);
+            grid.hideColumn(6);
+            grid.hideColumn(7);
+            grid.hideColumn(8);
             $('#grid .k-grid-footer').css('padding-right', '0');
 
             kendo.drawing.drawDOM(elem, {
@@ -232,10 +240,16 @@
                         fileName: "Invoice.pdf"
                     });
                     grid.showColumn(0);
+                    grid.showColumn(1);
+                    grid.showColumn(4);
+                    grid.showColumn(6);
+                    grid.showColumn(7);
+                    grid.showColumn(8);
+
                     if(@(((bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower()))
-                        grid.showColumn(3);
+                        grid.showColumn(4);
                     $('#grid .k-grid-footer').css('padding-right', '17px');
-                    elem.css('font-size', "14px");
+                    elem.css('font-size', "10px");
                     $('.pdfExportLoading').hide();
                 });
                 //.then(function (group) {
@@ -333,19 +347,28 @@
                         //"#if(!Locked){# <input type='checkbox' class='checkbox' /> #}#"
                         headerTemplate: "<input type='checkbox' id='checkAll' class='margin_10'/>"
                     },
-                    { field: "ReceiptNumber", title: "Receipt#", width: 70 },
+                    { field:  "Date", title: "Date", width: 90},
+                    { field: "ReceiptNumber", title: "Receipt#", width: 90 },
                     { field: "DepartmentName", title: "Department Name", width: 290 },
-                    { width: 90, field: "Locked", title: "Is Locked", hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
+                    { field: "Locked", title: "Is Locked", width: 90, hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
-                        width: 180,
+                        width: 115,
                         aggregates: ["sum"],
                         footerTemplate: "#=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
                         //headerAttributes: { style: "text-align:right" },
                         //attributes: { class: "text-right" }
-                    }
+                    },
+                    {
+                        field: "VirtualTotal",
+                        title: "Not Included Total",
+                        width: 110,
+                        format: "{0:n2}",
+                    },
+                    { field: "Void", title: "Void", width: "30px" },
+                    { field: "InTotal", title: "In Total ?", width: "50px"}
                 ];
                 summaryGrid = $("#grid")
                     .kendoGrid({

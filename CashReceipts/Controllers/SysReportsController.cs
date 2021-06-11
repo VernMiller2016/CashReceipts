@@ -31,9 +31,9 @@ namespace CashReceipts.Controllers
         [NoCache]
         public ActionResult DepartmentsSummary_Read([DataSourceRequest] DataSourceRequest request, DateTime? startDate, DateTime? endDate, int? clerkId)
         {
-            
+
             var summaryData = _db.ReceiptHeaders.Include(x => x.Department)
-                .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
+                .Where(x => (!clerkId.HasValue || x.ClerkID == clerkId))
                 .Where(x => !startDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptDate, startDate) <= 0)
                 .Where(x => !endDate.HasValue || SqlFunctions.DateDiff("DAY", x.ReceiptDate, endDate) >= 0)
                 .OrderBy(x => x.ReceiptNumber)
@@ -46,8 +46,12 @@ namespace CashReceipts.Controllers
                             DepartmentId = x.DepartmentID,
                             ReceiptNumber = x.ReceiptNumber,
                             DepartmentName = x.Department.Name,
-                            Total = x.ReceiptTotal,
-                            Locked = x.IsPosted ? "Yes" : "No"
+                            Total = !x.IsDeleted ?  x.ReceiptTotal : 0M,
+                            VirtualTotal = !x.IsDeleted ? 0M : x.ReceiptTotal,
+                            Locked = x.IsPosted ? "Yes" : "No",
+                            Date = x.ReceiptDate.ToString("MM/dd/yyyy"),
+                            InTotal = !x.IsDeleted ? "True" : "False",
+                            Void = !x.IsDeleted ? string.Empty : "X"
                         }).ToList();
 
             if (summaryData.Any())
@@ -58,7 +62,7 @@ namespace CashReceipts.Controllers
                 if (differenceBetweenMinAndMax > summaryData.Count())
                 {
                     var missingReceiptNumbers = _db.ReceiptHeaders.Include(x => x.Department)
-                .Where(x => !x.IsDeleted && (!clerkId.HasValue || x.ClerkID == clerkId))
+                .Where(x =>  (!clerkId.HasValue || x.ClerkID == clerkId))
                 .Where(x => x.ReceiptNumber > minReceiptNumber && x.ReceiptNumber < maxReceiptNumber)
                 .OrderBy(x => x.ReceiptNumber)
                 .ToList()
@@ -71,7 +75,11 @@ namespace CashReceipts.Controllers
                             ReceiptNumber = x.ReceiptNumber,
                             DepartmentName = x.Department.Name,
                             Total = 0.00M,
-                            Locked = x.IsPosted ? "Yes" : "No"
+                            Locked = x.IsPosted ? "Yes" : "No",
+                            InTotal = "False",
+                            Void = !x.IsDeleted ? string.Empty : "X",
+                            VirtualTotal = x.ReceiptTotal,
+                            Date = x.ReceiptDate.ToString("MM/dd/yyyy")
                         }).ToList();
 
                     summaryData.AddRange(missingReceiptNumbers);// myList.DistinctBy(x => x.prop1).ToList();
