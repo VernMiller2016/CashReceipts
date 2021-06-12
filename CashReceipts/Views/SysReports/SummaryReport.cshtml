@@ -349,12 +349,12 @@
                     },
                     { field:  "Date", title: "Date", width: 90},
                     { field: "ReceiptNumber", title: "Receipt#", width: 90 },
-                    { field: "DepartmentName", title: "Department Name", width: 290 },
+                    { field: "DepartmentName", title: "Department Name", width: 200 },
                     { field: "Locked", title: "Is Locked", width: 90, hidden: @((!(bool)ViewBag.HasLockReceiptsAccess).ToString().ToLower())},
                     {
                         field: "Total",
                         title: "Total",
-                        width: 115,
+                        width: 100,
                         aggregates: ["sum"],
                         footerTemplate: "#=kendo.toString(sum, 'C')#",
                         format: "{0:n2}",
@@ -364,11 +364,11 @@
                     {
                         field: "VirtualTotal",
                         title: "Not Included Total",
-                        width: 110,
+                        width: 100,
                         format: "{0:n2}",
                     },
-                    { field: "Void", title: "Void", width: "30px" },
-                    { field: "InTotal", title: "In Total ?", width: "50px"}
+                    { field: "Void", title: "Void", width: "35px" },
+                    { field: "InTotal", title: "In Total ?", width: "55px"}
                 ];
                 summaryGrid = $("#grid")
                     .kendoGrid({
