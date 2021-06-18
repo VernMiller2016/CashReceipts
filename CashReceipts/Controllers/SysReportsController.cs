@@ -59,7 +59,7 @@ namespace CashReceipts.Controllers
                 var minReceiptNumber = summaryData.FirstOrDefault()?.ReceiptNumber;
                 var maxReceiptNumber = summaryData.LastOrDefault()?.ReceiptNumber;
                 var differenceBetweenMinAndMax = maxReceiptNumber - minReceiptNumber;
-                if (differenceBetweenMinAndMax > summaryData.Count())
+                if (differenceBetweenMinAndMax >= summaryData.Count())
                 {
                     var missingReceiptNumbers = _db.ReceiptHeaders.Include(x => x.Department)
                 .Where(x =>  (!clerkId.HasValue || x.ClerkID == clerkId))
